@@ -1,23 +1,26 @@
 package com.example.stealthecheese;
 
-import Repositories.ActivityRepository;
-import Repositories.CheeseRepository;
-import Repositories.UserRepository;
+import Repositories.CheeseDAO;
+import Repositories.TransactionDAO;
+import Repositories.TransactionDAOImpl;
+import Repositories.CheeseDAOImpl;
+import Repositories.UserDAO;
+import Repositories.UserDAOImpl;
 import Utilities.TransformerManager;
 
 
 public class UnitOfWork {
 	
-	public UserRepository userRepository;
-	public ActivityRepository activityRepository;
-	public CheeseRepository cheeseRepository;
+	public UserDAO userDAO;
+	public TransactionDAO activityDAO;
+	public CheeseDAO cheeseDAO;
 	
 	public UnitOfWork()
 	{
 		TransformerManager transformerManager = new TransformerManager();
-		this.userRepository = new UserRepository(transformerManager);
-		this.activityRepository = new ActivityRepository(transformerManager);
-		this.cheeseRepository = new CheeseRepository(transformerManager);
+		this.userDAO = new UserDAOImpl(transformerManager);
+		this.activityDAO = new TransactionDAOImpl(transformerManager);
+		this.cheeseDAO = new CheeseDAOImpl(transformerManager);
 	}
 	
 }

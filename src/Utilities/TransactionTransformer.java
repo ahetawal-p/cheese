@@ -3,13 +3,13 @@ package Utilities;
 import java.util.ArrayList;
 import java.util.List;
 
-import Models.Activity;
+import Models.Transaction;
 
 import com.parse.ParseObject;
 
-public class ActivityTransformer {
+public class TransactionTransformer {
 	
-	public ParseObject ReverseTransform(Activity activity)
+	public ParseObject ReverseTransform(Transaction activity)
 	{
 		ParseObject activityParseObj = new ParseObject("activity");
 		activityParseObj.put("fromUserId", activity.fromUserId);
@@ -19,18 +19,18 @@ public class ActivityTransformer {
 		return activityParseObj;
 	}
 	
-	public Activity Transform(ParseObject activityParseObj)
+	public Transaction Transform(ParseObject activityParseObj)
 	{
 		String fromUserId = activityParseObj.getString("fromUserId");
 		String toUserId = activityParseObj.getString("toUserId");
 		int cheese = activityParseObj.getInt("cheese");
 		
-		return new Activity(fromUserId, toUserId, cheese);
+		return new Transaction(fromUserId, toUserId, cheese);
 	}
 	
-	public List<Activity> Transform(List<ParseObject> activityParseObjs)
+	public List<Transaction> Transform(List<ParseObject> activityParseObjs)
 	{
-		List<Activity> activities = new ArrayList<Activity>();
+		List<Transaction> activities = new ArrayList<Transaction>();
 		for (final ParseObject activityParseObj : activityParseObjs)
 		{
 			activities.add(Transform(activityParseObj));

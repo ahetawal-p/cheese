@@ -8,34 +8,33 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import Models.Activity;
-import Models.Cheese;
+import Models.Transaction;
 import Utilities.TransformerManager;
 
-public class ActivityRepository {
+public class TransactionDAOImpl implements TransactionDAO{
 	
 	private TransformerManager transformerManager;
-	public ActivityRepository(TransformerManager transformerManager)
+	public TransactionDAOImpl(TransformerManager transformerManager)
 	{
 		this.transformerManager = transformerManager;
 	}
 	
-	public void createActivity(Activity activity)
+	public void createTransaction(Transaction transaction)
 	{
-		ParseObject activityParseObject = transformerManager.activityTransformer
-															.ReverseTransform(activity);
-		activityParseObject.saveEventually();
+		ParseObject transactionParseObject = transformerManager.transactionTransformer
+															.ReverseTransform(transaction);
+		transactionParseObject.saveEventually();
 	}
 	
-	public List<Activity> getActivities(String userId)
+	public List<Transaction> getTransactions(String userId)
 	{
-		final List<Activity> userActivities = new ArrayList<Activity>();
+		final List<Transaction> userTransactions = new ArrayList<Transaction>();
 		
 		//get activities where user either stole cheese or got stolen
-		ParseQuery<ParseObject> fromUser = ParseQuery.getQuery("activity");
+		ParseQuery<ParseObject> fromUser = ParseQuery.getQuery("transaction");
 		fromUser.whereEqualTo("fromUserId", userId);
 		
-		ParseQuery<ParseObject> toUser = ParseQuery.getQuery("activity");
+		ParseQuery<ParseObject> toUser = ParseQuery.getQuery("transaction");
 		toUser.whereEqualTo("toUserId", userId);
 		
 		List<ParseQuery<ParseObject>> queries = new ArrayList<ParseQuery<ParseObject>>();
@@ -46,7 +45,7 @@ public class ActivityRepository {
 		mainQuery.findInBackground(new FindCallback<ParseObject>() {
 			  public void done(List<ParseObject> results, ParseException e) {
 			        if (e == null) {
-			        	userActivities.addAll(transformerManager.activityTransformer.Transform(results));
+			        	userTransactions.addAll(transformerManager.transactionTransformer.Transform(results));
 			        } else {
 			        	//log error
 			        }
@@ -54,7 +53,7 @@ public class ActivityRepository {
 
 			});
 		
-		return userActivities;
+		return userTransactions;
 	}
 
 }

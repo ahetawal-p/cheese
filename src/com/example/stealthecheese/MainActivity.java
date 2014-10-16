@@ -1,6 +1,6 @@
 package com.example.stealthecheese;
 
-import Models.Activity;
+import Models.Transaction;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -25,8 +25,8 @@ public class MainActivity extends ActionBarActivity {
 		
 		//Test parse code
 		UnitOfWork uow = new UnitOfWork();
-		Activity newActivity = new Activity("testFromuserId", "testToUserId", 5);
-		uow.activityRepository.createActivity(newActivity);
+		Transaction newActivity = new Transaction("testFromuserId", "testToUserId", 5);
+		uow.activityDAO.createTransaction(newActivity);
 	}
 
 	@Override

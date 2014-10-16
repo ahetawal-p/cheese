@@ -10,11 +10,11 @@ import com.parse.ParseQuery;
 import Models.Cheese;
 import Utilities.TransformerManager;
 
-public class CheeseRepository {
+public class CheeseDAOImpl implements CheeseDAO {
 	
 	public TransformerManager transformerManager;
 	
-	public CheeseRepository(TransformerManager transformerManager)
+	public CheeseDAOImpl(TransformerManager transformerManager)
 	{
 		this.transformerManager = transformerManager;
 	}

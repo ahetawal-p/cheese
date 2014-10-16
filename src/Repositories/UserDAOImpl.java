@@ -2,10 +2,10 @@ package Repositories;
 
 import Utilities.TransformerManager;
 
-public class UserRepository {
+public class UserDAOImpl implements UserDAO {
 	
 	private TransformerManager transformerManager;
-	public UserRepository(TransformerManager transformerManager)
+	public UserDAOImpl(TransformerManager transformerManager)
 	{
 		this.transformerManager = transformerManager;
 	}
