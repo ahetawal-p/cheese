@@ -1,4 +1,11 @@
 # Ignore bin 
-bin
+bin/
 *.class
-bin/*.*
+
+# Ignore settings
+.settings
+.classpath
+.project
+
+
+
