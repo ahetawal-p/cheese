@@ -6,5 +6,6 @@ bin/
 .settings
 .classpath
 
-
+#Ignore gen
+gen/
 
