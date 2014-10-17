@@ -1,4 +1,4 @@
-package com.stealthecheese.activity;
+package com.stealthecheese.application;
 
 import android.app.Application;
 

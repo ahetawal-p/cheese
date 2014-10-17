@@ -1,4 +1,4 @@
-package com.stealthecheese.application;
+package com.stealthecheese.activity;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
