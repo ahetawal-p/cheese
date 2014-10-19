@@ -1,15 +1,17 @@
-package Repositories;
+package repositories;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import utilities.TransformerManager;
+
+import models.Transaction;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import Models.Transaction;
-import Utilities.TransformerManager;
 
 public class TransactionDAOImpl implements TransactionDAO{
 	
@@ -23,7 +25,15 @@ public class TransactionDAOImpl implements TransactionDAO{
 	{
 		ParseObject transactionParseObject = transformerManager.transactionTransformer
 															.ReverseTransform(transaction);
-		transactionParseObject.saveEventually();
+		try
+		{
+			transactionParseObject.save();
+		//transactionParseObject.saveEventually();
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex);
+		}
 	}
 	
 	public List<Transaction> getTransactions(String userId)

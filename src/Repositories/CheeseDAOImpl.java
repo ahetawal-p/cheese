@@ -1,14 +1,16 @@
-package Repositories;
+package repositories;
 
 import java.util.List;
+
+import utilities.TransformerManager;
+
+import models.Cheese;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import Models.Cheese;
-import Utilities.TransformerManager;
 
 public class CheeseDAOImpl implements CheeseDAO {
 	

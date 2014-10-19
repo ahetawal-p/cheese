@@ -1,8 +1,107 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.stealthecheese.MainActivity"
-    tools:ignore="MergeRootFrame" />
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:orientation="horizontal">
+    <LinearLayout 
+        android:id="@+id/leftContainer"
+	    android:layout_weight="1"
+	    android:background="#FF7F11"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent" 
+	    android:orientation="vertical">
+	    <LinearLayout 
+	        android:id="@+id/buttonsContainer"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginStart="10dp"
+	        android:layout_marginTop="20dp"
+	       	android:layout_width="60dp"
+	    	android:layout_height="30dp" 
+	    	android:orientation="horizontal">
+	        <ImageView
+		        android:id="@+id/settingImageView"
+		        android:layout_weight="1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/setting" />
+	    	<ImageView
+		        android:id="@+id/rankingImageView"
+		        android:layout_weight="1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/ranking" />
+	    </LinearLayout>
+	    <LinearLayout
+	        android:id="@+id/userContainer"
+	        android:layout_marginTop="30dp"
+	       	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content" 
+	    	android:orientation="vertical">
+	        <ImageView
+		        android:id="@+id/userProfileImageView"
+		        android:layout_gravity="center_horizontal"
+		        android:layout_weight="1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="fill_parent"
+		        android:background="@drawable/profile_self_2x"
+		        android:src="@drawable/cheese_count" />
+	        <LinearLayout 
+	            android:id="@+id/userCheeseCountContainer"
+	            android:layout_gravity="center_horizontal"
+	            android:layout_marginTop="5dp"
+		       	android:layout_width="100dp"
+		    	android:layout_height="wrap_content" 
+		    	android:orientation="horizontal"
+		    	android:background="@drawable/rectangle_round" >
+	            <ImageView
+			        android:id="@+id/cheeseCountImageView"
+			        android:layout_weight="1"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:src="@drawable/cheese_count" />
+	            <TextView
+			        android:id="@+id/cheeseCountTextView"
+			        android:layout_weight="1"
+			        android:gravity="center"
+			        android:layout_width="wrap_content"
+			        android:layout_height="fill_parent"
+			        android:text="x 16" />
+	        </LinearLayout>
+	        
+		    <LinearLayout
+	        	android:id="@+id/historyListContainer"
+	        	android:background="#fff"
+	            android:layout_gravity="center_horizontal"
+	            android:layout_marginTop="40dp"
+		       	android:layout_width="150dp"
+		    	android:layout_height="wrap_content" 
+		    	android:orientation="vertical">	
+		        <ListView
+		            android:id="@+id/historyListView"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content" 
+		            android:layout_marginTop="10dp"
+		            android:layout_marginBottom="10dp"
+					android:divider="@android:color/transparent"
+					android:dividerHeight="10dp">
+		        </ListView>	
+		    </LinearLayout>
+	    </LinearLayout>
+	</LinearLayout>
+	<LinearLayout 
+	    android:id="@+id/rightContainer"
+	    android:layout_weight="2"
+	     android:background="#FFB231"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent" 
+	    android:orientation="vertical">
+  		<ListView
+           android:id="@+id/friendsListView"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content" 
+           android:layout_marginTop="40dp"
+           android:layout_marginBottom="10dp"
+			android:divider="@android:color/transparent"
+			android:dividerHeight="25dp">
+       </ListView>	
+	</LinearLayout>
+</LinearLayout>

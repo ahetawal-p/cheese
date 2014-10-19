@@ -1,6 +1,6 @@
-package Utilities;
+package utilities;
 
-import Models.Cheese;
+import models.Cheese;
 
 import com.parse.ParseObject;
 

@@ -1,10 +1,11 @@
-package Repositories;
+package repositories;
 
 import java.util.List;
-import Models.Transaction;
+
+import models.Transaction;
 
 public interface TransactionDAO {
 	
-	void createTransaction(Transaction activity);	
+	void createTransaction(Transaction transaction);	
 	List<Transaction> getTransactions(String userId);
 }

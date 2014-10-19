@@ -1,4 +1,4 @@
-package Utilities;
+package utilities;
 
 //Cloud function implementations
 public class CloudFunctionServiceImpl implements CloudFunctionService {

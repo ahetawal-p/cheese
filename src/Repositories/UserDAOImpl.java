@@ -1,6 +1,6 @@
-package Repositories;
+package repositories;
 
-import Utilities.TransformerManager;
+import utilities.TransformerManager;
 
 public class UserDAOImpl implements UserDAO {
 	

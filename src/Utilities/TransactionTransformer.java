@@ -1,31 +1,32 @@
-package Utilities;
+package utilities;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Models.Transaction;
+import models.Transaction;
+
 
 import com.parse.ParseObject;
 
 public class TransactionTransformer {
 	
-	public ParseObject ReverseTransform(Transaction activity)
+	public ParseObject ReverseTransform(Transaction transaction)
 	{
-		ParseObject activityParseObj = new ParseObject("activity");
-		activityParseObj.put("fromUserId", activity.fromUserId);
-		activityParseObj.put("toUserId", activity.toUserId);
-		activityParseObj.put("cheese", activity.cheese);
+		ParseObject transactionParseObj = new ParseObject("transaction");
+		transactionParseObj.put("fromUserId", transaction.fromUserId);
+		transactionParseObj.put("toUserId", transaction.toUserId);
+		transactionParseObj.put("allowedToSteal", transaction.allowedToSteal);
 		
-		return activityParseObj;
+		return transactionParseObj;
 	}
 	
-	public Transaction Transform(ParseObject activityParseObj)
+	public Transaction Transform(ParseObject transactionParseObj)
 	{
-		String fromUserId = activityParseObj.getString("fromUserId");
-		String toUserId = activityParseObj.getString("toUserId");
-		int cheese = activityParseObj.getInt("cheese");
+		String fromUserId = transactionParseObj.getString("fromUserId");
+		String toUserId = transactionParseObj.getString("toUserId");
+		Boolean allowedToSteal = transactionParseObj.getBoolean("allowedToSteal");
 		
-		return new Transaction(fromUserId, toUserId, cheese);
+		return new Transaction(fromUserId, toUserId, allowedToSteal);
 	}
 	
 	public List<Transaction> Transform(List<ParseObject> activityParseObjs)

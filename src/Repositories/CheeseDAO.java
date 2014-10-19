@@ -1,6 +1,6 @@
-package Repositories;
+package repositories;
 
-import Models.Cheese;
+import models.Cheese;
 
 public interface CheeseDAO {
 	Cheese getCheese(String userId);
