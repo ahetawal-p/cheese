@@ -4,6 +4,15 @@
     <string name="app_name">StealTheCheese</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="facebook_app_id">1510217342567748</string>
-
+    
+    <!-- <string name="facebook_app_id">1510217342567748</string>  -->
+	
+	<!-- Amits -->
+    <string name="facebook_app_id">1542006186029486</string>
+    
+    <string name="login_intro">Test login</string>
+    <string name="login">Login FB</string>
+    
+    <string name="logout">Logout FB</string>
+     
 </resources>
