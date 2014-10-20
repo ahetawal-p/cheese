@@ -110,9 +110,9 @@ public class MainActivity extends ActionBarActivity {
 				loggedInUser.put("facebookId", user.getId());
 				loggedInUser.put("firstName", user.getFirstName());
 				loggedInUser.put("lastName", user.getLastName());
-				
 				// Use ProfilePictureView if needed for UI
 				loggedInUser.put("profilePicUrl", String.format(StealTheCheeseApplication.PROFILE_PIC_URL, user.getId()));
+				loggedInUser.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
 				getAndSaveFBUserFriendsInfo(loggedInUser);
 			}
 		});

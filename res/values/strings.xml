@@ -14,5 +14,6 @@
     <string name="login">Login FB</string>
     
     <string name="logout">Logout FB</string>
-     
+    
+    <integer name="initialCheeseCount">20</integer>
 </resources>

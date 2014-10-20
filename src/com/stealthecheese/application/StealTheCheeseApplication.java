@@ -12,6 +12,8 @@ public class StealTheCheeseApplication extends Application {
 	public static final String LOG_TAG = "stealcheese";
 	public static final String PROFILE_PIC_URL = "https://graph.facebook.com/%s/picture";
 	
+	
+	
   @Override
   public void onCreate() {
     super.onCreate();
