@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -19,25 +20,20 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
-import com.stealthecheese.MainPageActivity;
 import com.stealthecheese.R;
 import com.stealthecheese.application.StealTheCheeseApplication;
-import com.stealthecheese.model.User;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 	
 	private Button loginButton;
 	private Button logoutButton;
-	List<String> friendsList;
-	List<User> userFriendsList;
-	User playerUser;
+	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		userFriendsList = new ArrayList<User>();
 		//Test parse code
 		//UnitOfWork uow = new UnitOfWork();
 		//Transaction newActivity = new Transaction("testFromuserId", "testToUserId", 5);
@@ -97,23 +93,12 @@ public class MainActivity extends Activity {
 				} else {
 					Log.i(StealTheCheeseApplication.LOG_TAG,
 							"User logged in through Facebook!");
-					getFBUserFriendsInfo(user);
+
 					//showUserDetailsActivity();
 				}
 			}
 		});
-	}
-	
-	/* Start MainPage activity after user logs in and pass over user/friends data */
-	private void startMainPageActivity()
-	{
-		Intent mainPageIntent = new Intent();
-		Bundle b = new Bundle();
-		b.putParcelable("user", playerUser);
-		b.putParcelableArrayList("friends", (ArrayList<? extends Parcelable>)userFriendsList);
-		mainPageIntent.putExtras(b);
-		mainPageIntent.setClass(MainActivity.this, MainPageActivity.class);
-		startActivity(mainPageIntent);
+
 	}
 	
 	
@@ -128,7 +113,6 @@ public class MainActivity extends Activity {
 				// Use ProfilePictureView if needed for UI
 				loggedInUser.put("profilePicUrl", String.format(StealTheCheeseApplication.PROFILE_PIC_URL, user.getId()));
 				loggedInUser.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
-				
 				getAndSaveFBUserFriendsInfo(loggedInUser);
 			}
 		});
@@ -148,9 +132,6 @@ public class MainActivity extends Activity {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
 					for(GraphUser friend : friends){
 						friendsList.add(friend.getId());
-						/* adding this for now to create list of friends with cheese count and image URL */
-						String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getId());
-						userFriendsList.add(new User(friend.getId(), 20, imageUrl));
 					}
 
 				}
@@ -158,8 +139,6 @@ public class MainActivity extends Activity {
 				
 				//TODO: Do we need the callback version of this save in case of new friends updated ??
 				loggedInUser.saveInBackground();
-				//Start new activity		
-				startMainPageActivity();
 			}
 
 		});
@@ -167,34 +146,26 @@ public class MainActivity extends Activity {
 
 	}
 	
-	private void getFBUserFriendsInfo(final ParseUser loggedInUser) {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
 
-		// Returns only the list of friends which use the app also
-		Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(),
-				new Request.GraphUserListCallback() {
-			@Override
-			public void onCompleted(List<GraphUser> friends, Response response) {
-				List<String> friendsList = new ArrayList<String>();
-				if(friends.size() > 0){
-					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
-					for(GraphUser friend : friends){
-						friendsList.add(friend.getId());
-						/* adding this for now to create list of friends with cheese count and image URL */
-						String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getId());
-						userFriendsList.add(new User(friend.getId(), 20, imageUrl));
-					}
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
-				}
-				loggedInUser.addAllUnique("friends", friendsList);
-				
-				//Start new activity		
-				startMainPageActivity();
-			}
-
-		});
-		request.executeAsync();
-
-	}	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_settings) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

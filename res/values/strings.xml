@@ -11,11 +11,16 @@
     <!-- Amits -->
     <string name="facebook_app_id">1542006186029486</string>
     <string name="login_intro">Test login</string>
-    <string name="login">Login FB</string>
-    <string name="logout">Logout FB</string>
+    <string name="login">Sign in</string>
+    <string name="logout">Logout Out</string>
 
     <integer name="initialCheeseCount">20</integer>
 
+    <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_main_page">MainPageActivity</string>
-
+    
+     <string name="cheezTitle">mycheez</string>
+	
+     <string name="com_parse_ui_facebook_login_button_label">Log in with Facebook</string>
+    
 </resources>
