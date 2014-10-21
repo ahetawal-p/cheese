@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.os.Parcelable;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -20,14 +19,19 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+import com.stealthecheese.MainPageActivity;
 import com.stealthecheese.R;
 import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.model.User;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 	
 	private Button loginButton;
 	private Button logoutButton;
+	List<User> playersFriends;
+	User playerUser;
+	
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,7 @@ public class MainActivity extends ActionBarActivity {
 		//UnitOfWork uow = new UnitOfWork();
 		//Transaction newActivity = new Transaction("testFromuserId", "testToUserId", 5);
 		//uow.activityDAO.createTransaction(newActivity);
+		playersFriends = new ArrayList<User>();
 		
 		loginButton = (Button) findViewById(R.id.loginButton);
 		loginButton.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +80,16 @@ public class MainActivity extends ActionBarActivity {
 		
 		
 	}
-
+	
+	private void startMainPageActivity()
+	{
+		Bundle b = new Bundle();
+		Intent intent = new Intent(MainActivity.this, MainPageActivity.class);		
+		b.putParcelableArrayList("friends", (ArrayList<? extends Parcelable>) playersFriends);
+		intent.putExtras(b);
+		startActivity(intent);
+	}
+	
 	private void onLoginButtonClicked() {
 
 		List<String> permissions = Arrays.asList("public_profile", "user_friends");
@@ -93,7 +107,7 @@ public class MainActivity extends ActionBarActivity {
 				} else {
 					Log.i(StealTheCheeseApplication.LOG_TAG,
 							"User logged in through Facebook!");
-
+					getFBUserFriendsInfo(user);
 					//showUserDetailsActivity();
 				}
 			}
@@ -132,6 +146,8 @@ public class MainActivity extends ActionBarActivity {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
 					for(GraphUser friend : friends){
 						friendsList.add(friend.getId());
+						/*storing data into playersFriends to pass over to Main Page Activity*/
+						playersFriends.add(new User(friend.getId(), 20));
 					}
 
 				}
@@ -139,6 +155,8 @@ public class MainActivity extends ActionBarActivity {
 				
 				//TODO: Do we need the callback version of this save in case of new friends updated ??
 				loggedInUser.saveInBackground();
+				
+				
 			}
 
 		});
@@ -146,33 +164,32 @@ public class MainActivity extends ActionBarActivity {
 
 	}
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	
+	private void getFBUserFriendsInfo(final ParseUser loggedInUser) {
 
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+		// Returns only the list of friends which use the app also
+		Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(),
+				new Request.GraphUserListCallback() {
+			@Override
+			public void onCompleted(List<GraphUser> friends, Response response) {
+				List<String> friendsList = new ArrayList<String>();
+				if(friends.size() > 0){
+					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
+					for(GraphUser friend : friends){
+						friendsList.add(friend.getId());
+						/*storing data into playersFriends to pass over to Main Page Activity*/
+						playersFriends.add(new User(friend.getId(), 20));
+					}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+				}
+			
+				startMainPageActivity();
+
+			}
+
+		});
+		request.executeAsync();
+
 	}
-	
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	  super.onActivityResult(requestCode, resultCode, data);
-	  ParseFacebookUtils.finishAuthentication(requestCode, resultCode, data);
-	}
-	
-	
 	
 }

@@ -33,14 +33,14 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
+        <activity
+            android:name=".activity.MainActivity"
+            android:label="@string/title_activity_main" >
+        </activity>
         <activity
             android:name=".MainPageActivity"
             android:label="@string/title_activity_main_page"
             android:theme="@android:style/Theme.NoTitleBar" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.stealthecheese.activity.MainActivity" />
         </activity>
     </application>
 

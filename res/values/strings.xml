@@ -18,7 +18,7 @@
 
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_main_page">MainPageActivity</string>
-    
+    <string name="title_activity_main">MainActivity</string>
      <string name="cheezTitle">mycheez</string>
 	
      <string name="com_parse_ui_facebook_login_button_label">Log in with Facebook</string>

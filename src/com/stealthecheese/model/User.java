@@ -5,24 +5,17 @@ import android.os.Parcelable;
 
 public class User implements Parcelable{
 	private int cheese;
-	private String imageUrl;
 	private String facebookId;
 	
-	public User(String facebookId, int cheese, String imageUrl)
+	public User(String facebookId, int cheese)
 	{
 		this.facebookId = facebookId;
 		this.cheese = cheese;
-		this.imageUrl = imageUrl;
 	}
 	
 	public int getCheese()
 	{
 		return this.cheese;
-	}
-	
-	public String getImageUrl()
-	{
-		return this.imageUrl;
 	}
 	
 	public String getFacebookId()
@@ -34,7 +27,6 @@ public class User implements Parcelable{
 	{
 		this.facebookId = in.readString();
         this.cheese = in.readInt();
-        this.imageUrl = in.readString();
     }
 	
 	@Override
@@ -46,15 +38,12 @@ public class User implements Parcelable{
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(facebookId);
-		dest.writeInt(this.cheese);
-		dest.writeString(this.imageUrl);
-		
+		dest.writeInt(this.cheese);		
 	}
 
 	private void readFromParcel(Parcel in) {
 		facebookId = in.readString();
 	    cheese = in.readInt();
-	    imageUrl = in.readString();
 	}
 	
    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {

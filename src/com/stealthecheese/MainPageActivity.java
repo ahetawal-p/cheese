@@ -67,7 +67,6 @@ public class MainPageActivity extends Activity {
 		populateFriendsListview(friends);
 	}
 	
-	//Temp code to populate dummy friend list
 	private void populateFriendsListview(List<User> friends)
 	{
 		friendsList = new ArrayList<FriendViewModel>();	
