@@ -1,13 +1,11 @@
-package adapters;
+package com.stealthecheese.adapter;
 
 import java.util.ArrayList;
 
 import com.stealthecheese.R;
 import com.stealthecheese.activity.MainActivity;
-import com.stealthecheese.util.BitmapRetrieveTask;
+import com.stealthecheese.viewmodel.HistoryViewModel;
 
-import viewModels.FriendViewModel;
-import viewModels.HistoryViewModel;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -20,18 +18,18 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class FriendsListAdapter extends BaseAdapter   implements OnClickListener {
+public class HistoryListAdapter extends BaseAdapter   implements OnClickListener {
     
     /*********** Declare Used Variables *********/
     private Activity activity;
     private ArrayList data;
     private static LayoutInflater inflater=null;
     public Resources res;
-    FriendViewModel tempValues=null;
+    HistoryViewModel tempValues=null;
     int i=0;
      
     /*************  CustomAdapter Constructor *****************/
-    public FriendsListAdapter(Activity a, ArrayList d,Resources resLocal) {
+    public HistoryListAdapter(Activity a, ArrayList d,Resources resLocal) {
          
            /********** Take passed values **********/
             activity = a;
@@ -61,8 +59,10 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     }
      
     /********* Create a holder Class to contain inflated xml file elements *********/
-    public static class ViewHolder{   
-        public TextView counterTextView;
+    public static class ViewHolder{
+         
+        public TextView friendNameTextView;
+        public TextView stoleCheeseTextView;
         public ImageView friendImageView;
  
     }
@@ -76,13 +76,14 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
         if(convertView==null){
              
             /****** Inflate tabitem.xml file for each row ( Defined below ) *******/
-            vi = inflater.inflate(R.layout.friend_row, null);
+            vi = inflater.inflate(R.layout.history_row, null);
              
             /****** View Holder Object to contain tabitem.xml file elements ******/
 
             holder = new ViewHolder();
-            holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
-            holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
+            holder.friendNameTextView = (TextView) vi.findViewById(R.id.friendNameTextview);
+            holder.stoleCheeseTextView=(TextView)vi.findViewById(R.id.stoleCheeseTextView);
+            holder.friendImageView=(ImageView)vi.findViewById(R.id.image);
              
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
@@ -92,21 +93,24 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
          
         if(data.size()<=0)
         {
-            Log.v("FriendsListAdapter", "No friend items");
+            Log.v("HistoryListAdapter", "No history list items");
              
         }
         else
         {
             /***** Get each Model object from Arraylist ********/
             tempValues=null;
-            tempValues = ( FriendViewModel ) data.get( position );
+            tempValues = ( HistoryViewModel ) data.get( position );
              
             /************  Set Model values in Holder elements ***********/
 
-             holder.counterTextView.setText(Integer.toString(tempValues.getCheese()));
-             //holder.friendImageView.setImageBitmap(tempValues.getImageBitmap());
-             BitmapRetrieveTask task = new BitmapRetrieveTask(holder.friendImageView);
-             task.execute(tempValues.getFacebookId());
+             holder.friendNameTextView.setText( tempValues.getFriendName());
+             holder.stoleCheeseTextView.setText( tempValues.getStoleCheeseMessage() );
+//              holder.friendImageView.setImageResource(
+//                          res.getIdentifier(
+//                          "com.androidexample.customlistview:drawable/"+tempValues.getImageString()
+//                          ,null,null));
+              
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
              vi.setOnClickListener(new OnItemClickListener( position ));
@@ -116,7 +120,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
      
     @Override
     public void onClick(View v) {
-            Log.v("FriendsListAdapter", "=====Row button clicked=====");
+            Log.v("HistoryListAdapter", "=====Row button clicked=====");
     }
      
     /********* Called when Item click in ListView ************/

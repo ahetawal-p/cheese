@@ -1,4 +1,4 @@
-package viewModels;
+package com.stealthecheese.viewmodel;
 
 public class HistoryViewModel {
 	private String friendName = "";

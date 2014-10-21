@@ -1,4 +1,4 @@
-package viewModels;
+package com.stealthecheese.viewmodel;
 
 import android.graphics.Bitmap;
 

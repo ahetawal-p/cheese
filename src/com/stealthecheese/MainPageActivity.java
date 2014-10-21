@@ -11,15 +11,15 @@ import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+import com.stealthecheese.adapter.FriendsListAdapter;
+import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.model.User;
 import com.stealthecheese.util.BitmapRetrieveTask;
+import com.stealthecheese.viewmodel.FriendViewModel;
+import com.stealthecheese.viewmodel.HistoryViewModel;
 
-import viewModels.FriendViewModel;
-import viewModels.HistoryViewModel;
 
-import adapters.FriendsListAdapter;
-import adapters.HistoryListAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
