@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:orientation="horizontal">
+   	<LinearLayout 
+    	android:orientation="horizontal"
+    	android:id="@+id/historyImageContainer"
+    	android:layout_weight="2"
+    	android:gravity="center"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent">
+	   <ImageView
+	       android:id="@+id/historyImageView"
+	       android:layout_width="wrap_content"
+	       android:layout_height="wrap_content"
+	       android:background="@drawable/profile_contacts"
+	       android:src="@drawable/cheese_count" />
+	</LinearLayout>
+	<LinearLayout 
+	    	android:orientation="vertical"
+	    	android:id="@+id/historyTextContainer"
+	    	android:layout_weight="1"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="fill_parent">
+	    <TextView
+	        android:id="@+id/friendNameTextview"
+	        android:layout_weight="1"
+	        android:gravity="center"
+	        android:layout_width="wrap_content"
+	        android:layout_height="fill_parent"
+	        android:textSize="10dp"
+	        android:textColor="#00C7D8"
+	        android:text="Friend Name" />
+	    <TextView 
+	        android:id="@+id/stoleCheeseTextView"
+	        android:layout_weight="1"
+	        android:gravity="center"
+	        android:layout_width="wrap_content"
+	        android:layout_height="fill_parent"
+	        android:textSize="10dp"
+	        android:textColor="#8A8782"
+	        android:text="stole your cheese"/>
+	</LinearLayout>
+</LinearLayout>
