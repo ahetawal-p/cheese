@@ -19,7 +19,6 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
-import com.stealthecheese.MainPageActivity;
 import com.stealthecheese.R;
 import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.model.User;
@@ -84,7 +83,7 @@ public class MainActivity extends Activity {
 	private void startMainPageActivity()
 	{
 		Bundle b = new Bundle();
-		Intent intent = new Intent(MainActivity.this, MainPageActivity.class);		
+		Intent intent = new Intent(MainActivity.this, TheftActivity.class);		
 		b.putParcelableArrayList("friends", (ArrayList<? extends Parcelable>) playersFriends);
 		intent.putExtras(b);
 		startActivity(intent);

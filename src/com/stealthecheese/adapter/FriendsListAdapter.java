@@ -6,7 +6,6 @@ import com.stealthecheese.R;
 import com.stealthecheese.activity.MainActivity;
 import com.stealthecheese.util.BitmapRetrieveTask;
 import com.stealthecheese.viewmodel.FriendViewModel;
-import com.stealthecheese.viewmodel.HistoryViewModel;
 
 import android.app.Activity;
 import android.content.Context;
@@ -109,7 +108,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              task.execute(tempValues.getFacebookId());
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
-             vi.setOnClickListener(new OnItemClickListener( position ));
+             //vi.setOnClickListener(new OnItemClickListener( position ));
         }
         return vi;
     }
@@ -123,9 +122,9 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     private class OnItemClickListener  implements OnClickListener{           
         private int mPosition;
          
-        OnItemClickListener(int position){
-             mPosition = position;
-        }
+//        OnItemClickListener(int position){
+//             mPosition = position;
+//        }
          
         @Override
         public void onClick(View arg0) {

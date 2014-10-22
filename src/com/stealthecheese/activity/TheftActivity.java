@@ -1,4 +1,4 @@
-package com.stealthecheese;
+package com.stealthecheese.activity;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,6 +11,9 @@ import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+import com.stealthecheese.R;
+import com.stealthecheese.R.id;
+import com.stealthecheese.R.layout;
 import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
@@ -29,7 +32,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 
-public class MainPageActivity extends Activity {
+public class TheftActivity extends Activity {
 	ListView historyListView;
 	ListView friendsListView;
 	ArrayList<HistoryViewModel> historyList;
@@ -40,7 +43,7 @@ public class MainPageActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main_page);		
+		setContentView(R.layout.activity_theft);		
 
 		fetchProperties(savedInstanceState);
 		populateHistoryListview();
@@ -69,7 +72,7 @@ public class MainPageActivity extends Activity {
 	
 	private void populateFriendsListview(List<User> friends)
 	{
-		friendsList = new ArrayList<FriendViewModel>();	
+		friendsList = new ArrayList<FriendViewModel>(friends.size());	
 		for(User friend : friends)
 		{
 			friendsList.add(new FriendViewModel(friend.getFacebookId(), friend.getCheese()));
