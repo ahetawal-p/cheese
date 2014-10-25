@@ -13,8 +13,7 @@
 	       android:id="@+id/historyImageView"
 	       android:layout_width="wrap_content"
 	       android:layout_height="wrap_content"
-	       android:background="@drawable/profile_contacts"
-	       android:src="@drawable/cheese_count" />
+	       android:background="@drawable/profile_contacts" />
 	</LinearLayout>
 	<LinearLayout 
 	    	android:orientation="vertical"
@@ -39,6 +38,6 @@
 	        android:layout_height="fill_parent"
 	        android:textSize="10dp"
 	        android:textColor="#8A8782"
-	        android:text="stole your cheese"/>
+	        android:text="@string/cheese_theft_message"/>
 	</LinearLayout>
 </LinearLayout>

@@ -11,7 +11,7 @@ public class StealTheCheeseApplication extends Application {
 	
 	public static final String LOG_TAG = "stealcheese";
 	public static final String PROFILE_PIC_URL = "https://graph.facebook.com/%s/picture";
-	public static final String FRIEND_CHEESE_COUNT_PIC_URL = "https://graph.facebook.com/%S/picture?type=small";
+	public static final String FRIEND_CHEESE_COUNT_PIC_URL = "https://graph.facebook.com/%S/picture?type=normal";
 	public static final String FRIEND_HISTORY_PIC_URL = "https://graph.facebook.com/%S/picture?type=small";
 
 	

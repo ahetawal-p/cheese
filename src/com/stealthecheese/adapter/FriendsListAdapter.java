@@ -2,10 +2,14 @@ package com.stealthecheese.adapter;
 
 import java.util.ArrayList;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
 import com.stealthecheese.activity.MainActivity;
+import com.stealthecheese.activity.TheftActivity;
 import com.stealthecheese.util.BitmapRetrieveTask;
-import com.stealthecheese.viewmodel.FriendViewModel;
+import com.stealthecheese.util.CircleTransform;
+import com.stealthecheese.viewmodel.PlayerViewModel;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,7 +30,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     private ArrayList data;
     private static LayoutInflater inflater=null;
     public Resources res;
-    FriendViewModel tempValues=null;
+    PlayerViewModel tempValues=null;
     int i=0;
      
     /*************  CustomAdapter Constructor *****************/
@@ -82,7 +86,8 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             holder = new ViewHolder();
             holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
             holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
-             
+            holder.friendImageView.setOnClickListener(new OnImageClickListener(position));
+            
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
         }
@@ -98,26 +103,51 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
         {
             /***** Get each Model object from Arraylist ********/
             tempValues=null;
-            tempValues = ( FriendViewModel ) data.get( position );
+            tempValues = ( PlayerViewModel ) data.get( position );
              
             /************  Set Model values in Holder elements ***********/
 
              holder.counterTextView.setText(Integer.toString(tempValues.getCheese()));
-             //holder.friendImageView.setImageBitmap(tempValues.getImageBitmap());
-             BitmapRetrieveTask task = new BitmapRetrieveTask(holder.friendImageView);
-             task.execute(tempValues.getFacebookId());
+             
+             //use Picasso to load image into ImageView
+             String imageUrl = tempValues.getImageString();
+             Transformation circleTransform = new CircleTransform();
+             Picasso.with(activity).load(imageUrl).transform(circleTransform).into(holder.friendImageView);
+
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
              //vi.setOnClickListener(new OnItemClickListener( position ));
         }
         return vi;
     }
-     
+    
+    public void disableFriendListItem(int position)
+    {
+    	
+    }
+    
     @Override
     public void onClick(View v) {
             Log.v("FriendsListAdapter", "=====Row button clicked=====");
     }
-     
+    
+    /* Called when image is clicked in ListView */
+    private class OnImageClickListener  implements OnClickListener{           
+        private int mPosition;
+         
+        OnImageClickListener(int position){
+             mPosition = position;
+        }
+         
+        @Override
+        public void onClick(View arg0) 
+        {
+          TheftActivity sct = (TheftActivity)activity;
+          sct.onImageClicked(arg0, mPosition);
+        }               
+    }   
+    
+    
     /********* Called when Item click in ListView ************/
     private class OnItemClickListener  implements OnClickListener{           
         private int mPosition;
