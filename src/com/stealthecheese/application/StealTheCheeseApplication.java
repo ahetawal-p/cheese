@@ -10,6 +10,7 @@ import com.stealthecheese.R;
 public class StealTheCheeseApplication extends Application {
 	
 	public static final String LOG_TAG = "stealcheese";
+	public static final String PIN_TAG = "appData";
 	public static final String PROFILE_PIC_URL = "https://graph.facebook.com/%s/picture";
 	public static final String FRIEND_CHEESE_COUNT_PIC_URL = "https://graph.facebook.com/%S/picture?type=small";
 	public static final String FRIEND_HISTORY_PIC_URL = "https://graph.facebook.com/%S/picture?type=small";
@@ -20,6 +21,9 @@ public class StealTheCheeseApplication extends Application {
     super.onCreate();
     // Add your initialization code here
      Parse.initialize(this, "nNADkosy5X7RyeklWIDkBqdYdEkI0RGpklYvm456", "0K62bbYxCq5U6hHo2XcWJ5fxbxjdYOB606tT0xdM");
+    
+    // enable local store
+    Parse.enableLocalDatastore(this);
     
     // (Amits ) Add your initialization code here
     //Parse.initialize(this, "He3esVXQ8BlaHA5ArPFQlM7YLvzDfgjpnL9INv0C", "zV6XlXFZ1AhqPUtiDveOUhjN5gZM11zG68qazbEr");
