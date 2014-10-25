@@ -2,26 +2,22 @@ package com.stealthecheese.viewmodel;
 
 import android.graphics.Bitmap;
 
-public class FriendViewModel {
+public class PlayerViewModel {
 	private int cheese = 0;
 	private String facebookId;
+	private String imageString;
 	
-	public FriendViewModel(String facebookId, int cheese)
+	public PlayerViewModel(String facebookId, String imageString, int cheese)
 	{
 		this.facebookId = facebookId;
+		this.imageString = imageString;
 		this.cheese = cheese;
 	}
 	
-	
-	/*public String getImageString()
+	public String getImageString()
 	{
 		return this.imageString;
 	}
-	
-	public Bitmap getImageBitmap()
-	{
-		return this.imageBitmap;
-	}*/
 	
 	public String getFacebookId()
 	{

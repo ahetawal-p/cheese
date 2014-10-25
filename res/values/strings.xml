@@ -22,5 +22,7 @@
      <string name="cheezTitle">mycheez</string>
 	
      <string name="com_parse_ui_facebook_login_button_label">Log in with Facebook</string>
-    
+     
+     <!-- TheftActivity -->
+     <string name="cheese_theft_message">Stole your cheese</string>
 </resources>

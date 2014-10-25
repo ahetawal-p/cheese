@@ -2,6 +2,14 @@ package com.stealthecheese.adapter;
 
 import java.util.ArrayList;
 
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+import com.stealthecheese.R;
+import com.stealthecheese.util.CircleTransform;
+import com.stealthecheese.viewmodel.HistoryViewModel;
+
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -62,7 +70,7 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
          
         public TextView friendNameTextView;
         public TextView stoleCheeseTextView;
-        public ImageView friendImageView;
+        public ImageView historyImageView;
  
     }
  
@@ -82,7 +90,7 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
             holder = new ViewHolder();
             holder.friendNameTextView = (TextView) vi.findViewById(R.id.friendNameTextview);
             holder.stoleCheeseTextView=(TextView)vi.findViewById(R.id.stoleCheeseTextView);
-            holder.friendImageView=(ImageView)vi.findViewById(R.id.image);
+            holder.historyImageView=(ImageView)vi.findViewById(R.id.historyImageView);
              
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
@@ -104,11 +112,10 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
             /************  Set Model values in Holder elements ***********/
 
              holder.friendNameTextView.setText( tempValues.getFriendName());
-             holder.stoleCheeseTextView.setText( tempValues.getStoleCheeseMessage() );
-//              holder.friendImageView.setImageResource(
-//                          res.getIdentifier(
-//                          "com.androidexample.customlistview:drawable/"+tempValues.getImageString()
-//                          ,null,null));
+             //use Picasso to load image into ImageView
+             String imageUrl = tempValues.getImageString();
+             Transformation circleTransform = new CircleTransform();
+             Picasso.with(activity).load(imageUrl).transform(circleTransform).into(holder.historyImageView);
               
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
