@@ -32,7 +32,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.stealthecheese.MainPageActivity;
 import com.stealthecheese.R;
 import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.model.User;
@@ -227,7 +226,7 @@ public class LoginActivity extends Activity {
 	
 	private void startMainPageActivity() {
 		Bundle b = new Bundle();
-		Intent intent = new Intent(LoginActivity.this, MainPageActivity.class);		
+		Intent intent = new Intent(LoginActivity.this, TheftActivity.class);		
 		b.putParcelableArrayList("friends", (ArrayList<? extends Parcelable>) playersFriends);
 		intent.putExtras(b);
 		startActivity(intent);

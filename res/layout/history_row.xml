@@ -2,7 +2,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
     android:orientation="horizontal">
-   	<LinearLayout 
+    <!-- removing friend image from history view -->
+   	<!--<LinearLayout 
     	android:orientation="horizontal"
     	android:id="@+id/historyImageContainer"
     	android:layout_weight="2"
@@ -14,11 +15,11 @@
 	       android:layout_width="wrap_content"
 	       android:layout_height="wrap_content"
 	       android:background="@drawable/profile_contacts" />
-	</LinearLayout>
+	</LinearLayout>-->
 	<LinearLayout 
 	    	android:orientation="vertical"
 	    	android:id="@+id/historyTextContainer"
-	    	android:layout_weight="1"
+	    	android:gravity="center"
 	    	android:layout_width="fill_parent"
 	    	android:layout_height="fill_parent">
 	    <TextView

@@ -66,8 +66,6 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
          
         public TextView friendNameTextView;
         public TextView stoleCheeseTextView;
-        public ImageView historyImageView;
- 
     }
  
     /****** Depends upon data size called for each row , Create each ListView row *****/
@@ -86,7 +84,6 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
             holder = new ViewHolder();
             holder.friendNameTextView = (TextView) vi.findViewById(R.id.friendNameTextview);
             holder.stoleCheeseTextView=(TextView)vi.findViewById(R.id.stoleCheeseTextView);
-            holder.historyImageView=(ImageView)vi.findViewById(R.id.historyImageView);
              
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
@@ -111,7 +108,6 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
              //use Picasso to load image into ImageView
              String imageUrl = tempValues.getImageString();
              Transformation circleTransform = new CircleTransform();
-             Picasso.with(activity).load(imageUrl).transform(circleTransform).into(holder.historyImageView);
               
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
