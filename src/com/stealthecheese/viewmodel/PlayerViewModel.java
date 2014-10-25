@@ -1,6 +1,5 @@
 package com.stealthecheese.viewmodel;
 
-import android.graphics.Bitmap;
 
 public class PlayerViewModel {
 	private int cheese = 0;

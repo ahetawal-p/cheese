@@ -2,14 +2,6 @@ package com.stealthecheese.adapter;
 
 import java.util.ArrayList;
 
-
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
-import com.stealthecheese.R;
-import com.stealthecheese.util.CircleTransform;
-import com.stealthecheese.viewmodel.HistoryViewModel;
-
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -22,17 +14,20 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
+import com.stealthecheese.util.CircleTransform;
 import com.stealthecheese.viewmodel.HistoryViewModel;
 
-public class HistoryListAdapter extends BaseAdapter   implements OnClickListener {
+public class HistoryListAdapter extends BaseAdapter implements OnClickListener {
     
     /*********** Declare Used Variables *********/
     private Activity activity;
-    private ArrayList data;
-    private static LayoutInflater inflater=null;
-    public Resources res;
-    HistoryViewModel tempValues=null;
+    private ArrayList<HistoryViewModel> data;
+    private static LayoutInflater inflater;
+    private Resources res;
+    private HistoryViewModel tempValues;
     int i=0;
      
     /*************  CustomAdapter Constructor *****************/

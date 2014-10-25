@@ -3,27 +3,6 @@ package com.stealthecheese.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import android.app.Activity;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.widget.ListView;
-
-import com.stealthecheese.R;
-import com.stealthecheese.adapter.FriendsListAdapter;
-import com.stealthecheese.adapter.HistoryListAdapter;
-import com.stealthecheese.model.User;
-import com.stealthecheese.viewmodel.FriendViewModel;
-import com.stealthecheese.viewmodel.HistoryViewModel;
-
-import com.stealthecheese.R;
-import com.stealthecheese.adapter.FriendsListAdapter;
-import com.stealthecheese.adapter.HistoryListAdapter;
-import com.stealthecheese.adapter.UserViewAdapter;
-import com.stealthecheese.application.StealTheCheeseApplication;
-import com.stealthecheese.model.User;
-import com.stealthecheese.viewmodel.PlayerViewModel;
-import com.stealthecheese.viewmodel.HistoryViewModel;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -31,11 +10,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.stealthecheese.R;
+import com.stealthecheese.adapter.FriendsListAdapter;
+import com.stealthecheese.adapter.HistoryListAdapter;
+import com.stealthecheese.adapter.UserViewAdapter;
+import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.model.User;
+import com.stealthecheese.viewmodel.HistoryViewModel;
+import com.stealthecheese.viewmodel.PlayerViewModel;
 
 
 public class TheftActivity extends Activity {
@@ -104,8 +90,7 @@ public class TheftActivity extends Activity {
 	}
 	
 	/* handle user click on friends image view */
-	public void onImageClicked(View imageViewClicked, int position)
-	{
+	public void onImageClicked(View imageViewClicked, int position) {
     	String facebookId = getFriendFacebookId(position);
     	animateCheeseTheft(imageViewClicked);
     	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + facebookId, 3).show();

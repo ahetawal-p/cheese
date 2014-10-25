@@ -2,15 +2,6 @@ package com.stealthecheese.adapter;
 
 import java.util.ArrayList;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
-import com.stealthecheese.R;
-import com.stealthecheese.activity.TheftActivity;
-import com.stealthecheese.util.BitmapRetrieveTask;
-import com.stealthecheese.util.CircleTransform;
-import com.stealthecheese.viewmodel.PlayerViewModel;
-
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -23,15 +14,18 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
-import com.stealthecheese.util.BitmapRetrieveTask;
-import com.stealthecheese.viewmodel.FriendViewModel;
+import com.stealthecheese.activity.TheftActivity;
+import com.stealthecheese.util.CircleTransform;
+import com.stealthecheese.viewmodel.PlayerViewModel;
 
 public class FriendsListAdapter extends BaseAdapter   implements OnClickListener {
     
     /*********** Declare Used Variables *********/
     private Activity activity;
-    private ArrayList data;
+    private ArrayList<PlayerViewModel> data;
     private static LayoutInflater inflater=null;
     public Resources res;
     PlayerViewModel tempValues=null;
