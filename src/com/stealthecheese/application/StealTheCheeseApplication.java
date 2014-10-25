@@ -20,7 +20,7 @@ public class StealTheCheeseApplication extends Application {
   public void onCreate() {
     super.onCreate();
     // Add your initialization code here
-//     Parse.initialize(this, "nNADkosy5X7RyeklWIDkBqdYdEkI0RGpklYvm456", "0K62bbYxCq5U6hHo2XcWJ5fxbxjdYOB606tT0xdM");
+    // Parse.initialize(this, "nNADkosy5X7RyeklWIDkBqdYdEkI0RGpklYvm456", "0K62bbYxCq5U6hHo2XcWJ5fxbxjdYOB606tT0xdM");
     
     // enable local store
     Parse.enableLocalDatastore(this);
