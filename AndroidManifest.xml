@@ -38,7 +38,7 @@
             android:label="@string/title_activity_main" >
         </activity>
         <activity
-            android:name=".MainPageActivity"
+            android:name="com.stealthecheese.activity.TheftActivity"
             android:label="@string/title_activity_main_page"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
