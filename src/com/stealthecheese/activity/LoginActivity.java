@@ -109,7 +109,7 @@ public class LoginActivity extends Activity {
 				} else {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User logged in through Facebook!");
 					performExistingUserSteps();
-					startTheftActivity();
+					
 				}
 			}
 		});
@@ -146,6 +146,7 @@ public class LoginActivity extends Activity {
 			public void done(List<ParseUser> users, ParseException ex) {
 				if(ex == null){
 					try {
+						// update cheese count for the current user
 						users.get(0).pin(StealTheCheeseApplication.LOG_TAG);
 					} catch (ParseException e) {
 						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning user", ex);
@@ -191,13 +192,15 @@ public class LoginActivity extends Activity {
 						    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
 						    	try {
 									ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
+									verifyLocalDataStore(allFriendsInfo.size());
 								} catch (ParseException e1) {
 									Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
 								}
 						    }
 						  }
 						});
-						startTheftActivity();
+						
+						//startTheftActivity();
 					}
 				});
 			}
@@ -207,9 +210,29 @@ public class LoginActivity extends Activity {
 
 	}
 	
+	private void verifyLocalDataStore(int origSize) {
+		ParseQuery<ParseUser> savedUsertest = ParseUser.getQuery();
+		savedUsertest.fromLocalDatastore();
+		List<ParseUser> mytest;
+		try {
+			mytest = savedUsertest.find();
+			System.out.println(mytest.get(0).get("facebookId"));
+			System.out.println(mytest.get(1).get("facebookId"));
+			Log.i(StealTheCheeseApplication.LOG_TAG, "Size of the fecthed result is " + origSize);
+			Log.i(StealTheCheeseApplication.LOG_TAG, "Size of the local data store is " + (mytest.size() - 1));
+			System.out.println(mytest);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
+	
 	
 	private void startTheftActivity() {
-		Intent intent = new Intent(LoginActivity.this, TheftActivity.class);		
+		Intent intent = new Intent(LoginActivity.this, TheftActivity.class);
+		// removing this activity from backstack
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 	}
 	
