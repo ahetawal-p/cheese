@@ -3,6 +3,11 @@ package com.stealthecheese.activity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.stealthecheese.R;
 import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
@@ -34,26 +39,23 @@ public class TheftActivity extends Activity {
 	UserViewAdapter userViewAdapter;
 	View userProfileImageView; 
 	View userCheeseTextView;
+	ParseUser currentUser;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_theft);		
-
-		fetchProperties(savedInstanceState);
-        Resources res = getResources();
-        initializeUserProperties();
-        initializeHistoryListView(res);
-        initializeFriendsListView(res);
+		updatePage();
 	}
 	
 	/* set display properties for user */
-	private void initializeUserProperties()
+	private void populateUserView()
 	{
 		/* create dummy user properties, throw away later */
-		PlayerViewModel userViewModel = new PlayerViewModel("", "", 99);
+		PlayerViewModel userViewModel = new PlayerViewModel(currentUser.getString("facebookId"), currentUser.getString("profilePicUrl"), currentUser.getInt("cheeseCount"));
 		
 		/* create adapter for user view */
+		System.out.println(currentUser.getString("facebookId"));
 		userCheeseTextView = findViewById(R.id.cheeseCountTextView);
 		userProfileImageView = findViewById(R.id.userProfileImageView);
 		userViewAdapter = new UserViewAdapter(this, userCheeseTextView, userProfileImageView);
@@ -71,8 +73,15 @@ public class TheftActivity extends Activity {
 	}
 	
 	/* set friends list view adapter and handle onClick events */
-	private void initializeFriendsListView(Resources res)
+	private void populateFriendsListView(List<ParseUser> userFriends, Resources res)
 	{
+		friendsList = new ArrayList<PlayerViewModel>();	
+		for(ParseUser friend : userFriends)
+		{
+			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getString("facebookId"));
+			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , friend.getInt("cheeseCount")));
+		}
+		
         friendsListView= ( ListView )findViewById( R.id.friendsListView );   
         friendsListAdapter = new FriendsListAdapter( this, friendsList,res );
         friendsListView.setAdapter( friendsListAdapter );
@@ -87,6 +96,37 @@ public class TheftActivity extends Activity {
 //            	updateCheeseCount();
 //            }
 //        });
+	}
+	
+	
+	private void updatePage()
+	{
+		currentUser = ParseUser.getCurrentUser();
+		String userFacebookId = (String) ParseUser.getCurrentUser().get("facebookId");
+		String userName = ParseUser.getCurrentUser().getUsername();
+		try 
+		{
+			List<ParseUser> friendUsers = ParseUser.getQuery()
+													.fromLocalDatastore()
+													.whereNotEqualTo("facebookId", currentUser.getString("facebookId"))
+													.find();
+			
+			populateView(friendUsers);
+		} 
+		catch (ParseException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.e(StealTheCheeseApplication.LOG_TAG, "Fetch friends from localstore failed with message: " + e.toString());
+		}
+	}
+	
+	private void populateView(List<ParseUser> friendUsers)
+	{
+        Resources res = getResources();
+        populateUserView();
+        //initializeHistoryListView(res);
+        populateFriendsListView(friendUsers, res);
 	}
 	
 	/* handle user click on friends image view */
@@ -146,25 +186,16 @@ public class TheftActivity extends Activity {
 		userViewAdapter.setCheeseCount(90);
 	}
 	
-	private void fetchProperties(Bundle bundle)
-	{
-		Bundle data = this.getIntent().getExtras();
-		List<User> friends = data.getParcelableArrayList("friends");
-		populateFriendsListview(friends);
-		populateHistoryListview(friends);
-
-	}
-	
-	private void populateFriendsListview(List<User> friends)
-	{
-		friendsList = new ArrayList<PlayerViewModel>(friends.size());	
-		for(User friend : friends)
-		{
-			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getFacebookId());
-			friendsList.add(new PlayerViewModel(friend.getFacebookId(), imageUrl , friend.getCheese()));
-		}
-		
-	}
+//	private void populateFriendsListview(List<User> friends)
+//	{
+//		friendsList = new ArrayList<PlayerViewModel>(friends.size());	
+//		for(User friend : friends)
+//		{
+//			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getFacebookId());
+//			friendsList.add(new PlayerViewModel(friend.getFacebookId(), imageUrl , friend.getCheese()));
+//		}
+//		
+//	}
 	
 	/* temp code to populate dummy history list */
 	private void populateHistoryListview(List<User> friends)
