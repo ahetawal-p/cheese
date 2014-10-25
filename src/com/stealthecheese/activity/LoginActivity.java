@@ -7,11 +7,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Parcelable;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -24,7 +20,6 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -32,17 +27,14 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.stealthecheese.MainPageActivity;
 import com.stealthecheese.R;
 import com.stealthecheese.application.StealTheCheeseApplication;
-import com.stealthecheese.model.User;
 
 public class LoginActivity extends Activity {
 	
 	private TextView loadingText;
     private Button loginFBButton;
-    private List<User> playersFriends = new ArrayList<User>();
-    private List<String> tempFriendsList = new ArrayList<String>();
+    
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +70,7 @@ public class LoginActivity extends Activity {
                     Animation animFade  = AnimationUtils.loadAnimation(LoginActivity.this, R.anim.fade);
                     loadingMsgSection.startAnimation(animFade);
                     loadingText.setText("Preparing Steal Zone...");
-                    getFBUserFriendsInfo(currentUser);
+                    performExistingUserSteps();
                     
         		} else {
         			// user does not exists
@@ -113,22 +105,21 @@ public class LoginActivity extends Activity {
 					} catch (ParseException e) {
 						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning user info", e);
 					}
-					getFBUserInfo(user);
+					getFBUserInfo();
 				} else {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User logged in through Facebook!");
-					getFBUserFriendsInfo(user);
-					startMainPageActivity();
+					performExistingUserSteps();
+					startTheftActivity();
 				}
 			}
 		});
 
 	}
 	
-	
-	private void getFBUserInfo(final ParseUser loggedInUser) {
+	private void getFBUserInfo() {
 		loadingText.setText("Getting user profile info...");
-		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(),
-				new Request.GraphUserCallback() {
+		final ParseUser loggedInUser = ParseUser.getCurrentUser();
+		Request request = Request.newMeRequest(ParseFacebookUtils.getSession(), new Request.GraphUserCallback() {
 			@Override
 			public void onCompleted(GraphUser user, Response response) {
 				loggedInUser.put("facebookId", user.getId());
@@ -145,21 +136,42 @@ public class LoginActivity extends Activity {
 	}
 	
 	
+	private void performExistingUserSteps(){
+		//1. Update users cheese count
+		ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
+		userQuery.whereEqualTo("facebookId", ParseUser.getCurrentUser().get("facebookId"));
+		userQuery.findInBackground(new FindCallback<ParseUser>() {
+
+			@Override
+			public void done(List<ParseUser> users, ParseException ex) {
+				if(ex == null){
+					try {
+						users.get(0).pin(StealTheCheeseApplication.LOG_TAG);
+					} catch (ParseException e) {
+						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning user", ex);
+					}
+					//2. Get and Update user friends list
+					getAndSaveFBUserFriendsInfo(users.get(0));
+				}else {
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Error finding user", ex);
+				}
+				
+			}
+		});
+	}
+	
+	
 	private void getAndSaveFBUserFriendsInfo(final ParseUser loggedInUser) {
 		loadingText.setText("Getting user friends list...");
 		// Returns only the list of friends which use the app also
-		Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(),
-				new Request.GraphUserListCallback() {
+		Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(), new Request.GraphUserListCallback() {
 			@Override
 			public void onCompleted(List<GraphUser> friends, Response response) {
-				List<String> friendsList = new ArrayList<String>();
+				final List<String> friendsList = new ArrayList<String>();
 				if(friends.size() > 0){
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
 					for(GraphUser friend : friends){
 						friendsList.add(friend.getId());
-						/*storing data into playersFriends to pass over to Main Page Activity*/
-						playersFriends.add(new User(friend.getId(), 20));
-						tempFriendsList.add(friend.getId());
 					}
 
 				}
@@ -169,7 +181,7 @@ public class LoginActivity extends Activity {
 					@Override
 					public void done(ParseException arg0) {
 						ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-						userQuery.whereContainedIn("facebookId", tempFriendsList);
+						userQuery.whereContainedIn("facebookId", friendsList);
 						userQuery.findInBackground(new FindCallback<ParseUser>() {
 							public void done(List<ParseUser> allFriendsInfo, ParseException e) {
 						    if (allFriendsInfo == null) {
@@ -185,12 +197,9 @@ public class LoginActivity extends Activity {
 						    }
 						  }
 						});
-						startMainPageActivity();
-						
+						startTheftActivity();
 					}
 				});
-				
-				
 			}
 
 		});
@@ -198,38 +207,9 @@ public class LoginActivity extends Activity {
 
 	}
 	
-	private void getFBUserFriendsInfo(final ParseUser loggedInUser) {
-		loadingText.setText("Updating user friends list...");
-		// Returns only the list of friends which use the app also
-		Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(),
-				new Request.GraphUserListCallback() {
-			@Override
-			public void onCompleted(List<GraphUser> friends, Response response) {
-				List<String> friendsList = new ArrayList<String>();
-				if(friends.size() > 0){
-					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
-					for(GraphUser friend : friends){
-						friendsList.add(friend.getId());
-						/*storing data into playersFriends to pass over to Main Page Activity*/
-						playersFriends.add(new User(friend.getId(), 20));
-					}
-
-				}
-			
-				startMainPageActivity();
-
-			}
-
-		});
-		request.executeAsync();
-
-	}
 	
-	private void startMainPageActivity() {
-		Bundle b = new Bundle();
-		Intent intent = new Intent(LoginActivity.this, MainPageActivity.class);		
-		b.putParcelableArrayList("friends", (ArrayList<? extends Parcelable>) playersFriends);
-		intent.putExtras(b);
+	private void startTheftActivity() {
+		Intent intent = new Intent(LoginActivity.this, TheftActivity.class);		
 		startActivity(intent);
 	}
 	

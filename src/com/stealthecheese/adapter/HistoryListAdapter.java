@@ -2,10 +2,6 @@ package com.stealthecheese.adapter;
 
 import java.util.ArrayList;
 
-import com.stealthecheese.R;
-import com.stealthecheese.activity.MainActivity;
-import com.stealthecheese.viewmodel.HistoryViewModel;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -17,6 +13,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.stealthecheese.R;
+import com.stealthecheese.viewmodel.HistoryViewModel;
 
 public class HistoryListAdapter extends BaseAdapter   implements OnClickListener {
     
@@ -135,7 +134,7 @@ public class HistoryListAdapter extends BaseAdapter   implements OnClickListener
         public void onClick(View arg0) {
 
    
-          MainActivity sct = (MainActivity)activity;
+          //MainActivity sct = (MainActivity)activity;
 
          /****  Call  onItemClick Method inside CustomListViewAndroidExample Class ( See Below )****/
 

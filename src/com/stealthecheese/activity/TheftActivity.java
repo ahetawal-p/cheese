@@ -1,36 +1,19 @@
 package com.stealthecheese.activity;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.model.GraphUser;
-import com.parse.ParseFacebookUtils;
-import com.parse.ParseUser;
+import android.app.Activity;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.widget.ListView;
+
 import com.stealthecheese.R;
-import com.stealthecheese.R.id;
-import com.stealthecheese.R.layout;
 import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
-import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.model.User;
-import com.stealthecheese.util.BitmapRetrieveTask;
 import com.stealthecheese.viewmodel.FriendViewModel;
 import com.stealthecheese.viewmodel.HistoryViewModel;
-
-
-import android.app.Activity;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.ListView;
 
 public class TheftActivity extends Activity {
 	ListView historyListView;
