@@ -32,7 +32,6 @@
        android:ellipsize="end"
        android:fitsSystemWindows="true"
        android:gravity="center"
-       android:text="5"
        android:textColor="#fff"
        android:textSize="13dp" />
    

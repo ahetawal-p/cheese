@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -68,7 +70,7 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onAnimationEnd(Animation arg0) {
-            	//checkNetworkAvailability();
+            	checkNetworkAvailability();
             	ParseUser currentUser = ParseUser.getCurrentUser();
             	
         		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
@@ -97,16 +99,18 @@ public class LoginActivity extends Activity {
         titleContainer.startAnimation(animTranslate);
 	}
 	
-//	private void checkNetworkAvailability()
-//	{
-//	    ConnectivityManager cm = (ConnectivityManager) this
-//                .getSystemService(Context.CONNECTIVITY_SERVICE);
-//        
-//	    if (cm == null)
-//	    {
-//	    	startTheftActivity();
-//	    }
-//	}
+	private void checkNetworkAvailability()
+	{
+	    ConnectivityManager cm = (ConnectivityManager) this
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+	    
+	    if (networkInfo == null)
+	    {
+	    	Toast.makeText(this, R.string.no_network_message, 2);
+	    	startTheftActivity();
+	    }
+	}
 	
 	private void loginToFBAndCreateUser() {
 		List<String> permissions = Arrays.asList("public_profile", "user_friends");
