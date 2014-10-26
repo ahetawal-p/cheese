@@ -21,8 +21,10 @@ import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
@@ -218,7 +220,8 @@ public class LoginActivity extends Activity {
 						  }
 						});
 						
-						
+						ParseInstallation.getCurrentInstallation().put("facebookId", ParseUser.getCurrentUser().get("facebookId"));
+						ParseInstallation.getCurrentInstallation().saveInBackground();
 					}
 				});
 			}
