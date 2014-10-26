@@ -104,7 +104,7 @@ public class TheftActivity extends Activity {
 		historyList.clear();
 		ParseQuery<ParseObject> histQuery = ParseQuery.getQuery("thefthistory");
 		histQuery.whereEqualTo("victimFBId", currentUser.get("facebookId"));
-		histQuery.setLimit(10);
+		histQuery.setLimit(5);
 		histQuery.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override

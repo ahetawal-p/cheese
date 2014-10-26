@@ -67,26 +67,27 @@
 			        android:layout_width="wrap_content"
 			        android:layout_height="fill_parent" />
 	        </LinearLayout>
-	        
-		    <LinearLayout
+	   
+	    </LinearLayout>
+	    <LinearLayout
 	        	android:id="@+id/historyListContainer"
-	        	android:background="#fff"
-	            android:layout_gravity="center_horizontal"
-	            android:layout_marginTop="40dp"
+	            android:layout_gravity="bottom|center_horizontal"
 		       	android:layout_width="150dp"
-		    	android:layout_height="wrap_content" 
+		    	android:layout_height="fill_parent" 
 		    	android:orientation="vertical">	
+		    	  <Space
+			        android:layout_width="match_parent"
+			        android:layout_height="match_parent"
+			        android:layout_weight="1"/>
 		        <ListView
 		            android:id="@+id/historyListView"
 		            android:layout_width="fill_parent"
-		            android:layout_height="fill_parent" 
-		            android:layout_marginTop="10dp"
-		            android:layout_marginBottom="10dp"
+		            android:layout_height="wrap_content" 
+		            android:background="#fff"
 					android:divider="@android:color/transparent"
 					android:dividerHeight="10dp">
-		        </ListView>	
-		    </LinearLayout>
-	    </LinearLayout>
+		        </ListView>
+		</LinearLayout>
 	</LinearLayout>
 	<LinearLayout 
 	    android:id="@+id/rightContainer"
