@@ -17,9 +17,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -163,15 +161,13 @@ public class TheftActivity extends Activity {
 	 */
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
     	String friendFacebookId = getFriendFacebookId(position);
-    	animateCheeseTheft(friendImageClicked, movedCheeseImg);
-    	
     	int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
 		int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
 		int updatedCurrentCount = currentCheesCount + 1;
 		int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
+		
+    	animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, updatedCurrentCount, updateFriendCheeseCount);
     	
-		cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
-		((TextView)userCheeseTextView).setText(Integer.toString(updatedCurrentCount));
     	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
     	
     	
@@ -246,7 +242,10 @@ public class TheftActivity extends Activity {
 		
 	}
 
-	private void animateCheeseTheft(View viewItemClicked, final ImageView movedCheeseImg) {
+	private void animateCheeseTheft(View viewItemClicked, 
+							final ImageView movedCheeseImg, final TextView cheeseCounter, 
+							final int updatedCurrentCount, 
+							final int updateFriendCheeseCount) {
 		AnimationListener animL = new AnimationListener() {
 		    @Override
 		    public void onAnimationStart(Animation animation) {}
@@ -258,9 +257,13 @@ public class TheftActivity extends Activity {
 		    public void onAnimationEnd(Animation animation) {
 		        movedCheeseImg.setVisibility(View.GONE);
 		        wobbleImageView(userProfileImageView);
+		        
+				cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
+				((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
+		        
+		        
 		    }
 		};
-		    
 		
 		/* destination position */
 		int[] destPos = new int[2];
