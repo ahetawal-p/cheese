@@ -3,12 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:interpolator="@android:anim/accelerate_decelerate_interpolator"
     android:fillAfter="true">
-<rotate xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="100"
-    android:fromDegrees="-5"
-    android:pivotX="50%"
-    android:pivotY="50%"
-    android:repeatCount="infinite"
-    android:repeatMode="reverse"
-    android:toDegrees="5" />
+        <rotate
+        android:duration="2"
+        android:fromDegrees="-3"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:repeatCount="2"
+        android:interpolator="@android:anim/linear_interpolator"
+        android:toDegrees="3" />
+    <translate
+        android:fromXDelta="-3"
+        android:toXDelta="3"
+        android:repeatCount="2"
+        android:interpolator="@android:anim/linear_interpolator"
+        android:duration="2" />
 </set>
