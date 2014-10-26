@@ -50,6 +50,7 @@ public class TheftActivity extends Activity {
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -112,17 +113,20 @@ public class TheftActivity extends Activity {
 
 			@Override
 			public void done(List<ParseObject> lastTenTrans, ParseException err) {
+				int visible = ((View)historyListView.getParent()).getVisibility();
 				if(err == null){
 					for(ParseObject trans : lastTenTrans){
 						String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
 						historyList.add(new HistoryViewModel(fname));
 					}
-					if(lastTenTrans.size() > 0){
+					if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
 						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
+						YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
 					}
+					
 					historyListAdapter.notifyDataSetChanged();
 					
-					YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
+					
 					
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting hsitory", err);
@@ -330,11 +334,6 @@ public class TheftActivity extends Activity {
 					localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
 				}
 		    	ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
-		    	
-		    	
-		    	
-		    	
-		    	
 		    	
 		    	updatePage();
 			}
