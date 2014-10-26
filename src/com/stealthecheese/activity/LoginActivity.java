@@ -219,7 +219,6 @@ public class LoginActivity extends Activity {
 						    if (allFriendsInfo == null) {
 						      Log.e(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.", e);
 						    } else {
-						    	System.out.println(allFriendsInfo);
 						    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
 						    	try {
 						    		ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
@@ -252,7 +251,6 @@ public class LoginActivity extends Activity {
 				if (allCheeseCountInfo == null) {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.", e);
 				} else {
-					System.out.println(allCheeseCountInfo);
 					Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
 					try {
 						ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allCheeseCountInfo);

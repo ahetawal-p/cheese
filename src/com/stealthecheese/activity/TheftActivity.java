@@ -181,7 +181,6 @@ public class TheftActivity extends Activity {
 										localCountMap.get(currentUser.getString("facebookId")));
 		
 		/* create adapter for user view */
-		System.out.println(currentUser.getString("facebookId"));
 		userCheeseTextView = findViewById(R.id.cheeseCountTextView);
 		userProfileImageView = findViewById(R.id.userProfileImageView);
 		userViewAdapter = new UserViewAdapter(this, userCheeseTextView, userProfileImageView);
