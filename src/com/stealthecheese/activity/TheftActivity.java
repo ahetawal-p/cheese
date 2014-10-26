@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -161,7 +164,6 @@ public class TheftActivity extends Activity {
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
     	String friendFacebookId = getFriendFacebookId(position);
     	animateCheeseTheft(friendImageClicked, movedCheeseImg);
-    	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + friendFacebookId, Toast.LENGTH_SHORT).show();
     	
     	int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
 		int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
@@ -255,6 +257,7 @@ public class TheftActivity extends Activity {
 		    @Override
 		    public void onAnimationEnd(Animation animation) {
 		        movedCheeseImg.setVisibility(View.GONE);
+		        wobbleImageView(userProfileImageView);
 		    }
 		};
 		    
@@ -276,6 +279,16 @@ public class TheftActivity extends Activity {
 	    movedCheeseImg.startAnimation(a);
 		
 	}
+	
+    private void wobbleImageView(View imageView)
+    {
+        Animation animationWobble  = AnimationUtils.loadAnimation(TheftActivity.this, R.anim.wobble);
+        imageView.startAnimation(animationWobble);
+        Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(250);
+    }
+    
+
 	
 	private String getFriendFacebookId(int position)
 	{
