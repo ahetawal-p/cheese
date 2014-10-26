@@ -126,7 +126,6 @@ public class TheftActivity extends Activity {
         friendsListView= ( ListView )findViewById( R.id.friendsListView );   
         friendsListAdapter = new FriendsListAdapter( this, friendsList,res );
         friendsListView.setAdapter( friendsListAdapter );
-        
 	}
 	
 	/**
@@ -140,7 +139,6 @@ public class TheftActivity extends Activity {
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg){
     	String friendFacebookId = getFriendFacebookId(position);
     	animateCheeseTheft(friendImageClicked, movedCheeseImg);
-    	//Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + friendFacebookId, Toast.LENGTH_SHORT).show();
     	updateTheftTransactionData(friendFacebookId);
 	}
 	

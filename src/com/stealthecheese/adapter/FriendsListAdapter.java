@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,7 +74,6 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
          
         View vi = convertView;
         ViewHolder holder;
-         
         if(convertView==null){
              
             /****** Inflate tabitem.xml file for each row ( Defined below ) *******/
@@ -113,7 +113,18 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              String imageUrl = tempValues.getImageString();
              Transformation circleTransform = new CircleTransform();
              Picasso.with(activity).load(imageUrl).transform(circleTransform).into(holder.friendImageView);
-
+             
+             /* if player has 0 cheese, gray out image and disable click for both ImageView and ListItem*/
+             int playerCheese = data.get( position ).getCheese();
+             if (playerCheese < 1)
+             {
+            	 //holder.friendImageView.setImageAlpha(10);
+            	 //holder.friendImageView.getBackground().setColorFilter(Color.BLACK, PorterDuff.Mode.DARKEN);
+            	 holder.friendImageView.setClickable(false);
+            	 vi.setClickable(false);
+            	
+             }
+             
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
              //vi.setOnClickListener(new OnItemClickListener( position ));
