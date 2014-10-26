@@ -25,6 +25,7 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.stealthecheese.R;
@@ -127,7 +128,18 @@ public class LoginActivity extends Activity {
 				loggedInUser.put("lastName", user.getLastName());
 				// Use ProfilePictureView if needed for UI
 				loggedInUser.put("profilePicUrl", String.format(StealTheCheeseApplication.PROFILE_PIC_URL, user.getId()));
-				loggedInUser.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
+				//loggedInUser.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
+				
+				// Update default cheese count tab
+				ParseObject cheeseUpdates = new ParseObject("cheese");
+				cheeseUpdates.put("facebookId", user.getId());
+				cheeseUpdates.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
+				try {
+					cheeseUpdates.save();
+				}catch(ParseException ex){
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Errror adding default cheese", ex);
+				}
+				
 				getAndSaveFBUserFriendsInfo(loggedInUser);
 			}
 		});
@@ -138,12 +150,12 @@ public class LoginActivity extends Activity {
 	
 	private void performExistingUserSteps(){
 		//1. Update users cheese count
-		ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-		userQuery.whereEqualTo("facebookId", ParseUser.getCurrentUser().get("facebookId"));
-		userQuery.findInBackground(new FindCallback<ParseUser>() {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+		query.whereEqualTo("facebookId", ParseUser.getCurrentUser().get("facebookId"));
+		query.findInBackground(new FindCallback<ParseObject>() {
 
 			@Override
-			public void done(List<ParseUser> users, ParseException ex) {
+			public void done(List<ParseObject> users, ParseException ex) {
 				if(ex == null){
 					try {
 						// update cheese count for the current user
@@ -152,7 +164,7 @@ public class LoginActivity extends Activity {
 						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning user", ex);
 					}
 					//2. Get and Update user friends list
-					getAndSaveFBUserFriendsInfo(users.get(0));
+					getAndSaveFBUserFriendsInfo(ParseUser.getCurrentUser());
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error finding user", ex);
 				}
@@ -178,6 +190,7 @@ public class LoginActivity extends Activity {
 				}
 				loggedInUser.addAllUnique("friends", friendsList);
 				
+				
 				loggedInUser.saveInBackground(new SaveCallback() {
 					@Override
 					public void done(ParseException arg0) {
@@ -186,13 +199,15 @@ public class LoginActivity extends Activity {
 						userQuery.findInBackground(new FindCallback<ParseUser>() {
 							public void done(List<ParseUser> allFriendsInfo, ParseException e) {
 						    if (allFriendsInfo == null) {
-						      Log.d(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.");
+						      Log.e(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.", e);
 						    } else {
 						    	System.out.println(allFriendsInfo);
 						    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
 						    	try {
-									ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
-									//verifyLocalDataStore(allFriendsInfo.size());
+						    		ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
+									updateCheeseCountInLocalStore(friendsList);
+						    		
+						    		//verifyLocalDataStore(allFriendsInfo.size());
 								} catch (ParseException e1) {
 									Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
 								}
@@ -200,7 +215,7 @@ public class LoginActivity extends Activity {
 						  }
 						});
 						
-						startTheftActivity();
+						
 					}
 				});
 			}
@@ -209,6 +224,31 @@ public class LoginActivity extends Activity {
 		request.executeAsync();
 
 	}
+	
+	protected void updateCheeseCountInLocalStore(List<String> friendsList){
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+		query.whereContainedIn("facebookId", friendsList);
+		query.findInBackground(new FindCallback<ParseObject>() {
+			public void done(List<ParseObject> allCheeseCountInfo, ParseException e) {
+				if (allCheeseCountInfo == null) {
+					Log.e(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.", e);
+				} else {
+					System.out.println(allCheeseCountInfo);
+					Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
+					try {
+						ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allCheeseCountInfo);
+						//verifyLocalDataStore(allFriendsInfo.size());
+					} catch (ParseException e1) {
+						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
+					}
+				}
+				
+				startTheftActivity();
+			}
+		});
+	
+	}
+	
 	
 	private void verifyLocalDataStore(int origSize) {
 		ParseQuery<ParseUser> savedUsertest = ParseUser.getQuery();
