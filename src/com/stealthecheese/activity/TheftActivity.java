@@ -61,14 +61,26 @@ public class TheftActivity extends Activity {
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
 		
-		updatePage();
+		
 	}
 	
 	@Override
 	public void onBackPressed() {
-            this.finish();
+		//super.onBackPressed();
+            finish();
+            super.onBackPressed();
         }
-
+	
+	
+	@Override
+	public void onStart() {
+		
+		updatePage();
+		super.onStart();
+		
+	}
+	
+	
 	private void updatePage()
 	{
 		currentUser = ParseUser.getCurrentUser();
