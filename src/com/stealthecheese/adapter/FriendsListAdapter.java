@@ -32,7 +32,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     int i=0;
      
     /*************  CustomAdapter Constructor *****************/
-    public FriendsListAdapter(Activity a, ArrayList d,Resources resLocal) {
+    public FriendsListAdapter(Activity a, ArrayList<PlayerViewModel> d,Resources resLocal) {
          
            /********** Take passed values **********/
             activity = a;
@@ -80,11 +80,13 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             vi = inflater.inflate(R.layout.friend_row, null);
              
             /****** View Holder Object to contain tabitem.xml file elements ******/
-
+            
+            ImageView movedCheeseImg = (ImageView)vi.findViewById(R.id.cheeseAnimationImageView);
             holder = new ViewHolder();
             holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
             holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
-            holder.friendImageView.setOnClickListener(new OnImageClickListener(position));
+            holder.friendImageView.setOnClickListener(new OnImageClickListener(position, movedCheeseImg));
+            
             
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
@@ -132,16 +134,17 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     /* Called when image is clicked in ListView */
     private class OnImageClickListener  implements OnClickListener{           
         private int mPosition;
-         
-        OnImageClickListener(int position){
+        private ImageView movedImage;
+        
+        OnImageClickListener(int position, ImageView movedCheeseImg){
              mPosition = position;
+             movedImage = movedCheeseImg;
         }
          
         @Override
-        public void onClick(View arg0) 
-        {
+        public void onClick(View arg0) {
           TheftActivity sct = (TheftActivity)activity;
-          sct.onImageClicked(arg0, mPosition);
+          sct.onCheeseTheft(arg0, mPosition, movedImage);
         }               
     }   
     

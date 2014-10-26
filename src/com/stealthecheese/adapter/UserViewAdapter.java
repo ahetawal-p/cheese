@@ -27,7 +27,7 @@ public class UserViewAdapter
 	
 	public void setCheeseCount(int cheeseCount)
 	{
-		userCheeseTextView.setText(Integer.toString(cheeseCount));
+		userCheeseTextView.setText("x " + Integer.toString(cheeseCount));
 	}
 	
 	public void setImageString(String imageString)
