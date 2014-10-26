@@ -64,6 +64,8 @@ public class TheftActivity extends Activity {
 		initializeFriendListVIew(getResources());
 	}
 	
+
+	
 	@Override
 	public void onBackPressed() {
 		    finish();
@@ -125,32 +127,26 @@ public class TheftActivity extends Activity {
 		histQuery.whereEqualTo("victimFBId", currentUser.get("facebookId"));
 		histQuery.orderByDescending("createdAt");
 		histQuery.setLimit(5);
-		histQuery.findInBackground(new FindCallback<ParseObject>() {
 
-			@Override
-			public void done(List<ParseObject> lastTenTrans, ParseException err) {
-				int visible = ((View)historyListView.getParent()).getVisibility();
-				if(err == null){
-					for(ParseObject trans : lastTenTrans){
-						String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
-						historyList.add(new HistoryViewModel(fname));
-					}
-					if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
-						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
-						YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
-					}
-					
-					historyListAdapter.notifyDataSetChanged();
-					
-				}else {
-					Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting hsitory", err);
-				}
-				
+		try {
+			List<ParseObject> lastTenTrans = histQuery.find();
+			int visible = ((View)historyListView.getParent()).getVisibility();
+			for(ParseObject trans : lastTenTrans){
+				String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
+				historyList.add(new HistoryViewModel(fname));
 			}
-			
-			
-		});
-		
+			if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
+				((View)historyListView.getParent()).setVisibility(View.VISIBLE);
+				YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
+			}
+			historyListAdapter.notifyDataSetChanged();
+
+		}catch(ParseException ex){
+			Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting history", ex);
+		}
+
+
+
 	}
 
 
@@ -240,29 +236,69 @@ public class TheftActivity extends Activity {
 	 * @param movedCheeseImg
 	 */
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
-    	String friendFacebookId = getFriendFacebookId(position);
     	
-    	fecthLatestCheeseDataForTrans(friendFacebookId);
-		
-    	int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
-		int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
-		
-		
-		int updatedCurrentCount = currentCheesCount + 1;
-		int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
-		
-    	animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, updatedCurrentCount, updateFriendCheeseCount);
+		String friendFacebookId = getFriendFacebookId(position);
+
+    	animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, 0, 0);
     	
-    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
+    	//fecthLatestCheeseDataForTrans(friendFacebookId);
+		
+    	fecthLatestCheeseDataForTranAsync(friendFacebookId, cheeseCounter);
     	
-    	// Send Notifications out
-    	performNotifications(friendFacebookId);
     	
 	}
 
 	
 	
 	
+	private void fecthLatestCheeseDataForTranAsync(final String friendFacebookId, final TextView cheeseCounter) {
+			
+			//Get current counts from Parse
+	    	ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+			query.whereContainedIn("facebookId", Arrays.asList(new String[]{currentUser.getString("facebookId"),friendFacebookId} ));
+			
+			query.findInBackground(new FindCallback<ParseObject>() {
+
+				@Override
+				public void done(final List<ParseObject> allUpdates, ParseException parseexception) {
+					for(ParseObject cheeseCount : allUpdates){
+						localCountMap.put(cheeseCount.getString("facebookId"), cheeseCount.getInt("cheeseCount"));
+					}
+					
+					ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
+						@Override
+						public void done(ParseException ex) {
+							if(ex ==null){
+								ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
+								
+								int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
+								int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
+								
+								int updatedCurrentCount = currentCheesCount + 1;
+								int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
+								
+						    	
+						    	cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
+								((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
+								
+						    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
+						    	
+						    	// Send Notifications out
+						    	performNotifications(friendFacebookId);
+								
+							}else {
+								Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
+							}
+							
+						}
+					});
+					
+				}
+			
+			
+			});
+		}
+
 	private void performNotifications(String friendFacebookId) {
 		ParseQuery<ParseInstallation> pushQuery = ParseInstallation.getQuery();
 		pushQuery.whereEqualTo("facebookId", friendFacebookId);
@@ -310,47 +346,49 @@ public class TheftActivity extends Activity {
 	private void updateTheftTransactionData(final String friendFacebookId, 
 									int updatedCurrentCount, 
 									int updateFriendCheeseCount) {
-		try {
+		
+			// Hack for fixing slow requests to update ui
+			if(updatedCurrentCount < 1){
+				updatedCurrentCount = 0;
+				updateFriendCheeseCount = updateFriendCheeseCount - 1;
+			}
+			
+			if(updateFriendCheeseCount < 1){
+				updateFriendCheeseCount = 0;
+			}
 			
 			//1. Update current user count
-			
 			localCountMap.put(currentUser.getString("facebookId"), updatedCurrentCount);
 			
 			//2. Update friends cheese count
-			
 			localCountMap.put(friendFacebookId, updateFriendCheeseCount);
 			
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
 			query.whereContainedIn("facebookId", Arrays.asList(new String[]{currentUser.getString("facebookId"),friendFacebookId} ));
 			query.fromLocalDatastore();
-			final List<ParseObject> allUpdates = query.find();
-			for(ParseObject cheeseCount : allUpdates){
-				cheeseCount.put("cheeseCount", localCountMap.get(cheeseCount.get("facebookId")));
-			}
 			
-			ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
+			query.findInBackground(new FindCallback<ParseObject>() {
 				@Override
-				public void done(ParseException ex) {
-					if(ex ==null){
-						ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
-						
-						insertHistoryData(friendFacebookId);
-						
-						
-						getAllFriendsCheeseUpdates(friendFacebookId);
-					}else {
-						Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
+				public void done(final List<ParseObject> allUpdates, ParseException parseexception) {
+					for(ParseObject cheeseCount : allUpdates){
+						cheeseCount.put("cheeseCount", localCountMap.get(cheeseCount.get("facebookId")));
 					}
-					
+					ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
+						@Override
+						public void done(ParseException ex) {
+							if(ex ==null){
+								ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
+								insertHistoryData(friendFacebookId);
+								getAllFriendsCheeseUpdates(friendFacebookId);
+							}else {
+								Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
+							}
+							
+						}
+						
+					});
 				}
-
-				
 			});
-			
-		} catch (ParseException e) {
-			Log.e(StealTheCheeseApplication.LOG_TAG, "Error in updating theft data", e);
-		}
-		
 		
 	}
 	
@@ -407,11 +445,6 @@ public class TheftActivity extends Activity {
 			public void onAnimationEnd(Animation animation) {
 				movedCheeseImg.setVisibility(View.GONE);
 				wobbleImageView(userProfileImageView);
-
-				cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
-				((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
-
-
 			}
 		};
 
@@ -427,7 +460,7 @@ public class TheftActivity extends Activity {
 		viewItemClicked.getLocationOnScreen(origPos);
 
 		Animations anim = new Animations();
-		Animation a = anim.fromAtoB(origPos[0],origPos[1], destPos[0], destPos[1], animL, 500);
+		Animation a = anim.fromAtoB(origPos[0],origPos[1], destPos[0], destPos[1], animL, 300);
 		movedCheeseImg.setVisibility(View.VISIBLE);
 		movedCheeseImg.startAnimation(a);
 
@@ -480,10 +513,11 @@ public class TheftActivity extends Activity {
 	}
 	
 	
-	
-	
 	@Override
 	public void onDestroy() {
+		System.out.println("Called destory...");
+			ParseObject.unpinAllInBackground(StealTheCheeseApplication.PIN_TAG);
+		
 		super.onDestroy();
 		
 	}

@@ -1,8 +1,8 @@
 package com.stealthecheese.util;
 
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 
 public class Animations {
@@ -23,7 +23,7 @@ public Animation fromAtoB(float fromX, float fromY, float toX, float toY, Animat
 	
 	
        fromAtoB.setDuration(speed);
-       fromAtoB.setInterpolator(new AccelerateInterpolator());
+       fromAtoB.setInterpolator(new LinearInterpolator());
 
        
        if(l != null)
