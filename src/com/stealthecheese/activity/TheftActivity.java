@@ -111,7 +111,8 @@ public class TheftActivity extends Activity {
 			public void done(List<ParseObject> lastTenTrans, ParseException err) {
 				if(err == null){
 					for(ParseObject trans : lastTenTrans){
-						historyList.add(new HistoryViewModel(retrieveFriendFirstName(trans.getString("thiefFBId"))));
+						String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
+						historyList.add(new HistoryViewModel(fname));
 					}
 					historyListAdapter.notifyDataSetChanged();
 				}else {
