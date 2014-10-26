@@ -61,12 +61,13 @@
   			</intent-filter>
 		</receiver>
 
-	<receiver android:name="com.parse.ParsePushBroadcastReceiver"
+	<receiver android:name="com.stealthecheese.util.CheeseBroadcastReceiver"
     	android:exported="false">
   		<intent-filter>
     		<action android:name="com.parse.push.intent.RECEIVE" />
     		<action android:name="com.parse.push.intent.DELETE" />
     		<action android:name="com.parse.push.intent.OPEN" />
+    		
     </intent-filter>
 	</receiver>
 	
