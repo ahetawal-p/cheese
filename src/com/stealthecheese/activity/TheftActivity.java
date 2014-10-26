@@ -367,9 +367,11 @@ public class TheftActivity extends Activity {
 					}
 					
 			    	
-			    	if (updateFriendCheeseCount > 0)
+			    	if (updateFriendCheeseCount >= 0){
 			    		friendsListAdapter.unlockImageClick((ImageView)friendImageView, cheeseCountTextView);
-			    	
+			    		YoYo.with(Techniques.Bounce).duration(1000).playOn(cheeseCountTextView);
+			    		YoYo.with(Techniques.Bounce).duration(1000).playOn(findViewById(R.id.userCheeseCountContainer));
+			    	}
 					ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
 						@Override
 						public void done(ParseException ex) {
