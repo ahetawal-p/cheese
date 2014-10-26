@@ -33,6 +33,12 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:src="@drawable/ranking" />
+	    	<ImageView
+		        android:id="@+id/refreshImageView"
+		        android:layout_weight="1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/ranking" />
 	    </LinearLayout>
 	    <LinearLayout
 	        android:id="@+id/userContainer"
@@ -105,16 +111,13 @@
 	    android:clipChildren="false"
    		android:clipToPadding="false"
 	    android:orientation="vertical">
-  		<ListView
+       <ListView
            android:id="@+id/friendsListView"
            android:layout_width="fill_parent"
            android:layout_height="fill_parent" 
-           android:layout_marginTop="40dp"
-           android:layout_marginBottom="10dp"
 			android:divider="@android:color/transparent"
 			android:clipChildren="false"
-   			android:clipToPadding="false"
-			android:dividerHeight="25dp">
-       </ListView>	
+   			android:clipToPadding="false">
+	</ListView>
 	</LinearLayout>
 </LinearLayout>
