@@ -65,15 +65,13 @@ public class TheftActivity extends Activity {
 	
 	@Override
 	public void onBackPressed() {
-		//super.onBackPressed();
-            finish();
+		    finish();
             super.onBackPressed();
         }
 	
 	
 	@Override
 	public void onStart() {
-		
 		updatePage();
 		super.onStart();
 		
