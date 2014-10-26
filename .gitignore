@@ -9,4 +9,4 @@ bin/
 #Ignore gen
 gen/
 
-project.properties
+.properties
