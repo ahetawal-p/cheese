@@ -113,7 +113,6 @@ public class LoginActivity extends Activity {
 				}
 			}
 		});
-
 	}
 	
 	private void getFBUserInfo() {
