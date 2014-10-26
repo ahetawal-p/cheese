@@ -65,15 +65,13 @@ public class TheftActivity extends Activity {
 	
 	@Override
 	public void onBackPressed() {
-		//super.onBackPressed();
-            finish();
+		    finish();
             super.onBackPressed();
         }
 	
 	
 	@Override
 	public void onStart() {
-		
 		updatePage();
 		super.onStart();
 		
@@ -138,7 +136,7 @@ public class TheftActivity extends Activity {
 					}
 					if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
 						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
-						YoYo.with(Techniques.FadeInUp).duration(3000).playOn((View)historyListView.getParent());
+						YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
 					}
 					
 					historyListAdapter.notifyDataSetChanged();
