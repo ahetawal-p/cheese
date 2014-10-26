@@ -113,6 +113,7 @@ public class LoginActivity extends Activity {
 				}
 			}
 		});
+
 	}
 	
 	private void getFBUserInfo() {
@@ -191,7 +192,7 @@ public class LoginActivity extends Activity {
 						    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
 						    	try {
 									ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
-									verifyLocalDataStore(allFriendsInfo.size());
+									//verifyLocalDataStore(allFriendsInfo.size());
 								} catch (ParseException e1) {
 									Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
 								}

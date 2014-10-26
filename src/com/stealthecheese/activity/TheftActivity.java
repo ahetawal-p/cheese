@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
@@ -148,6 +149,7 @@ public class TheftActivity extends Activity {
 		    @Override
 		    public void onAnimationEnd(Animation animation) {
 		        movedCheeseImg.setVisibility(View.GONE);
+		        wobbleImageView(movedCheeseImg);
 		    }
 		};
 		    
@@ -168,6 +170,12 @@ public class TheftActivity extends Activity {
 	    movedCheeseImg.setVisibility(View.VISIBLE);
 	    movedCheeseImg.startAnimation(a);
 		
+	}
+	
+	private void wobbleImageView(View imageView)
+	{
+        Animation animFade  = AnimationUtils.loadAnimation(TheftActivity.this, R.anim.wobble);
+        imageView.startAnimation(animFade);
 	}
 	
 	private String getFriendFacebookId(int position)
