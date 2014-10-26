@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -48,6 +49,7 @@ public class TheftActivity extends Activity {
 	UserViewAdapter userViewAdapter;
 	View userProfileImageView; 
 	View userCheeseTextView;
+	ImageView refreshImageView;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	
@@ -57,10 +59,9 @@ public class TheftActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_theft);
 		
+		initializeImageButtons();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
-		
-		
 	}
 	
 	@Override
@@ -192,6 +193,22 @@ public class TheftActivity extends Activity {
 		friendsListAdapter = new FriendsListAdapter( this, friendsList, resources );
 		friendsListView.setAdapter( friendsListAdapter );
 
+	}
+	
+	
+	/* hook up image button clicks */
+	private void initializeImageButtons()
+	{
+		/* hook up refresh button to fetch data from Parse and populate views */
+		refreshImageView = (ImageView)findViewById(R.id.refreshImageView);
+		refreshImageView.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				
+			}
+			
+		});
 	}
 	
 	/* set history list view adapter */
