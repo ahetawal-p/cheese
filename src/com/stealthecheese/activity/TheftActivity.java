@@ -236,14 +236,16 @@ public class TheftActivity extends Activity {
 	 * @param movedCheeseImg
 	 */
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
-    	
+    	/* lock list item so you can't click it again before verifying > 0 */
+		friendsListAdapter.lockImageClick((ImageView)friendImageClicked, cheeseCounter);
+		
 		String friendFacebookId = getFriendFacebookId(position);
 
     	animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, 0, 0);
     	
     	//fecthLatestCheeseDataForTrans(friendFacebookId);
 		
-    	fecthLatestCheeseDataForTranAsync(friendFacebookId, cheeseCounter);
+    	fecthLatestCheeseDataForTranAsync(friendFacebookId, cheeseCounter, friendImageClicked);
     	
     	
 	}
@@ -251,7 +253,7 @@ public class TheftActivity extends Activity {
 	
 	
 	
-	private void fecthLatestCheeseDataForTranAsync(final String friendFacebookId, final TextView cheeseCounter) {
+	private void fecthLatestCheeseDataForTranAsync(final String friendFacebookId, final TextView cheeseCounter, final View friendImageClicked) {
 			
 			//Get current counts from Parse
 	    	ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
@@ -281,7 +283,7 @@ public class TheftActivity extends Activity {
 						    	cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
 								((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
 								
-						    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
+						    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount, friendImageClicked, cheeseCounter) ;
 						    	
 						    	// Send Notifications out
 						    	performNotifications(friendFacebookId);
@@ -345,17 +347,7 @@ public class TheftActivity extends Activity {
 	
 	private void updateTheftTransactionData(final String friendFacebookId, 
 									int updatedCurrentCount, 
-									int updateFriendCheeseCount) {
-		
-			// Hack for fixing slow requests to update ui
-			if(updatedCurrentCount < 1){
-				updatedCurrentCount = 0;
-				updateFriendCheeseCount = updateFriendCheeseCount - 1;
-			}
-			
-			if(updateFriendCheeseCount < 1){
-				updateFriendCheeseCount = 0;
-			}
+									final int updateFriendCheeseCount, final View friendImageView, final TextView cheeseCountTextView) {
 			
 			//1. Update current user count
 			localCountMap.put(currentUser.getString("facebookId"), updatedCurrentCount);
@@ -373,6 +365,11 @@ public class TheftActivity extends Activity {
 					for(ParseObject cheeseCount : allUpdates){
 						cheeseCount.put("cheeseCount", localCountMap.get(cheeseCount.get("facebookId")));
 					}
+					
+			    	
+			    	if (updateFriendCheeseCount > 0)
+			    		friendsListAdapter.unlockImageClick((ImageView)friendImageView, cheeseCountTextView);
+			    	
 					ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
 						@Override
 						public void done(ParseException ex) {

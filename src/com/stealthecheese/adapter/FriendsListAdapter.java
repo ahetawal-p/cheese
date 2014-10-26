@@ -34,7 +34,8 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     public Resources res;
     PlayerViewModel tempValues=null;
     int i=0;
-     
+    
+    
     /*************  CustomAdapter Constructor *****************/
     public FriendsListAdapter(Activity a, ArrayList<PlayerViewModel> d,Resources resLocal) {
          
@@ -121,10 +122,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              int playerCheese = data.get( position ).getCheese();
              if (playerCheese < 1)
              {
-                 holder.friendImageView.setAlpha(0.2f);
-                 holder.counterTextView.setAlpha(0.2f);
-            	 holder.friendImageView.setClickable(false);
-            	 vi.setClickable(false);
+            	 lockImageClick(holder.friendImageView, holder.counterTextView);
              }
              
              /******** Set Item Click Listner for LayoutInflater for each row *******/
@@ -134,9 +132,18 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
         return vi;
     }
     
-    public void disableFriendListItem(int position)
+    public void lockImageClick(ImageView imageView, TextView textView)
     {
-    	
+    	imageView.setAlpha(0.2f);
+    	textView.setAlpha(0.2f);
+    	imageView.setClickable(false);
+    }
+    
+    public void unlockImageClick(ImageView imageView, TextView textView)
+    {
+    	imageView.setAlpha(1f);
+    	textView.setAlpha(1f);
+    	imageView.setClickable(true);
     }
     
     @Override
