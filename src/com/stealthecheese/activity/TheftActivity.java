@@ -161,8 +161,13 @@ public class TheftActivity extends Activity {
 	 */
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
     	String friendFacebookId = getFriendFacebookId(position);
+    	
+    	fecthLatestCheeseDataForTrans(friendFacebookId);
+		
     	int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
 		int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
+		
+		
 		int updatedCurrentCount = currentCheesCount + 1;
 		int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
 		
@@ -171,6 +176,32 @@ public class TheftActivity extends Activity {
     	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
     	
     	
+	}
+
+	private void fecthLatestCheeseDataForTrans(String friendFacebookId) {
+		try{
+    	//Get current counts from Parse
+    	ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+		query.whereContainedIn("facebookId", Arrays.asList(new String[]{currentUser.getString("facebookId"),friendFacebookId} ));
+		final List<ParseObject> allUpdates = query.find();
+		for(ParseObject cheeseCount : allUpdates){
+			localCountMap.put(cheeseCount.getString("facebookId"), cheeseCount.getInt("cheeseCount"));
+		}
+		ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
+			@Override
+			public void done(ParseException ex) {
+				if(ex ==null){
+					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
+				}else {
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
+				}
+				
+			}
+		});
+		
+    	}catch(ParseException ex){
+    		Log.e(StealTheCheeseApplication.LOG_TAG, "Error", ex);
+    	}
 	}
 	
 	
@@ -197,7 +228,6 @@ public class TheftActivity extends Activity {
 			}
 			
 			ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
-				
 				@Override
 				public void done(ParseException ex) {
 					if(ex ==null){
@@ -236,6 +266,9 @@ public class TheftActivity extends Activity {
 					localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
 				}
 		    	ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
+		    	
+		    	
+		    	updatePage();
 			}
 		  }
 		});
@@ -311,16 +344,7 @@ public class TheftActivity extends Activity {
 	
 	
 	
-//	private void populateFriendsListview(List<User> friends)
-//	{
-//		friendsList = new ArrayList<PlayerViewModel>(friends.size());	
-//		for(User friend : friends)
-//		{
-//			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getFacebookId());
-//			friendsList.add(new PlayerViewModel(friend.getFacebookId(), imageUrl , friend.getCheese()));
-//		}
-//		
-//	}
+
 	
 	/* temp code to populate dummy history list */
 	private void populateHistoryListview(List<User> friends)
@@ -334,5 +358,11 @@ public class TheftActivity extends Activity {
 		
 	}
 
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+	}
 	
 }
