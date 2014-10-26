@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -66,6 +68,7 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onAnimationEnd(Animation arg0) {
+            	//checkNetworkAvailability();
             	ParseUser currentUser = ParseUser.getCurrentUser();
             	
         		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
@@ -92,8 +95,18 @@ public class LoginActivity extends Activity {
         });
         LinearLayout titleContainer = (LinearLayout) findViewById(R.id.titleContainer);
         titleContainer.startAnimation(animTranslate);
-        ParseAnalytics.trackAppOpened(getIntent());
 	}
+	
+//	private void checkNetworkAvailability()
+//	{
+//	    ConnectivityManager cm = (ConnectivityManager) this
+//                .getSystemService(Context.CONNECTIVITY_SERVICE);
+//        
+//	    if (cm == null)
+//	    {
+//	    	startTheftActivity();
+//	    }
+//	}
 	
 	private void loginToFBAndCreateUser() {
 		List<String> permissions = Arrays.asList("public_profile", "user_friends");
