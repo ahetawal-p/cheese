@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.transition.Visibility;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -19,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -114,7 +117,13 @@ public class TheftActivity extends Activity {
 						String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
 						historyList.add(new HistoryViewModel(fname));
 					}
+					if(lastTenTrans.size() > 0){
+						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
+					}
 					historyListAdapter.notifyDataSetChanged();
+					
+					YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
+					
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting hsitory", err);
 				}

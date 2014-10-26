@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,9 +12,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
-import com.stealthecheese.util.CircleTransform;
 import com.stealthecheese.viewmodel.HistoryViewModel;
 
 public class HistoryListAdapter extends BaseAdapter implements OnClickListener {
@@ -88,12 +85,7 @@ public class HistoryListAdapter extends BaseAdapter implements OnClickListener {
         else 
             holder=(ViewHolder)vi.getTag();
          
-        if(data.size()<=0)
-        {
-            Log.v("HistoryListAdapter", "No history list items");
-             
-        }
-        else
+        if(data.size() > 0)
         {
             /***** Get each Model object from Arraylist ********/
             tempValues=null;
@@ -113,7 +105,7 @@ public class HistoryListAdapter extends BaseAdapter implements OnClickListener {
      
     @Override
     public void onClick(View v) {
-            Log.v("HistoryListAdapter", "=====Row button clicked=====");
+            
     }
      
     /********* Called when Item click in ListView ************/
