@@ -161,7 +161,6 @@ public class TheftActivity extends Activity {
 	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
     	String friendFacebookId = getFriendFacebookId(position);
     	animateCheeseTheft(friendImageClicked, movedCheeseImg);
-    	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + friendFacebookId, Toast.LENGTH_SHORT).show();
     	
     	int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
 		int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
