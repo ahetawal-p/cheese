@@ -85,7 +85,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             holder = new ViewHolder();
             holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
             holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
-            holder.friendImageView.setOnClickListener(new OnImageClickListener(position, movedCheeseImg));
+            holder.friendImageView.setOnClickListener(new OnImageClickListener(position, movedCheeseImg, holder.counterTextView));
             
             
            /************  Set holder with LayoutInflater ************/
@@ -135,16 +135,18 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     private class OnImageClickListener  implements OnClickListener{           
         private int mPosition;
         private ImageView movedImage;
+        private TextView cheeseCounter;
         
-        OnImageClickListener(int position, ImageView movedCheeseImg){
+        OnImageClickListener(int position, ImageView movedCheeseImg, TextView counter){
              mPosition = position;
              movedImage = movedCheeseImg;
+             cheeseCounter = counter;
         }
          
         @Override
         public void onClick(View arg0) {
           TheftActivity sct = (TheftActivity)activity;
-          sct.onCheeseTheft(arg0, mPosition, movedImage);
+          sct.onCheeseTheft(arg0, mPosition, movedImage, cheeseCounter);
         }               
     }   
     

@@ -1,6 +1,8 @@
 package com.stealthecheese.activity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -12,6 +14,8 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -41,6 +45,7 @@ public class TheftActivity extends Activity {
 	View userProfileImageView; 
 	View userCheeseTextView;
 	ParseUser currentUser;
+	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +75,14 @@ public class TheftActivity extends Activity {
 	}
 	
 	/**
-	 * Popluates user and friends views
+	 * Populates user and friends views
 	 * @param friendUsers
 	 */
 	private void populateViews(List<ParseUser> friendUsers)
 	{
         Resources res = getResources();
+        
+        retrieveCheeseCountsLocally();
         
         populateUserView();
         
@@ -84,13 +91,32 @@ public class TheftActivity extends Activity {
         //initializeHistoryListView(res);
 	}
 	
+	
+	
+	
+	private void retrieveCheeseCountsLocally() {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+		query.fromLocalDatastore();
+		try {
+			List<ParseObject> cheeseUpdates = query.find();
+			for(ParseObject cheese : cheeseUpdates){
+				localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
+			}
+			
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
 	/* set display properties for user */
 	private void populateUserView()
 	{
 		/* create dummy user properties, throw away later */
 		PlayerViewModel userViewModel = new PlayerViewModel(currentUser.getString("facebookId"), 
 										currentUser.getString("profilePicUrl")+"?type=large", 
-										currentUser.getInt("cheeseCount"));
+										localCountMap.get(currentUser.getString("facebookId")));
 		
 		/* create adapter for user view */
 		System.out.println(currentUser.getString("facebookId"));
@@ -114,10 +140,9 @@ public class TheftActivity extends Activity {
 	private void populateFriendsListView(List<ParseUser> userFriends, Resources res)
 	{
 		friendsList = new ArrayList<PlayerViewModel>();	
-		for(ParseUser friend : userFriends)
-		{
+		for(ParseUser friend : userFriends){
 			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getString("facebookId"));
-			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , friend.getInt("cheeseCount")));
+			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , localCountMap.get(friend.getString("facebookId"))));
 		}
 		
         friendsListView= ( ListView )findViewById( R.id.friendsListView );   
@@ -128,51 +153,65 @@ public class TheftActivity extends Activity {
 	
 	/**
 	 * TODO: 
-	 * 1. Add bulging animation and vibration when you steal
-	 * 2. Add check for greyed out cheese/not enough cheeses
+	 * 1. Add check for grayed out cheese/not enough cheeses
 	 * @param friendImageClicked
 	 * @param position
 	 * @param movedCheeseImg
 	 */
-	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg){
+	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg, TextView cheeseCounter){
     	String friendFacebookId = getFriendFacebookId(position);
     	animateCheeseTheft(friendImageClicked, movedCheeseImg);
     	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + friendFacebookId, Toast.LENGTH_SHORT).show();
-    	updateTheftTransactionData(friendFacebookId);
+    	
+    	int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
+		int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
+		int updatedCurrentCount = currentCheesCount + 1;
+		int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
+    	
+		cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
+		((TextView)userCheeseTextView).setText(Integer.toString(updatedCurrentCount));
+    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
+    	
+    	
 	}
 	
 	
 	
-	private void updateTheftTransactionData(String friendFacebookId) {
+	private void updateTheftTransactionData(String friendFacebookId, 
+									int updatedCurrentCount, 
+									int updateFriendCheeseCount) {
 		try {
-			final List<ParseUser> batchedRequestList = new ArrayList<ParseUser>();
+			
 			//1. Update current user count
-			int currentCheesCount = currentUser.getInt("cheeseCount");
-			currentUser.put("cheeseCount", currentCheesCount+1);
-			batchedRequestList.add(currentUser);
 			
-			//2. Update friend cheese count
-			ParseQuery<ParseUser> findFriendQuery = ParseUser.getQuery();
-			findFriendQuery.fromLocalDatastore();
-			findFriendQuery.whereEqualTo("facebookId", friendFacebookId);
+			localCountMap.put(currentUser.getString("facebookId"), updatedCurrentCount);
 			
-			List<ParseUser> friends = findFriendQuery.find();
-			ParseUser currFriend = friends.get(0);
-			int frndCurrentCheeseCount = currFriend.getInt("cheeseCount");
-			currFriend.put("cheeseCount", frndCurrentCheeseCount-1);
-			//batchedRequestList.add(currFriend);
+			//2. Update friends cheese count
 			
-			ParseUser.saveAllInBackground(batchedRequestList, new SaveCallback() {
+			localCountMap.put(friendFacebookId, updateFriendCheeseCount);
+			
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+			query.whereContainedIn("facebookId", Arrays.asList(new String[]{currentUser.getString("facebookId"),friendFacebookId} ));
+			query.fromLocalDatastore();
+			final List<ParseObject> allUpdates = query.find();
+			for(ParseObject cheeseCount : allUpdates){
+				cheeseCount.put("cheeseCount", localCountMap.get(cheeseCount.get("facebookId")));
+			}
+			
+			ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
+				
 				@Override
 				public void done(ParseException ex) {
-						if(ex ==null){
-							ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, batchedRequestList);
-							getAllFriendsUpdates();
-						}else {
-							Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
-						}
+					if(ex ==null){
+						ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
+						getAllFriendsCheeseUpdates();
+					}else {
+						Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
+					}
+					
 				}
 			});
+			
 		} catch (ParseException e) {
 			Log.e(StealTheCheeseApplication.LOG_TAG, "Error in updating theft data", e);
 		}
@@ -186,23 +225,20 @@ public class TheftActivity extends Activity {
 	 * Since all the functions happen in main thread, we will need to move this 
 	 * to cloud code for multiple fast clicks
 	 */
-	protected void getAllFriendsUpdates() {
-		ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-		userQuery.whereContainedIn("facebookId", currentUser.getList("friends"));
-		userQuery.findInBackground(new FindCallback<ParseUser>() {
-			public void done(List<ParseUser> allFriendsInfo, ParseException e) {
+	protected void getAllFriendsCheeseUpdates() {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+		query.whereContainedIn("facebookId", currentUser.getList("friends"));
+		query.findInBackground(new FindCallback<ParseObject>() {
+			public void done(List<ParseObject> allFriendsInfo, ParseException e) {
 		    if (allFriendsInfo == null) {
 		      Log.d(StealTheCheeseApplication.LOG_TAG, "Update for friends failed");
 		    } else {
-		    	System.out.println(allFriendsInfo);
 		    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
-		    	try {
-					ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
-					
-				} catch (ParseException e1) {
-					Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
+		    	for(ParseObject cheese : allFriendsInfo){
+					localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
 				}
-		    }
+		    	ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
+			}
 		  }
 		});
 		

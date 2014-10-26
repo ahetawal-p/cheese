@@ -97,6 +97,9 @@ public class LoginActivity extends Activity {
 		ParseFacebookUtils.logIn(permissions, this, new LogInCallback() {
 			@Override
 			public void done(ParseUser user, ParseException err) {
+				if(err != null){
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Error in creating new user", err);
+				}
 				if (user == null) {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Uh oh. The user cancelled the Facebook login.");
 				} else if (user.isNew()) {
