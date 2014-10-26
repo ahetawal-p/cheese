@@ -51,7 +51,7 @@
         </activity>
         
         
-        <meta-data android:name="com.parse.push.notification_icon" android:resource="@drawable/notification"/>
+        <meta-data android:name="com.parse.push.notification_icon" android:resource="@drawable/cheese_count"/>
         
         <service android:name="com.parse.PushService" />
 		<receiver android:name="com.parse.ParseBroadcastReceiver">

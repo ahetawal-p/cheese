@@ -139,7 +139,7 @@ public class TheftActivity extends Activity {
 					}
 					if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
 						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
-						YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
+						YoYo.with(Techniques.FadeInUp).duration(3000).playOn((View)historyListView.getParent());
 					}
 					
 					historyListAdapter.notifyDataSetChanged();
@@ -257,7 +257,8 @@ public class TheftActivity extends Activity {
 		String message = currentUser.getString("firstName") + " just snatched your cheese!";
 		 
 		ParsePush push = new ParsePush();
-		push.setQuery(pushQuery); // Set our Installation query
+		push.setQuery(pushQuery); 
+		push.setExpirationTimeInterval(5*60); // 5 mins expiry
 		push.setMessage(message);
 		push.sendInBackground();
 		
