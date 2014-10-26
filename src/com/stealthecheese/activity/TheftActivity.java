@@ -113,6 +113,7 @@ public class TheftActivity extends Activity {
 		historyList.clear();
 		ParseQuery<ParseObject> histQuery = ParseQuery.getQuery("thefthistory");
 		histQuery.whereEqualTo("victimFBId", currentUser.get("facebookId"));
+		histQuery.orderByDescending("createdAt");
 		histQuery.setLimit(5);
 		histQuery.findInBackground(new FindCallback<ParseObject>() {
 
@@ -130,8 +131,6 @@ public class TheftActivity extends Activity {
 					}
 					
 					historyListAdapter.notifyDataSetChanged();
-					
-					
 					
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting hsitory", err);
@@ -243,7 +242,7 @@ public class TheftActivity extends Activity {
 		ParseQuery<ParseInstallation> pushQuery = ParseInstallation.getQuery();
 		pushQuery.whereEqualTo("facebookId", friendFacebookId);
 		ParseUser currentUser = ParseUser.getCurrentUser();
-		String message = currentUser.getString("firstName") + " says Hi!";
+		String message = currentUser.getString("firstName") + " just snatched your cheese!";
 		 
 		ParsePush push = new ParsePush();
 		push.setQuery(pushQuery); // Set our Installation query

@@ -6,8 +6,6 @@ import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.stealthecheese.R;
-import com.stealthecheese.activity.LoginActivity;
-import com.parse.PushService;
 
 
 public class StealTheCheeseApplication extends Application {
@@ -34,7 +32,6 @@ public class StealTheCheeseApplication extends Application {
     //PushService.setDefaultPushCallback(this, LoginActivity.class);
     ParseInstallation.getCurrentInstallation().saveInBackground();
     
-   
     
    // ParseUser.enableAutomaticUser();
     //ParseACL defaultACL = new ParseACL();

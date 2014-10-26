@@ -22,6 +22,7 @@ import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.Parse;
+import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
@@ -91,7 +92,7 @@ public class LoginActivity extends Activity {
         });
         LinearLayout titleContainer = (LinearLayout) findViewById(R.id.titleContainer);
         titleContainer.startAnimation(animTranslate);
-        
+        ParseAnalytics.trackAppOpened(getIntent());
 	}
 	
 	private void loginToFBAndCreateUser() {
