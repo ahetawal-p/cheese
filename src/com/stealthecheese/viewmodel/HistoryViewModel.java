@@ -1,12 +1,12 @@
 package com.stealthecheese.viewmodel;
 
 public class HistoryViewModel {
-	private String friendName = "";
+	private String friendName;
 	
 	
 	public HistoryViewModel(String thiefName)
 	{
-		this.friendName = friendName;
+		this.friendName = thiefName;
 		
 	}
 	
