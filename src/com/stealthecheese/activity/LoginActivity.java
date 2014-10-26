@@ -200,7 +200,7 @@ public class LoginActivity extends Activity {
 						  }
 						});
 						
-						//startTheftActivity();
+						startTheftActivity();
 					}
 				});
 			}

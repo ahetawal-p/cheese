@@ -19,6 +19,7 @@ import com.stealthecheese.viewmodel.HistoryViewModel;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -153,11 +154,31 @@ public class TheftActivity extends Activity {
 		int deltaY = destPos[1] - origPos[1];
 		
 		ImageView cheeseAnimationImageView = (ImageView)findViewById(R.id.cheeseAnimationImageView);
-		Animation animationSet = new TranslateAnimation(origPos[0], deltaX, origPos[1], deltaY);
-		animationSet.setDuration(1000);
-		cheeseAnimationImageView.setVisibility(View.VISIBLE);
-		cheeseAnimationImageView.startAnimation(animationSet);
-		cheeseAnimationImageView.setVisibility(View.GONE);
+		//Animation animationSet = new TranslateAnimation(origPos[0], deltaX, origPos[1], deltaY);
+		moveViewToScreenCenter(cheeseAnimationImageView);
+//		animationSet.setDuration(1000);
+//		cheeseAnimationImageView.setVisibility(View.VISIBLE);
+//		cheeseAnimationImageView.startAnimation(animationSet);
+//		cheeseAnimationImageView.setVisibility(View.GONE);
+	}
+	
+	
+	private void moveViewToScreenCenter( View view )
+	{
+	    DisplayMetrics dm = new DisplayMetrics();
+	    this.getWindowManager().getDefaultDisplay().getMetrics( dm );
+
+	    int originalPos[] = new int[2];
+	    view.getLocationOnScreen( originalPos );
+
+	    int xDest = dm.widthPixels/2;
+	    xDest -= (view.getMeasuredWidth()/2);
+	    int yDest = dm.heightPixels/2 - (view.getMeasuredHeight()/2);
+
+	    TranslateAnimation anim = new TranslateAnimation( 0, xDest - originalPos[0] , 0, yDest - originalPos[1] );
+	    anim.setDuration(1000);
+	    anim.setFillAfter( true );
+	    view.startAnimation(anim);
 	}
 	
 	private String getFriendFacebookId(int position)
