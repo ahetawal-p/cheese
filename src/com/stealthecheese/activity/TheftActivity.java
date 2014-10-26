@@ -66,8 +66,8 @@ public class TheftActivity extends Activity {
 	
 	@Override
 	public void onBackPressed() {
-		this.finish();
-	}
+            this.finish();
+        }
 
 	private void updatePage()
 	{
