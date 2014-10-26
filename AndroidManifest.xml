@@ -19,7 +19,7 @@
 	
 	
 	<permission android:protectionLevel="signature" android:name="com.stealthecheese.permission.C2D_MESSAGE" />
-	<uses-permission android:name="com.parse.starter.permission.C2D_MESSAGE" />
+	<uses-permission android:name="com.stealthecheese.permission.C2D_MESSAGE" />
 	
     <application
         android:name=".application.StealTheCheeseApplication"

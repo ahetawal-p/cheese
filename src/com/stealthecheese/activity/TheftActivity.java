@@ -24,7 +24,9 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -226,8 +228,28 @@ public class TheftActivity extends Activity {
     	
     	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount);
     	
+    	// Send Notifications out
+    	performNotifications(friendFacebookId);
     	
 	}
+
+	
+	
+	
+	private void performNotifications(String friendFacebookId) {
+		ParseQuery<ParseInstallation> pushQuery = ParseInstallation.getQuery();
+		pushQuery.whereEqualTo("facebookId", friendFacebookId);
+		ParseUser currentUser = ParseUser.getCurrentUser();
+		String message = currentUser.getString("firstName") + " says Hi!";
+		 
+		ParsePush push = new ParsePush();
+		push.setQuery(pushQuery); // Set our Installation query
+		push.setMessage(message);
+		push.sendInBackground();
+		
+	}
+
+
 
 	private void fecthLatestCheeseDataForTrans(String friendFacebookId) {
 		try{
