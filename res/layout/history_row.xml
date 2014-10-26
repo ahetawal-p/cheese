@@ -19,25 +19,25 @@
 	<LinearLayout 
 	    	android:orientation="vertical"
 	    	android:id="@+id/historyTextContainer"
-	    	android:gravity="center"
+	    	android:gravity="left"
+	    	android:layout_marginLeft="20dp"
+	    	android:layout_marginRight="20dp"
 	    	android:layout_width="fill_parent"
 	    	android:layout_height="fill_parent">
 	    <TextView
 	        android:id="@+id/friendNameTextview"
 	        android:layout_weight="1"
-	        android:gravity="center"
 	        android:layout_width="wrap_content"
 	        android:layout_height="fill_parent"
-	        android:textSize="10dp"
+	        android:textSize="13dp"
 	        android:textColor="#00C7D8"
 	        android:text="Friend Name" />
 	    <TextView 
 	        android:id="@+id/stoleCheeseTextView"
 	        android:layout_weight="1"
-	        android:gravity="center"
 	        android:layout_width="wrap_content"
 	        android:layout_height="fill_parent"
-	        android:textSize="10dp"
+	        android:textSize="13dp"
 	        android:textColor="#8A8782"
 	        android:text="@string/cheese_theft_message"/>
 	</LinearLayout>
