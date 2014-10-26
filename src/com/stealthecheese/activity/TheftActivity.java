@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.transition.Visibility;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -139,7 +138,7 @@ public class TheftActivity extends Activity {
 					}
 					if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
 						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
-						YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
+						YoYo.with(Techniques.FadeInUp).duration(3000).playOn((View)historyListView.getParent());
 					}
 					
 					historyListAdapter.notifyDataSetChanged();
@@ -182,7 +181,6 @@ public class TheftActivity extends Activity {
 										localCountMap.get(currentUser.getString("facebookId")));
 		
 		/* create adapter for user view */
-		System.out.println(currentUser.getString("facebookId"));
 		userCheeseTextView = findViewById(R.id.cheeseCountTextView);
 		userProfileImageView = findViewById(R.id.userProfileImageView);
 		userViewAdapter = new UserViewAdapter(this, userCheeseTextView, userProfileImageView);
@@ -257,7 +255,8 @@ public class TheftActivity extends Activity {
 		String message = currentUser.getString("firstName") + " just snatched your cheese!";
 		 
 		ParsePush push = new ParsePush();
-		push.setQuery(pushQuery); // Set our Installation query
+		push.setQuery(pushQuery); 
+		push.setExpirationTimeInterval(5*60); // 5 mins expiry
 		push.setMessage(message);
 		push.sendInBackground();
 		

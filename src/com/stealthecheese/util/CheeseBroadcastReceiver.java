@@ -1,9 +1,12 @@
 package com.stealthecheese.util;
 
-import com.parse.ParsePushBroadcastReceiver;
-
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.parse.ParsePushBroadcastReceiver;
+import com.stealthecheese.R;
 
 public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 	@Override
@@ -12,6 +15,16 @@ public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 		newIntent.putExtras(intent.getExtras());
         context.startActivity(newIntent);
 	  }
+	
+	
+	@Override
+	protected Bitmap getLargeIcon(Context context, Intent intent){
+		Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.cheese_stealing_4);
+		return largeIcon;
+        
+    }
+	
+	
 }
 
 
