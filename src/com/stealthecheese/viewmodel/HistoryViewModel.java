@@ -2,12 +2,12 @@ package com.stealthecheese.viewmodel;
 
 public class HistoryViewModel {
 	private String friendName = "";
-	private String imageString = "";
 	
-	public HistoryViewModel(String friendName, String imageString)
+	
+	public HistoryViewModel(String thiefName)
 	{
 		this.friendName = friendName;
-		this.imageString = imageString;
+		
 	}
 	
 	public String getFriendName()
@@ -15,10 +15,6 @@ public class HistoryViewModel {
 		return this.friendName;
 	}
 	
-	public String getImageString()
-	{
-		return this.imageString;
-	}
 	
 	
 }

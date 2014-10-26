@@ -11,10 +11,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
 import com.stealthecheese.util.CircleTransform;
@@ -31,7 +29,7 @@ public class HistoryListAdapter extends BaseAdapter implements OnClickListener {
     int i=0;
      
     /*************  CustomAdapter Constructor *****************/
-    public HistoryListAdapter(Activity a, ArrayList d,Resources resLocal) {
+    public HistoryListAdapter(Activity a, ArrayList<HistoryViewModel> d,Resources resLocal) {
          
            /********** Take passed values **********/
             activity = a;
@@ -105,9 +103,7 @@ public class HistoryListAdapter extends BaseAdapter implements OnClickListener {
 
              holder.friendNameTextView.setText( tempValues.getFriendName());
              //use Picasso to load image into ImageView
-             String imageUrl = tempValues.getImageString();
-             Transformation circleTransform = new CircleTransform();
-              
+             
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
              vi.setOnClickListener(new OnItemClickListener( position ));
