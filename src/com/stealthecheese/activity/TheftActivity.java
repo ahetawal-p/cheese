@@ -5,22 +5,21 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.stealthecheese.R;
 import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
@@ -127,16 +126,88 @@ public class TheftActivity extends Activity {
         
 	}
 	
-	/* handle user click on friends image view */
-	public void onCheeseTheft(View imageViewClicked, int position, ImageView movedCheeseImg){
-    	String facebookId = getFriendFacebookId(position);
-    	animateCheeseTheft(imageViewClicked, movedCheeseImg);
-    	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + facebookId, 3).show();
-    	//updateCheeseCount();
+	/**
+	 * TODO: 
+	 * 1. Add bulging animation and vibration when you steal
+	 * 2. Add check for greyed out cheese/not enough cheeses
+	 * @param friendImageClicked
+	 * @param position
+	 * @param movedCheeseImg
+	 */
+	public void onCheeseTheft(View friendImageClicked, int position, ImageView movedCheeseImg){
+    	String friendFacebookId = getFriendFacebookId(position);
+    	animateCheeseTheft(friendImageClicked, movedCheeseImg);
+    	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + friendFacebookId, Toast.LENGTH_SHORT).show();
+    	updateTheftTransactionData(friendFacebookId);
 	}
 	
 	
 	
+	private void updateTheftTransactionData(String friendFacebookId) {
+		try {
+			final List<ParseUser> batchedRequestList = new ArrayList<ParseUser>();
+			//1. Update current user count
+			int currentCheesCount = currentUser.getInt("cheeseCount");
+			currentUser.put("cheeseCount", currentCheesCount+1);
+			batchedRequestList.add(currentUser);
+			
+			//2. Update friend cheese count
+			ParseQuery<ParseUser> findFriendQuery = ParseUser.getQuery();
+			findFriendQuery.fromLocalDatastore();
+			findFriendQuery.whereEqualTo("facebookId", friendFacebookId);
+			
+			List<ParseUser> friends = findFriendQuery.find();
+			ParseUser currFriend = friends.get(0);
+			int frndCurrentCheeseCount = currFriend.getInt("cheeseCount");
+			currFriend.put("cheeseCount", frndCurrentCheeseCount-1);
+			//batchedRequestList.add(currFriend);
+			
+			ParseUser.saveAllInBackground(batchedRequestList, new SaveCallback() {
+				@Override
+				public void done(ParseException ex) {
+						if(ex ==null){
+							ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, batchedRequestList);
+							getAllFriendsUpdates();
+						}else {
+							Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
+						}
+				}
+			});
+		} catch (ParseException e) {
+			Log.e(StealTheCheeseApplication.LOG_TAG, "Error in updating theft data", e);
+		}
+		
+		
+	}
+	
+	
+	/**
+	 * This only for hackathon.
+	 * Since all the functions happen in main thread, we will need to move this 
+	 * to cloud code for multiple fast clicks
+	 */
+	protected void getAllFriendsUpdates() {
+		ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
+		userQuery.whereContainedIn("facebookId", currentUser.getList("friends"));
+		userQuery.findInBackground(new FindCallback<ParseUser>() {
+			public void done(List<ParseUser> allFriendsInfo, ParseException e) {
+		    if (allFriendsInfo == null) {
+		      Log.d(StealTheCheeseApplication.LOG_TAG, "Update for friends failed");
+		    } else {
+		    	System.out.println(allFriendsInfo);
+		    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
+		    	try {
+					ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
+					
+				} catch (ParseException e1) {
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
+				}
+		    }
+		  }
+		});
+		
+	}
+
 	private void animateCheeseTheft(View viewItemClicked, final ImageView movedCheeseImg) {
 		AnimationListener animL = new AnimationListener() {
 		    @Override
