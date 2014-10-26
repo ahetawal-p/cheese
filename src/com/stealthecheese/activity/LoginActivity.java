@@ -25,14 +25,11 @@ import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
 import com.parse.LogInCallback;
-import com.parse.Parse;
-import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.stealthecheese.R;
@@ -101,13 +98,11 @@ public class LoginActivity extends Activity {
 	
 	private void checkNetworkAvailability()
 	{
-	    ConnectivityManager cm = (ConnectivityManager) this
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
+	    ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 	    
-	    if (networkInfo == null)
-	    {
-	    	Toast.makeText(this, R.string.no_network_message, 2);
+	    if (networkInfo == null) {
+	    	Toast.makeText(this, R.string.no_network_message, Toast.LENGTH_LONG).show();
 	    	startTheftActivity();
 	    }
 	}
@@ -274,23 +269,7 @@ public class LoginActivity extends Activity {
 	}
 	
 	
-	private void verifyLocalDataStore(int origSize) {
-		ParseQuery<ParseUser> savedUsertest = ParseUser.getQuery();
-		savedUsertest.fromLocalDatastore();
-		List<ParseUser> mytest;
-		try {
-			mytest = savedUsertest.find();
-			System.out.println(mytest.get(0).get("facebookId"));
-			System.out.println(mytest.get(1).get("facebookId"));
-			Log.i(StealTheCheeseApplication.LOG_TAG, "Size of the fecthed result is " + origSize);
-			Log.i(StealTheCheeseApplication.LOG_TAG, "Size of the local data store is " + (mytest.size() - 1));
-			System.out.println(mytest);
-		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-	}
+	
 	
 	
 	/**
