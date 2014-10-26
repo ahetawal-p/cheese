@@ -3,10 +3,23 @@ package com.stealthecheese.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.parse.FindCallback;
+import android.app.Activity;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.opengl.Visibility;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Toast;
+
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.stealthecheese.R;
 import com.stealthecheese.adapter.FriendsListAdapter;
@@ -14,21 +27,9 @@ import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.adapter.UserViewAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.model.User;
-import com.stealthecheese.viewmodel.PlayerViewModel;
+import com.stealthecheese.util.Animations;
 import com.stealthecheese.viewmodel.HistoryViewModel;
-import android.app.Activity;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
+import com.stealthecheese.viewmodel.PlayerViewModel;
 
 public class TheftActivity extends Activity {
 	ListView historyListView;
@@ -49,11 +50,48 @@ public class TheftActivity extends Activity {
 		updatePage();
 	}
 	
+	private void updatePage()
+	{
+		currentUser = ParseUser.getCurrentUser();
+		
+		try {
+			List<ParseUser> friendUsers = ParseUser.getQuery()
+													.fromLocalDatastore()
+													.whereNotEqualTo("facebookId", currentUser.getString("facebookId"))
+													.find();
+			
+			populateViews(friendUsers);
+		} 
+		catch (ParseException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.e(StealTheCheeseApplication.LOG_TAG, "Fetch friends from localstore failed with message: " + e.toString());
+		}
+	}
+	
+	/**
+	 * Popluates user and friends views
+	 * @param friendUsers
+	 */
+	private void populateViews(List<ParseUser> friendUsers)
+	{
+        Resources res = getResources();
+        
+        populateUserView();
+        
+        populateFriendsListView(friendUsers, res);
+      
+        //initializeHistoryListView(res);
+	}
+	
 	/* set display properties for user */
 	private void populateUserView()
 	{
 		/* create dummy user properties, throw away later */
-		PlayerViewModel userViewModel = new PlayerViewModel(currentUser.getString("facebookId"), currentUser.getString("profilePicUrl"), currentUser.getInt("cheeseCount"));
+		PlayerViewModel userViewModel = new PlayerViewModel(currentUser.getString("facebookId"), 
+										currentUser.getString("profilePicUrl")+"?type=large", 
+										currentUser.getInt("cheeseCount"));
 		
 		/* create adapter for user view */
 		System.out.println(currentUser.getString("facebookId"));
@@ -86,99 +124,50 @@ public class TheftActivity extends Activity {
         friendsListView= ( ListView )findViewById( R.id.friendsListView );   
         friendsListAdapter = new FriendsListAdapter( this, friendsList,res );
         friendsListView.setAdapter( friendsListAdapter );
-//        friendsListView.setOnItemClickListener(new OnItemClickListener() 
-//        {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) 
-//            {
-//            	String facebookId = getFriendFacebookId(position);
-//            	animateCheeseTheft(view);
-//            	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + facebookId, 3).show();
-//            	updateCheeseCount();
-//            }
-//        });
-	}
-	
-	
-	private void updatePage()
-	{
-		currentUser = ParseUser.getCurrentUser();
-		String userFacebookId = (String) ParseUser.getCurrentUser().get("facebookId");
-		String userName = ParseUser.getCurrentUser().getUsername();
-		try 
-		{
-			List<ParseUser> friendUsers = ParseUser.getQuery()
-													.fromLocalDatastore()
-													.whereNotEqualTo("facebookId", currentUser.getString("facebookId"))
-													.find();
-			
-			populateView(friendUsers);
-		} 
-		catch (ParseException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.e(StealTheCheeseApplication.LOG_TAG, "Fetch friends from localstore failed with message: " + e.toString());
-		}
-	}
-	
-	private void populateView(List<ParseUser> friendUsers)
-	{
-        Resources res = getResources();
-        populateUserView();
-        //initializeHistoryListView(res);
-        populateFriendsListView(friendUsers, res);
+        
 	}
 	
 	/* handle user click on friends image view */
-	public void onImageClicked(View imageViewClicked, int position)
-	{
+	public void onCheeseTheft(View imageViewClicked, int position, ImageView movedCheeseImg){
     	String facebookId = getFriendFacebookId(position);
-    	animateCheeseTheft(imageViewClicked);
+    	animateCheeseTheft(imageViewClicked, movedCheeseImg);
     	Toast.makeText(getApplicationContext(), "Stealing cheese from user: " + facebookId, 3).show();
-    	updateCheeseCount();
+    	//updateCheeseCount();
 	}
 	
-	private void animateCheeseTheft(View viewItemClicked)
-	{
+	
+	
+	private void animateCheeseTheft(View viewItemClicked, final ImageView movedCheeseImg) {
+		AnimationListener animL = new AnimationListener() {
+		    @Override
+		    public void onAnimationStart(Animation animation) {}
+
+		    @Override
+		    public void onAnimationRepeat(Animation animation) {}
+
+		    @Override
+		    public void onAnimationEnd(Animation animation) {
+		        movedCheeseImg.setVisibility(View.GONE);
+		    }
+		};
+		    
+		
 		/* destination position */
 		int[] destPos = new int[2];
 		userProfileImageView.getLocationOnScreen(destPos);
+		
+		destPos[0]+=userProfileImageView.getWidth()/2;
+		destPos[1]+=userProfileImageView.getHeight()/2;
 		
 		/* original position of cheese, want it to start at victim's image position */
 		int [] origPos = new int[2];
 		viewItemClicked.getLocationOnScreen(origPos);
 		
-		/* calculate deltas to determine how much to move */
-		int deltaX = destPos[0] - origPos[0];
-		int deltaY = destPos[1] - origPos[1];
+		Animations anim = new Animations();
+	    Animation a = anim.fromAtoB(origPos[0],origPos[1], destPos[0], destPos[1], animL, 500);
+	    movedCheeseImg.setVisibility(View.VISIBLE);
+	    movedCheeseImg.startAnimation(a);
 		
-		ImageView cheeseAnimationImageView = (ImageView)findViewById(R.id.cheeseAnimationImageView);
-		//Animation animationSet = new TranslateAnimation(origPos[0], deltaX, origPos[1], deltaY);
-		moveViewToScreenCenter(cheeseAnimationImageView);
-//		animationSet.setDuration(1000);
-//		cheeseAnimationImageView.setVisibility(View.VISIBLE);
-//		cheeseAnimationImageView.startAnimation(animationSet);
-//		cheeseAnimationImageView.setVisibility(View.GONE);
-	}
-	
-	
-	private void moveViewToScreenCenter( View view )
-	{
-	    DisplayMetrics dm = new DisplayMetrics();
-	    this.getWindowManager().getDefaultDisplay().getMetrics( dm );
-
-	    int originalPos[] = new int[2];
-	    view.getLocationOnScreen( originalPos );
-
-	    int xDest = dm.widthPixels/2;
-	    xDest -= (view.getMeasuredWidth()/2);
-	    int yDest = dm.heightPixels/2 - (view.getMeasuredHeight()/2);
-
-	    TranslateAnimation anim = new TranslateAnimation( 0, xDest - originalPos[0] , 0, yDest - originalPos[1] );
-	    anim.setDuration(1000);
-	    anim.setFillAfter( true );
-	    view.startAnimation(anim);
 	}
 	
 	private String getFriendFacebookId(int position)
@@ -197,15 +186,7 @@ public class TheftActivity extends Activity {
 		return facebookId;
 	}
 	
-	private void updateCheeseCount()
-	{
-		updateUserCheeseCount();
-	}
 	
-	private void updateUserCheeseCount()
-	{
-		userViewAdapter.setCheeseCount(90);
-	}
 	
 //	private void populateFriendsListview(List<User> friends)
 //	{

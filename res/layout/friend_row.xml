@@ -2,12 +2,23 @@
    android:layout_width="fill_parent"
    android:layout_height="fill_parent"
    android:paddingLeft="16dp"
+   android:clipChildren="false"
+   android:clipToPadding="false"
    android:paddingRight="16dp" >
+   
+     <ImageView
+	      android:id="@+id/cheeseAnimationImageView"
+	      android:layout_width="wrap_content"
+	      android:layout_height="wrap_content"
+	      android:visibility="gone"
+	      android:src="@drawable/cheese_stealing_4"/>
+	      
    <ImageView
 	    android:id="@+id/friendImageView"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_centerHorizontal="true"
+	    android:visibility="visible"
 	    android:background="@drawable/profile_contacts_2x"/>
 
    <TextView
@@ -24,5 +35,7 @@
        android:text="5"
        android:textColor="#fff"
        android:textSize="13dp" />
+   
+   
 
 </RelativeLayout>
