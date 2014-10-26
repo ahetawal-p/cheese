@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.LightingColorFilter;
+import android.graphics.PorterDuff;
 import android.graphics.PorterDuff.Mode;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -119,7 +121,8 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              int playerCheese = data.get( position ).getCheese();
              if (playerCheese < 1)
              {
-            	 //holder.friendImageView.setImageAlpha(10);
+                 holder.friendImageView.setAlpha(0.2f);
+                 holder.counterTextView.setAlpha(0.2f);
             	 holder.friendImageView.setClickable(false);
             	 vi.setClickable(false);
              }

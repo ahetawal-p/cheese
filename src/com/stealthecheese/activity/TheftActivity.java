@@ -64,7 +64,10 @@ public class TheftActivity extends Activity {
 		updatePage();
 	}
 	
-	
+	@Override
+	public void onBackPressed() {
+		this.finish();
+	}
 
 	private void updatePage()
 	{
@@ -365,44 +368,44 @@ public class TheftActivity extends Activity {
 	}
 
 	private void animateCheeseTheft(View viewItemClicked, 
-							final ImageView movedCheeseImg, final TextView cheeseCounter, 
-							final int updatedCurrentCount, 
-							final int updateFriendCheeseCount) {
+			final ImageView movedCheeseImg, final TextView cheeseCounter, 
+			final int updatedCurrentCount, 
+			final int updateFriendCheeseCount) {
 		AnimationListener animL = new AnimationListener() {
-		    @Override
-		    public void onAnimationStart(Animation animation) {}
+			@Override
+			public void onAnimationStart(Animation animation) {}
 
-		    @Override
-		    public void onAnimationRepeat(Animation animation) {}
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
 
-		    @Override
-		    public void onAnimationEnd(Animation animation) {
-		        movedCheeseImg.setVisibility(View.GONE);
-		        wobbleImageView(userProfileImageView);
-		        
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				movedCheeseImg.setVisibility(View.GONE);
+				wobbleImageView(userProfileImageView);
+
 				cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
 				((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
-		        
-		        
-		    }
+
+
+			}
 		};
-		
+
 		/* destination position */
 		int[] destPos = new int[2];
 		userProfileImageView.getLocationOnScreen(destPos);
-		
+
 		destPos[0]+=userProfileImageView.getWidth()/2;
 		destPos[1]+=userProfileImageView.getHeight()/2;
-		
+
 		/* original position of cheese, want it to start at victim's image position */
 		int [] origPos = new int[2];
 		viewItemClicked.getLocationOnScreen(origPos);
-		
+
 		Animations anim = new Animations();
-	    Animation a = anim.fromAtoB(origPos[0],origPos[1], destPos[0], destPos[1], animL, 500);
-	    movedCheeseImg.setVisibility(View.VISIBLE);
-	    movedCheeseImg.startAnimation(a);
-		
+		Animation a = anim.fromAtoB(origPos[0],origPos[1], destPos[0], destPos[1], animL, 500);
+		movedCheeseImg.setVisibility(View.VISIBLE);
+		movedCheeseImg.startAnimation(a);
+
 	}
 	
     private void wobbleImageView(View imageView)

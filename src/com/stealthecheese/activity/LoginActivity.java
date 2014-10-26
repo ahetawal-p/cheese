@@ -282,6 +282,7 @@ public class LoginActivity extends Activity {
 		Intent intent = new Intent(LoginActivity.this, TheftActivity.class);
 		// removing this activity from backstack
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		
 		startActivity(intent);
 		finish();
 	}
