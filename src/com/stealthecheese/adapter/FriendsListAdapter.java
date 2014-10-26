@@ -122,7 +122,6 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             	 //holder.friendImageView.getBackground().setColorFilter(Color.BLACK, PorterDuff.Mode.DARKEN);
             	 holder.friendImageView.setClickable(false);
             	 vi.setClickable(false);
-            	
              }
              
              /******** Set Item Click Listner for LayoutInflater for each row *******/
