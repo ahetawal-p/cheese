@@ -7,22 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
@@ -38,7 +31,7 @@ import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.adapter.UserViewAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
-import com.stealthecheese.util.Animations;
+import com.stealthecheese.util.AnimationHandler;
 import com.stealthecheese.viewmodel.HistoryViewModel;
 import com.stealthecheese.viewmodel.PlayerViewModel;
 
@@ -50,24 +43,28 @@ public class TheftActivity extends Activity {
 	HistoryListAdapter historyListAdapter;
 	FriendsListAdapter friendsListAdapter;
 	UserViewAdapter userViewAdapter;
-	View userProfileImageView; 
-	View userCheeseTextView;
+	ImageView userProfileImageView; 
+	TextView userCheeseTextView;
 	ImageView refreshImageView;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
-	
+	AnimationHandler animationHandler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_theft);
 		
+		initializeUtilities();
 		initializeImageButtons();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
 	}
 	
-
+	private void initializeUtilities()
+	{
+		this.animationHandler = new AnimationHandler(this);
+	}
 	
 	@Override
 	public void onBackPressed() {
@@ -140,7 +137,7 @@ public class TheftActivity extends Activity {
 			}
 			if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
 				((View)historyListView.getParent()).setVisibility(View.VISIBLE);
-				YoYo.with(Techniques.FadeIn).duration(3000).playOn((View)historyListView.getParent());
+				animationHandler.fadeIn((View)historyListView.getParent());
 			}
 			historyListAdapter.notifyDataSetChanged();
 
@@ -179,8 +176,8 @@ public class TheftActivity extends Activity {
 										localCountMap.get(currentUser.getString("facebookId")));
 		
 		/* create adapter for user view */
-		userCheeseTextView = findViewById(R.id.cheeseCountTextView);
-		userProfileImageView = findViewById(R.id.userProfileImageView);
+		userCheeseTextView = (TextView) findViewById(R.id.cheeseCountTextView);
+		userProfileImageView = (ImageView) findViewById(R.id.userProfileImageView);
 		userViewAdapter = new UserViewAdapter(this, userCheeseTextView, userProfileImageView);
 		
 		/* set display values via adapter */
@@ -191,7 +188,6 @@ public class TheftActivity extends Activity {
 		friendsListView= ( ListView )findViewById( R.id.friendsListView );   
 		friendsListAdapter = new FriendsListAdapter( this, friendsList, resources );
 		friendsListView.setAdapter( friendsListAdapter );
-
 	}
 	
 	
@@ -244,11 +240,9 @@ public class TheftActivity extends Activity {
 		
 		String friendFacebookId = getFriendFacebookId(position);
 
-    	animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, 0, 0);
-		
-    	//fecthLatestCheeseDataForTranAsync(friendFacebookId, cheeseCounter, friendImageClicked);
+		/* display animation and start cheese theft async process */
+		animationHandler.animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, userProfileImageView, 0, 0);
     	performCheeseTheft(friendFacebookId, (ImageView)friendImageClicked, cheeseCounter);
-    	
 	}
 
 	
@@ -412,8 +406,8 @@ public class TheftActivity extends Activity {
 			    	
 			    	if (updateFriendCheeseCount >= 0){
 			    		friendsListAdapter.unlockImageClick((ImageView)friendImageView, cheeseCountTextView);
-			    		YoYo.with(Techniques.Bounce).duration(1000).playOn(cheeseCountTextView);
-			    		YoYo.with(Techniques.Bounce).duration(1000).playOn(findViewById(R.id.userCheeseCountContainer));
+			    		TextView userCheeseCountContainer = (TextView)findViewById(R.id.userCheeseCountContainer);
+			    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCountTextView);
 			    	}
 					ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
 						@Override
@@ -433,8 +427,6 @@ public class TheftActivity extends Activity {
 			});
 		
 	}
-	
-	
 	
 	private void insertHistoryData(String friendFacebookId) {
 		ParseObject histQuery = new ParseObject("thefthistory");
@@ -471,50 +463,6 @@ public class TheftActivity extends Activity {
 		});
 		
 	}*/
-
-	private void animateCheeseTheft(View viewItemClicked, 
-			final ImageView movedCheeseImg, final TextView cheeseCounter, 
-			final int updatedCurrentCount, 
-			final int updateFriendCheeseCount) {
-		AnimationListener animL = new AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				movedCheeseImg.setVisibility(View.GONE);
-				wobbleImageView(userProfileImageView);
-			}
-		};
-
-		/* destination position */
-		int[] destPos = new int[2];
-		userProfileImageView.getLocationOnScreen(destPos);
-
-		destPos[0]+=userProfileImageView.getWidth()/2;
-		destPos[1]+=userProfileImageView.getHeight()/2;
-
-		/* original position of cheese, want it to start at victim's image position */
-		int [] origPos = new int[2];
-		viewItemClicked.getLocationOnScreen(origPos);
-
-		Animations anim = new Animations();
-		Animation a = anim.fromAtoB(origPos[0],origPos[1], destPos[0], destPos[1], animL, 300);
-		movedCheeseImg.setVisibility(View.VISIBLE);
-		movedCheeseImg.startAnimation(a);
-
-	}
-	
-    private void wobbleImageView(View imageView)
-    {
-        Animation animationWobble  = AnimationUtils.loadAnimation(TheftActivity.this, R.anim.wobble);
-        imageView.startAnimation(animationWobble);
-        Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(250);
-    }
     
 
 	
