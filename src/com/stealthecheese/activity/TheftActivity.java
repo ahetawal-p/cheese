@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,6 +24,8 @@ import android.widget.TextView;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -242,17 +245,55 @@ public class TheftActivity extends Activity {
 		String friendFacebookId = getFriendFacebookId(position);
 
     	animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, 0, 0);
-    	
-    	//fecthLatestCheeseDataForTrans(friendFacebookId);
 		
-    	fecthLatestCheeseDataForTranAsync(friendFacebookId, cheeseCounter, friendImageClicked);
-    	
+    	//fecthLatestCheeseDataForTranAsync(friendFacebookId, cheeseCounter, friendImageClicked);
+    	performCheeseTheft(friendFacebookId, (ImageView)friendImageClicked, cheeseCounter);
     	
 	}
 
 	
+	private void performCheeseTheft(final String friendFacebookId, final ImageView friendImageClicked, final TextView cheeseCounter)
+	{
+		final Map<String,Object> params = new HashMap<String,Object>();
+		params.put("victimFacebookId", friendFacebookId);
+		params.put("thiefFacebookId", currentUser.getString("facebookId"));
+		
+	    ParseCloud.callFunctionInBackground("onCheeseTheft", params, new FunctionCallback< List<ParseObject> >() {
+	        public void done(List<ParseObject> allUpdates, ParseException e) {
+	          if (e == null){   
+					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
+					
+					int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
+					int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
+					
+					int updatedCurrentCount = currentCheesCount + 1;
+					int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
+					
+			    	cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
+					((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
+					
+			    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount, friendImageClicked, cheeseCounter) ;
+			    	
+			    	for(ParseObject cheese : allUpdates){
+						localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
+					}
+			    	
+			    	// Send Notifications out
+			    	/* Beck: temporarily comment this out to not annoy everyone */
+			    	/*
+			    	performNotifications(friendFacebookId);
+			    	*/
+	          }
+	          else
+	          {
+	  			Log.e(StealTheCheeseApplication.LOG_TAG, "Cheese theft failed with message: ", e);
+	          }
+	        }
+	    });
+		}
+
 	
-	
+	/* Old cheese theft code
 	private void fecthLatestCheeseDataForTranAsync(final String friendFacebookId, final TextView cheeseCounter, final View friendImageClicked) {
 			
 			//Get current counts from Parse
@@ -301,6 +342,8 @@ public class TheftActivity extends Activity {
 			});
 		}
 
+	*/
+	
 	private void performNotifications(String friendFacebookId) {
 		ParseQuery<ParseInstallation> pushQuery = ParseInstallation.getQuery();
 		pushQuery.whereEqualTo("facebookId", friendFacebookId);
@@ -316,7 +359,7 @@ public class TheftActivity extends Activity {
 	}
 
 
-
+	/* No longer used after switching to cloud code
 	private void fecthLatestCheeseDataForTrans(String friendFacebookId) {
 		try{
     	//Get current counts from Parse
@@ -343,7 +386,7 @@ public class TheftActivity extends Activity {
     	}
 	}
 	
-	
+	*/
 	
 	private void updateTheftTransactionData(final String friendFacebookId, 
 									int updatedCurrentCount, 
@@ -378,7 +421,7 @@ public class TheftActivity extends Activity {
 							if(ex ==null){
 								ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
 								insertHistoryData(friendFacebookId);
-								getAllFriendsCheeseUpdates(friendFacebookId);
+								//getAllFriendsCheeseUpdates(friendFacebookId);
 							}else {
 								Log.e(StealTheCheeseApplication.LOG_TAG, "Error saving theft updates", ex);
 							}
@@ -402,12 +445,12 @@ public class TheftActivity extends Activity {
 	
 	
 	
+	/* No longer need this after switching to cloud code 
 	/**
 	 * This only for hackathon.
 	 * Since all the functions happen in main thread, we will need to move this 
 	 * to cloud code for multiple fast clicks
 	 * @param friendFacebookId 
-	 */
 	protected void getAllFriendsCheeseUpdates(String friendFacebookId) {
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
 		query.whereContainedIn("facebookId", currentUser.getList("friends"));
@@ -427,7 +470,7 @@ public class TheftActivity extends Activity {
 		  }
 		});
 		
-	}
+	}*/
 
 	private void animateCheeseTheft(View viewItemClicked, 
 			final ImageView movedCheeseImg, final TextView cheeseCounter, 
