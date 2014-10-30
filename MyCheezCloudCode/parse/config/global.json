@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "_default": {
+            "link": "mycheez"
+        }, 
+        "mycheez": {
+            "applicationId": "He3esVXQ8BlaHA5ArPFQlM7YLvzDfgjpnL9INv0C", 
+            "masterKey": "4uqHURlbteLjoKaDAepdEetbyhA4Lyh5yyFoX8FA"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.3.0"
+    }
+}
