@@ -11,6 +11,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class AnimationHandler {
@@ -69,7 +70,7 @@ public class AnimationHandler {
     	YoYo.with(Techniques.FadeIn).duration(3000).playOn(view);
     }
     
-    public void bounceCheeseCounters(TextView userCheeseCounter, TextView friendCheeseCounter)
+    public void bounceCheeseCounters(View userCheeseCounter, TextView friendCheeseCounter)
     {
 		YoYo.with(Techniques.Bounce).duration(1000).playOn(friendCheeseCounter);
 		YoYo.with(Techniques.Bounce).duration(1000).playOn(userCheeseCounter);

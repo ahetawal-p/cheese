@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -257,20 +258,24 @@ public class TheftActivity extends Activity {
 	          if (e == null){   
 					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
 					
-					int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
-					int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
-					
-					int updatedCurrentCount = currentCheesCount + 1;
-					int updateFriendCheeseCount = frndCurrentCheeseCount - 1;
-					
-			    	cheeseCounter.setText(Integer.toString(updateFriendCheeseCount));
-					((TextView)userCheeseTextView).setText("x " + Integer.toString(updatedCurrentCount));
-					
-			    	updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount, friendImageClicked, cheeseCounter) ;
-			    	
 			    	for(ParseObject cheese : allUpdates){
 						localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
 					}
+					
+					int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
+					int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
+					
+			    	cheeseCounter.setText(Integer.toString(frndCurrentCheeseCount));
+					((TextView)userCheeseTextView).setText("x " + Integer.toString(currentCheesCount));
+					
+			    	//updateTheftTransactionData(friendFacebookId, updatedCurrentCount, updateFriendCheeseCount, friendImageClicked, cheeseCounter) ;
+			    	
+			    	
+			    	if (frndCurrentCheeseCount > 0){
+			    		friendsListAdapter.unlockImageClick((ImageView)friendImageClicked, cheeseCounter);
+			    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
+			    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
+			    	}
 			    	
 			    	// Send Notifications out
 			    	/* Beck: temporarily comment this out to not annoy everyone */
@@ -300,6 +305,8 @@ public class TheftActivity extends Activity {
 		
 	}
 	
+	/* using cloud code onCheeseTheft method in place of this */
+	/* 
 	private void updateTheftTransactionData(final String friendFacebookId, 
 									int updatedCurrentCount, 
 									final int updateFriendCheeseCount, final View friendImageView, final TextView cheeseCountTextView) {
@@ -324,7 +331,7 @@ public class TheftActivity extends Activity {
 			    	
 			    	if (updateFriendCheeseCount >= 0){
 			    		friendsListAdapter.unlockImageClick((ImageView)friendImageView, cheeseCountTextView);
-			    		TextView userCheeseCountContainer = (TextView)findViewById(R.id.userCheeseCountContainer);
+			    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
 			    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCountTextView);
 			    	}
 					ParseObject.saveAllInBackground(allUpdates, new SaveCallback() {
@@ -346,13 +353,17 @@ public class TheftActivity extends Activity {
 		
 	}
 	
+	*/
+	
+	/* using cloud code onCheeseTheft function in place of this */
+	/*
 	private void insertHistoryData(String friendFacebookId) {
 		ParseObject histQuery = new ParseObject("thefthistory");
 		histQuery.put("victimFBId", friendFacebookId);
 		histQuery.put("thiefFBId", currentUser.get("facebookId"));
 		histQuery.saveInBackground();
 	}
-
+*/
 	
 	private String getFriendFacebookId(int position)
 	{
