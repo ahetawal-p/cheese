@@ -13,7 +13,10 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	query.find().then(
 					function(cheeseRows)
 					{
-						updateCheeseTable(cheeseRows);
+						if (!updateCheeseTable(cheeseRows))
+						{
+							response.error("");
+						}
 					},
 					function(errorResponse)
 					{
@@ -48,16 +51,20 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 				}
 			}
 			
+			console.log("victim cheese count is: " + victimUserCheese.get("cheeseCount"));
 			if (victimUserCheese.get("cheeseCount") < 1)
 			{
 				console.log("victim has no cheese!");
 				response.error("victim has no cheese!");
+				return false;
 			}
 			
 			thiefUserCheese.increment("cheeseCount");	
 			thiefUserCheese.save();
 			victimUserCheese.increment("cheeseCount", -1);			
 			victimUserCheese.save();
+			
+			return true;
 	}
 	
 	/* add theft record to thefthistory table */
