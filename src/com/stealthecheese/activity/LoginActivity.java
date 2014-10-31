@@ -132,16 +132,15 @@ public class LoginActivity extends Activity {
 	
 	
 	private void performCreateAndLogin(boolean isNewUser){
-		
 		final Map<String,Object> params = new HashMap<String,Object>();
 		params.put("isNewUserFlag", isNewUser);
 		
-		ParseCloud.callFunctionInBackground("onLoginActivity", params, new FunctionCallback<List<ParseObject>>() {
+		ParseCloud.callFunctionInBackground("onLoginActivity", params, new FunctionCallback<List<ParseUser>>() {
 			
 			@Override
-			public void done(List<ParseObject>allUsersData, ParseException ex) {
+			public void done(List<ParseUser>allUsersData, ParseException ex) {
 				if (ex == null){   
-					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUsersData, new SaveCallback() {
+					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUsersData, new SaveCallback() {
 						
 						@Override
 						public void done(ParseException ex) {
@@ -150,13 +149,14 @@ public class LoginActivity extends Activity {
 								String fbId = (String)curr.get("facebookId");
 								ParseInstallation.getCurrentInstallation().put("facebookId", fbId);
 								ParseInstallation.getCurrentInstallation().saveInBackground();
+								updateCheeseCountData();
 							}else {
 								Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning", ex);
 							}
 							
 						}
 					});
-					startTheftActivity();
+					
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error fetching data from cloud code: " , ex);
 				}
@@ -186,6 +186,26 @@ public class LoginActivity extends Activity {
 		});
 		request.executeAsync();
 
+	}
+	
+	
+	private void updateCheeseCountData(){
+		final Map<String,Object> params = new HashMap<String,Object>();
+		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<ParseObject>>() {
+
+			@Override
+			public void done(List<ParseObject> cheeseCounts, ParseException ex) {
+				if(ex == null){
+					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, cheeseCounts, new SaveCallback() {
+						@Override
+						public void done(ParseException ex) {
+							startTheftActivity();
+							
+						}
+					});
+				}
+			}
+		});
 	}
 	
 	
