@@ -15,12 +15,8 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 					{
 						if (!updateCheeseTable(cheeseRows))
 						{
-							response.error("");
+							response.error("victim has no cheese!");
 						}
-					},
-					function(errorResponse)
-					{
-						response.error("Cannot find victim and thief facebookId's");
 					})
 				.then(function(){insertTheftHistory();})
 				.then(function(){return getUserFriendsFacebookIds();})
@@ -55,7 +51,6 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 			if (victimUserCheese.get("cheeseCount") < 1)
 			{
 				console.log("victim has no cheese!");
-				response.error("victim has no cheese!");
 				return false;
 			}
 			
@@ -135,11 +130,13 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 });
 
  
-Parse.Cloud.define("onLoginActivity", function(request, response) {
 
+
+Parse.Cloud.define("onLoginActivity", function(request, response) {
+ 
     console.log(request);
     Parse.Cloud.useMasterKey();
-	     
+          
     var isNewUser = request.params.isNewUserFlag;
     var passedInUser = request.user;
     console.log("START Passed In USER ...");
@@ -148,14 +145,14 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
     var fbaccessToken = passedInUser.get('authData').facebook.access_token;
     console.log("fbaccessToken " + fbaccessToken);
     var currentFBUserId = passedInUser.get("facebookId");
-    
+     
     var existingUserSteps = function(request, response) {
-    	console.log("Inside performExistingUser Steps...");
-    	console.log(fbaccessToken);
-    	var updatedFriendsList = [];
-    	Parse.Cloud.httpRequest({
+        console.log("Inside performExistingUser Steps...");
+        console.log(fbaccessToken);
+        var updatedFriendsList = [];
+        Parse.Cloud.httpRequest({
                url: 'https://graph.facebook.com/me/friends?access_token=' + fbaccessToken
-    	}).then(function(httpResponse){
+        }).then(function(httpResponse){
                     console.log("Fb Reponse " + httpResponse.text);
                     var fbResponse = httpResponse['data'].data;
                     console.log(fbResponse);
@@ -165,26 +162,27 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         friendsList.push(fbId);
                     }
                      return friendsList;
-                         
+                          
                     }, function(errorResponse){
                         // Throw error
                         console.error('Request failed with response code ' + errorResponse.status);
-                 
+                  
                 }).then(function(allFriendslist){
                     console.log("in updating user friends list");
                     console.log(passedInUser);
                     passedInUser.set("friends", allFriendslist);
                     updatedFriendsList = allFriendslist;
                     return passedInUser.save();
-                 
+                  
                 }).then(function(savedUser){
                         console.log("In final stage");
                         updatedFriendsList.push(passedInUser.get("facebookId"));
                         console.log(updatedFriendsList);
-                        var query = new Parse.Query("cheese");
+                       // var query = new Parse.Query("cheese");
+                        var query = new Parse.Query(Parse.User);
                         query.containedIn("facebookId", updatedFriendsList);
                         return query.find();
-                     
+                      
                 }).then(function(allCheeseCountObjects){
                             for(var i = 0; i<allCheeseCountObjects.length; i++){
                                 console.log(allCheeseCountObjects[i]);
@@ -194,10 +192,10 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                             response.error("Not able to complete this operation");
                         }
                 );
-	}   
-     
- 
-	if(isNewUser) {
+    }   
+      
+  
+    if(isNewUser) {
        console.log("Inside NEW USER BLOCK...");
        var CheeseCountClass = Parse.Object.extend("cheese");
        var cheeseCount = new CheeseCountClass();
@@ -207,9 +205,33 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         return existingUserSteps(request, response);
                 });
     } else {
-    
+     
         console.log("Inside else part...");
         return existingUserSteps(request, response);
     }
+  
+});
+ 
+ 
+Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
+    console.log("In getAllCheeseCounts...");
+    console.log(request);
+    var friendsList = request.user.get("friends");
+    var query = new Parse.Query("cheese");
+    console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendsList);
+    query.containedIn("facebookId", friendsList);
+    query.find({
+            success: function(cheeseCounts)
+            {
+                console.log(cheeseCounts);
+                response.success(cheeseCounts);
+            },
+            error: function()
+            {
+                response.error("Cannot get user friends cheese count");
+            }   
+        }); 
+     
+ 
  
 });
