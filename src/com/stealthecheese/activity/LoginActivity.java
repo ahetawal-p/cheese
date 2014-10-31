@@ -2,7 +2,12 @@ package com.stealthecheese.activity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,7 +29,9 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
@@ -40,7 +47,7 @@ public class LoginActivity extends Activity {
 	private TextView loadingText;
     private Button loginFBButton;
     
-    
+    private  LinearLayout loadingMsgSection;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,7 +57,7 @@ public class LoginActivity extends Activity {
 		loginFBButton.setVisibility(View.GONE);
 		
 		
-		final LinearLayout loadingMsgSection = (LinearLayout) findViewById(R.id.loadingMsgSection);
+		 loadingMsgSection = (LinearLayout) findViewById(R.id.loadingMsgSection);
 		loadingMsgSection.setVisibility(View.GONE);
 		
 		loadingText = (TextView) findViewById(R.id.loadingText);
@@ -76,7 +83,7 @@ public class LoginActivity extends Activity {
                     Animation animFade  = AnimationUtils.loadAnimation(LoginActivity.this, R.anim.fade);
                     loadingMsgSection.startAnimation(animFade);
                     loadingText.setText("Preparing Steal Zone...");
-                    performExistingUserSteps();
+                    performCreateAndLogin(false);
                     
         		} else {
         			// user does not exists
@@ -119,20 +126,52 @@ public class LoginActivity extends Activity {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Uh oh. The user cancelled the Facebook login.");
 				} else if (user.isNew()) {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User signed up and logged in through Facebook!");
-					try {
-						user.pin(StealTheCheeseApplication.PIN_TAG);
-					} catch (ParseException e) {
-						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning user info", e);
-					}
-					getFBUserInfo();
+					System.out.println(user.get("objectId"));
+					user.pinInBackground();
+					
+					performCreateAndLogin(true);
 				} else {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User logged in through Facebook!");
-					performExistingUserSteps();
-					
+					performCreateAndLogin(false);
 				}
 			}
 		});
 
+	}
+	
+	
+	
+	private void performCreateAndLogin(boolean isNewUser){
+		
+		final Map<String,Object> params = new HashMap<String,Object>();
+		params.put("isNewUserFlag", isNewUser);
+		
+		ParseCloud.callFunctionInBackground("onLoginActivity", params, new FunctionCallback<List<ParseObject>>() {
+			
+			@Override
+			public void done(List<ParseObject>allUsersData, ParseException ex) {
+				if (ex == null){   
+					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUsersData, new SaveCallback() {
+						
+						@Override
+						public void done(ParseException ex) {
+							if(ex == null){
+								ParseUser curr = ParseUser.getCurrentUser();
+								String id = (String)curr.get("facebookId");
+								ParseInstallation.getCurrentInstallation().put("facebookId", id);
+								ParseInstallation.getCurrentInstallation().saveInBackground();
+							}else {
+								Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning", ex);
+							}
+							
+						}
+					});
+					//startTheftActivity();
+				}else {
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Error fetching data from cloud code: " , ex);
+				}
+			}
+		});
 	}
 	
 	private void getFBUserInfo() {

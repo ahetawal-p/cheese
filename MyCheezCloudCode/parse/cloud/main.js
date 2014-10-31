@@ -122,36 +122,27 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 });
 
  
-Parse.Cloud.define("getFriends", function(request, response) {
- 
-var existingUserSteps = function(request, response, currentUser) {
-    //var currentFBUserId = request.params.currentUserFBId;
-    console.log("Inside performExistingUser Steps...");
-    console.log(currentUser);
+Parse.Cloud.define("onLoginActivity", function(request, response) {
+
     console.log(request);
-    var currentFBUserId=null;
-    if(currentUser == null) {
-        console.log("User is null");
-        currentFBUserId = request.params.currentUserFBId;
-    }else {
-        console.log("User is NOT null");
-         currentFBUserId = currentUser.get("facebookId");
-    }
-     
-    var query = new Parse.Query(Parse.User);
-    var currentUserToUse = null;
-    var updatedFriendsList = [];
-    query.equalTo("facebookId", currentFBUserId);
-    query.find().then(function(currentUser){
-                        console.log(currentUser[0]);
-                        currentUserToUse = currentUser[0];
-                        var fbaccessToken = currentUser[0].get('authData').facebook.access_token;
-                        console.log("fbaccessToken " + fbaccessToken);
-                        return Parse.Cloud.httpRequest({
-                                url: 'https://graph.facebook.com/me/friends?access_token=' + fbaccessToken
-                        });
-     
-                }).then(function(httpResponse){
+    Parse.Cloud.useMasterKey();
+	     
+    var isNewUser = request.params.isNewUserFlag;
+    var passedInUser = request.user;
+    console.log("START Passed In USER ...");
+    console.log(passedInUser);
+    console.log("END Passed In USER ...");
+    var fbaccessToken = passedInUser.get('authData').facebook.access_token;
+    console.log("fbaccessToken " + fbaccessToken);
+    var currentFBUserId = passedInUser.get("facebookId");
+    
+    var existingUserSteps = function(request, response) {
+    	console.log("Inside performExistingUser Steps...");
+    	console.log(fbaccessToken);
+    	var updatedFriendsList = [];
+    	Parse.Cloud.httpRequest({
+               url: 'https://graph.facebook.com/me/friends?access_token=' + fbaccessToken
+    	}).then(function(httpResponse){
                     console.log("Fb Reponse " + httpResponse.text);
                     var fbResponse = httpResponse['data'].data;
                     console.log(fbResponse);
@@ -168,10 +159,10 @@ var existingUserSteps = function(request, response, currentUser) {
                  
                 }).then(function(allFriendslist){
                     console.log("in updating user friends list");
-                    console.log(currentUserToUse);
-                    currentUserToUse.set("friends", allFriendslist);
+                    console.log(passedInUser);
+                    passedInUser.set("friends", allFriendslist);
                     updatedFriendsList = allFriendslist;
-                    return currentUserToUse.save();
+                    return passedInUser.save();
                  
                 }).then(function(savedUser){
                         console.log("In final stage");
@@ -189,61 +180,43 @@ var existingUserSteps = function(request, response, currentUser) {
                             response.error("Not able to complete this operation");
                         }
                 );
-}   
+	}   
      
  
- 
- 
-    //TODO find a way to user current user on device
-    console.log(request);
-    Parse.Cloud.useMasterKey();
-     
-    var isNewUser = request.params.isNewUserFlag;
-    var tempCurrentUser = null;
-    if(isNewUser == 'true') {
-        console.log("Inside NEW USER BLOCK...");
-        var objectId = 'EyEANbWm1m';
-        var newUserQuery = new Parse.Query(Parse.User);
-        newUserQuery.get(objectId)
-                .then(function(userObject){
-                    console.log("GET USER..");
-                    //console.log(userObject);
-                    tempCurrentUser = userObject;
-                    var fbaccessToken = userObject.get('authData').facebook.access_token;
-                    return Parse.Cloud.httpRequest({
-                        url: 'https://graph.facebook.com/me?access_token=' + fbaccessToken
-                    }); 
-                }).then(function(httpResponse){
+	if(isNewUser) {
+       console.log("Inside NEW USER BLOCK...");
+       Parse.Cloud.httpRequest({
+              url: 'https://graph.facebook.com/me?access_token=' + fbaccessToken
+       }).then(function(httpResponse){
                     console.log(httpResponse.text);
-                        var fbResponse = httpResponse['data'];
-                        console.log(fbResponse);
-                        var profilePicUrl = 'https://graph.facebook.com/' + fbResponse.id + '/picture';
-                        tempCurrentUser.set("facebookId", fbResponse.id);
-                        tempCurrentUser.set("FirstName", fbResponse.first_name);
-                        tempCurrentUser.set("LastName", fbResponse.last_name);
-                        tempCurrentUser.set("profilePicUrl", profilePicUrl);
-                        return tempCurrentUser.save();
+                    var fbResponse = httpResponse['data'];
+                    console.log(fbResponse);
+                    var profilePicUrl = 'https://graph.facebook.com/' + fbResponse.id + '/picture';
+                    passedInUser.set("facebookId", fbResponse.id);
+                    passedInUser.set("FirstName", fbResponse.first_name);
+                    passedInUser.set("firstName", fbResponse.first_name);
+                    passedInUser.set("LastName", fbResponse.last_name);
+                    passedInUser.set("lastName", fbResponse.last_name);
+                    passedInUser.set("profilePicUrl", profilePicUrl);
+                    return passedInUser.save();
                          
                     },function(errorResponse){
                         console.error('Request failed with response code ' + errorResponse.status);
                     }       
-                ).then(function(tempCurrentUser){
+                ).then(function(passedInUser){
                         var CheeseCountClass = Parse.Object.extend("cheese");
                         var cheeseCount = new CheeseCountClass();
-                        cheeseCount.set("facebookId", tempCurrentUser.get("facebookId"));
+                        cheeseCount.set("facebookId", passedInUser.get("facebookId"));
                         cheeseCount.set("cheeseCount", 20);
                         return cheeseCount.save();
                          
                 }).then(function(cheeseCount){
-                        return existingUserSteps(request, response, tempCurrentUser);
+                        return existingUserSteps(request, response);
                 });
     } else {
+    
         console.log("Inside else part...");
-        return existingUserSteps(request, response, tempCurrentUser);
+        return existingUserSteps(request, response);
     }
-     
- 
- 
- 
  
 });
