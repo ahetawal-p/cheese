@@ -29,14 +29,16 @@ public class CircleTransform implements Transformation {
         paint.setAntiAlias(true);
  
         float r = size/2f;
-        float reducedRadius = r - 5;
-        //canvas.drawCircle(r, r, r, paint);
-        canvas.drawCircle(r, r, reducedRadius, paint);
+        
+        /* reducing radius to create circular frame on images */
+        //float reducedRadius = r + 5;
+        canvas.drawCircle(r, r, r, paint);
 
         squaredBitmap.recycle();
         return bitmap;
     }
- 
+
+	
     @Override
     public String key() {
         return "circle";
