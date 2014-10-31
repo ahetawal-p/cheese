@@ -219,6 +219,7 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
 	console.log(request);
 	var friendsList = request.user.get("friends");
 	var query = new Parse.Query("cheese");
+	friends.push(request.user.get("facebookId"));
 	console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendsList);
 	query.containedIn("facebookId", friendsList);
 	query.find({
