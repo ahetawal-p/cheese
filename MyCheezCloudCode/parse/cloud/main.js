@@ -13,11 +13,10 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	query.find().then(
 					function(cheeseRows)
 					{
-						updateCheeseTable(cheeseRows);
-					},
-					function(errorResponse)
-					{
-						response.error("Cannot find victim and thief facebookId's");
+						if (!updateCheeseTable(cheeseRows))
+						{
+							response.error("victim has no cheese!");
+						}
 					})
 				.then(function(){insertTheftHistory();})
 				.then(function(){return getUserFriendsFacebookIds();})
@@ -48,10 +47,19 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 				}
 			}
 			
+			console.log("victim cheese count is: " + victimUserCheese.get("cheeseCount"));
+			if (victimUserCheese.get("cheeseCount") < 1)
+			{
+				console.log("victim has no cheese!");
+				return false;
+			}
+			
 			thiefUserCheese.increment("cheeseCount");	
 			thiefUserCheese.save();
 			victimUserCheese.increment("cheeseCount", -1);			
 			victimUserCheese.save();
+			
+			return true;
 	}
 	
 	/* add theft record to thefthistory table */
@@ -122,6 +130,9 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 });
 
  
+
+
+
 Parse.Cloud.define("onLoginActivity", function(request, response) {
 
     console.log(request);
