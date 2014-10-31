@@ -168,7 +168,8 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         console.log("In final stage");
                         updatedFriendsList.push(passedInUser.get("facebookId"));
                         console.log(updatedFriendsList);
-                        var query = new Parse.Query("cheese");
+                       // var query = new Parse.Query("cheese");
+                        var query = new Parse.Query(Parse.User);
                         query.containedIn("facebookId", updatedFriendsList);
                         return query.find();
                      
@@ -199,4 +200,28 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
         return existingUserSteps(request, response);
     }
  
+});
+
+
+Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
+	console.log("In getAllCheeseCounts...");
+	console.log(request);
+	var friendsList = request.user.get("friends");
+	var query = new Parse.Query("cheese");
+	console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendsList);
+	query.containedIn("facebookId", friendsList);
+	query.find({
+			success: function(cheeseCounts)
+			{
+				console.log(cheeseCounts);
+				response.success(cheeseCounts);
+			},
+			error: function()
+			{
+				response.error("Cannot get user friends cheese count");
+			}	
+		}); 
+	
+
+
 });
