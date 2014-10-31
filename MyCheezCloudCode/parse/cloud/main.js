@@ -166,7 +166,8 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                  
                 }).then(function(savedUser){
                         console.log("In final stage");
-                        updatedFriendsList.push(currentFBUserId);
+                        updatedFriendsList.push(passedInUser.get("facebookId"));
+                        console.log(updatedFriendsList);
                         var query = new Parse.Query("cheese");
                         query.containedIn("facebookId", updatedFriendsList);
                         return query.find();
@@ -185,32 +186,11 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
  
 	if(isNewUser) {
        console.log("Inside NEW USER BLOCK...");
-       Parse.Cloud.httpRequest({
-              url: 'https://graph.facebook.com/me?access_token=' + fbaccessToken
-       }).then(function(httpResponse){
-                    console.log(httpResponse.text);
-                    var fbResponse = httpResponse['data'];
-                    console.log(fbResponse);
-                    var profilePicUrl = 'https://graph.facebook.com/' + fbResponse.id + '/picture';
-                    passedInUser.set("facebookId", fbResponse.id);
-                    passedInUser.set("FirstName", fbResponse.first_name);
-                    passedInUser.set("firstName", fbResponse.first_name);
-                    passedInUser.set("LastName", fbResponse.last_name);
-                    passedInUser.set("lastName", fbResponse.last_name);
-                    passedInUser.set("profilePicUrl", profilePicUrl);
-                    return passedInUser.save();
-                         
-                    },function(errorResponse){
-                        console.error('Request failed with response code ' + errorResponse.status);
-                    }       
-                ).then(function(passedInUser){
-                        var CheeseCountClass = Parse.Object.extend("cheese");
-                        var cheeseCount = new CheeseCountClass();
-                        cheeseCount.set("facebookId", passedInUser.get("facebookId"));
-                        cheeseCount.set("cheeseCount", 20);
-                        return cheeseCount.save();
-                         
-                }).then(function(cheeseCount){
+       var CheeseCountClass = Parse.Object.extend("cheese");
+       var cheeseCount = new CheeseCountClass();
+       cheeseCount.set("facebookId", passedInUser.get("facebookId"));
+       cheeseCount.set("cheeseCount", 20);
+       cheeseCount.save().then(function(cheeseCount){
                         return existingUserSteps(request, response);
                 });
     } else {
