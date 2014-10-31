@@ -48,6 +48,12 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 				}
 			}
 			
+			if (victimUserCheese.get("cheeseCount") < 1)
+			{
+				console.log("victim has no cheese!");
+				response.error("victim has no cheese!");
+			}
+			
 			thiefUserCheese.increment("cheeseCount");	
 			thiefUserCheese.save();
 			victimUserCheese.increment("cheeseCount", -1);			
