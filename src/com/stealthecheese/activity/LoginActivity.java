@@ -1,13 +1,9 @@
 package com.stealthecheese.activity;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,7 +24,6 @@ import android.widget.Toast;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.model.GraphUser;
-import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseCloud;
@@ -36,7 +31,6 @@ import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.stealthecheese.R;
@@ -57,7 +51,7 @@ public class LoginActivity extends Activity {
 		loginFBButton.setVisibility(View.GONE);
 		
 		
-		 loadingMsgSection = (LinearLayout) findViewById(R.id.loadingMsgSection);
+		loadingMsgSection = (LinearLayout) findViewById(R.id.loadingMsgSection);
 		loadingMsgSection.setVisibility(View.GONE);
 		
 		loadingText = (TextView) findViewById(R.id.loadingText);
@@ -103,8 +97,7 @@ public class LoginActivity extends Activity {
         titleContainer.startAnimation(animTranslate);
 	}
 	
-	private void checkNetworkAvailability()
-	{
+	private void checkNetworkAvailability() {
 	    ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 	    
@@ -126,10 +119,7 @@ public class LoginActivity extends Activity {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Uh oh. The user cancelled the Facebook login.");
 				} else if (user.isNew()) {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User signed up and logged in through Facebook!");
-					System.out.println(user.get("objectId"));
-					user.pinInBackground();
-					
-					performCreateAndLogin(true);
+					getFBUserInfo();
 				} else {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User logged in through Facebook!");
 					performCreateAndLogin(false);
@@ -151,14 +141,14 @@ public class LoginActivity extends Activity {
 			@Override
 			public void done(List<ParseObject>allUsersData, ParseException ex) {
 				if (ex == null){   
-					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUsersData, new SaveCallback() {
+					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUsersData, new SaveCallback() {
 						
 						@Override
 						public void done(ParseException ex) {
 							if(ex == null){
 								ParseUser curr = ParseUser.getCurrentUser();
-								String id = (String)curr.get("facebookId");
-								ParseInstallation.getCurrentInstallation().put("facebookId", id);
+								String fbId = (String)curr.get("facebookId");
+								ParseInstallation.getCurrentInstallation().put("facebookId", fbId);
 								ParseInstallation.getCurrentInstallation().saveInBackground();
 							}else {
 								Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning", ex);
@@ -166,7 +156,7 @@ public class LoginActivity extends Activity {
 							
 						}
 					});
-					//startTheftActivity();
+					startTheftActivity();
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error fetching data from cloud code: " , ex);
 				}
@@ -185,128 +175,18 @@ public class LoginActivity extends Activity {
 				loggedInUser.put("lastName", user.getLastName());
 				// Use ProfilePictureView if needed for UI
 				loggedInUser.put("profilePicUrl", String.format(StealTheCheeseApplication.PROFILE_PIC_URL, user.getId()));
-				//loggedInUser.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
-				
-				// Update default cheese count tab
-				ParseObject cheeseUpdates = new ParseObject("cheese");
-				cheeseUpdates.put("facebookId", user.getId());
-				cheeseUpdates.put("cheeseCount", getResources().getInteger(R.integer.initialCheeseCount));
-				try {
-					cheeseUpdates.save();
-				}catch(ParseException ex){
-					Log.e(StealTheCheeseApplication.LOG_TAG, "Errror adding default cheese", ex);
-				}
-				
-				getAndSaveFBUserFriendsInfo(loggedInUser);
-			}
-		});
-		request.executeAsync();
-
-	}
-	
-	
-	private void performExistingUserSteps(){
-		//1. Update users cheese count
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
-		query.whereEqualTo("facebookId", ParseUser.getCurrentUser().get("facebookId"));
-		query.findInBackground(new FindCallback<ParseObject>() {
-
-			@Override
-			public void done(List<ParseObject> users, ParseException ex) {
-				if(ex == null){
-					try {
-						// update cheese count for the current user
-						users.get(0).pin(StealTheCheeseApplication.LOG_TAG);
-					} catch (ParseException e) {
-						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning user", ex);
-					}
-					//2. Get and Update user friends list
-					getAndSaveFBUserFriendsInfo(ParseUser.getCurrentUser());
-				}else {
-					Log.e(StealTheCheeseApplication.LOG_TAG, "Error finding user", ex);
-				}
-				
-			}
-		});
-	}
-	
-	
-	private void getAndSaveFBUserFriendsInfo(final ParseUser loggedInUser) {
-		loadingText.setText("Getting user friends list...");
-		// Returns only the list of friends which use the app also
-		Request request = Request.newMyFriendsRequest(ParseFacebookUtils.getSession(), new Request.GraphUserListCallback() {
-			@Override
-			public void onCompleted(List<GraphUser> friends, Response response) {
-				final List<String> friendsList = new ArrayList<String>();
-				if(friends.size() > 0){
-					Log.i(StealTheCheeseApplication.LOG_TAG, "Friend list size: " + friends.size());
-					for(GraphUser friend : friends){
-						friendsList.add(friend.getId());
-					}
-
-				}
-				loggedInUser.addAllUnique("friends", friendsList);
-				
-				
 				loggedInUser.saveInBackground(new SaveCallback() {
+					
 					@Override
-					public void done(ParseException arg0) {
-						ParseQuery<ParseUser> userQuery = ParseUser.getQuery();
-						userQuery.whereContainedIn("facebookId", friendsList);
-						userQuery.findInBackground(new FindCallback<ParseUser>() {
-							public void done(List<ParseUser> allFriendsInfo, ParseException e) {
-						    if (allFriendsInfo == null) {
-						      Log.e(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.", e);
-						    } else {
-						    	Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
-						    	try {
-						    		ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allFriendsInfo);
-									updateCheeseCountInLocalStore(friendsList);
-						    		
-						    		//verifyLocalDataStore(allFriendsInfo.size());
-								} catch (ParseException e1) {
-									Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
-								}
-						    }
-						  }
-						});
-						
-						ParseInstallation.getCurrentInstallation().put("facebookId", ParseUser.getCurrentUser().get("facebookId"));
-						ParseInstallation.getCurrentInstallation().saveInBackground();
+					public void done(ParseException parseexception) {
+						performCreateAndLogin(true);
 					}
 				});
 			}
-
 		});
 		request.executeAsync();
 
 	}
-	
-	protected void updateCheeseCountInLocalStore(List<String> friendsList){
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
-		query.whereContainedIn("facebookId", friendsList);
-		query.findInBackground(new FindCallback<ParseObject>() {
-			public void done(List<ParseObject> allCheeseCountInfo, ParseException e) {
-				if (allCheeseCountInfo == null) {
-					Log.e(StealTheCheeseApplication.LOG_TAG, "The getFirst request failed.", e);
-				} else {
-					Log.d(StealTheCheeseApplication.LOG_TAG, "Retrieved the object.");
-					try {
-						ParseObject.pinAll(StealTheCheeseApplication.PIN_TAG, allCheeseCountInfo);
-						//verifyLocalDataStore(allFriendsInfo.size());
-					} catch (ParseException e1) {
-						Log.e(StealTheCheeseApplication.LOG_TAG, "Error pinning friends", e1);
-					}
-				}
-				
-				startTheftActivity();
-			}
-		});
-	
-	}
-	
-	
-	
 	
 	
 	/**

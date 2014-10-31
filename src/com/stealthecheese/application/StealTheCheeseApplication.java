@@ -31,15 +31,7 @@ public class StealTheCheeseApplication extends Application {
     
     //PushService.setDefaultPushCallback(this, LoginActivity.class);
     ParseInstallation.getCurrentInstallation().saveInBackground();
-    
-    
-   // ParseUser.enableAutomaticUser();
-    //ParseACL defaultACL = new ParseACL();
-      
-    // If you would like all objects to be private by default, remove this line.
-    //defaultACL.setPublicReadAccess(true);
-    
-    //ParseACL.setDefaultACL(defaultACL, true);
+   
     
     ParseFacebookUtils.initialize(getString(R.string.facebook_app_id));
   }
