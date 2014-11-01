@@ -237,3 +237,58 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
 
 
 });
+
+
+Parse.Cloud.define("testCount", function(request, response) {
+	Parse.Cloud.useMasterKey();
+	var query = new Parse.Query("cheese");
+	query.equalTo("facebookId", "1517055471875244");
+	
+	
+	var query = new Parse.Query("cheese");
+	query.equalTo("facebookId", "1517055471875244");
+		query.find({
+			success: function(cheeses)
+			{
+				console.log(cheeses[0]);
+				var currCheese = cheeses[0];
+				currCheese.increment("cheeseCount", -1);
+				currCheese.save().then(function(result){
+								console.log("I am in success...");
+				
+						}, function(error){
+								console.log("I am in error...");
+						});
+				
+			},
+			error: function()
+			{
+				response.error("Cannot get user friends cheese count");
+			}	
+		});
+	
+	
+	
+
+});
+
+
+Parse.Cloud.beforeSave("cheese", function(re, res){
+	console.log("COming in before save..");
+   //console.log(re);
+   console.log("Printed object above..");
+  // console.log(re.object);
+   var myCount = re.object.get("cheeseCount");
+   console.log("I am the count .." + myCount);
+   if(myCount < 0){
+   	console.log("Setting success");
+   res.success();
+   
+   }else {
+   	console.log("Setting error");
+   res.error("something");
+   }
+   
+});
+
+
