@@ -13,12 +13,9 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	query.find().then(
 					function(cheeseRows)
 					{
-						if (!updateCheeseTable(cheeseRows))
-						{
-							response.error("victim has no cheese!");
-						}
+						updateCheeseTable(cheeseRows);
 					})
-				.then(function(){insertTheftHistory();})
+				.then(function(){insertTheftHistory();}, function(error){response.error(error);})
 				.then(function(){return getUserFriendsFacebookIds();})
 				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds);});				
 	
@@ -46,20 +43,23 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 					victimUserCheese = cheeseRows[ii];
 				}
 			}
-			
-			console.log("victim cheese count is: " + victimUserCheese.get("cheeseCount"));
-			if (victimUserCheese.get("cheeseCount") < 1)
-			{
-				console.log("victim has no cheese!");
-				return false;
-			}
-			
-			thiefUserCheese.increment("cheeseCount");	
-			thiefUserCheese.save();
-			victimUserCheese.increment("cheeseCount", -1);			
-			victimUserCheese.save();
-			
-			return true;
+		
+			var isSuccessful;
+			console.log("In front of vicitm user cheese");
+			victimUserCheese.increment("cheeseCount", -1);
+			var asdf = victimUserCheese.save().then(
+				function(result)
+				{
+					console.log("victimUserCheese save successful");		
+					thiefUserCheese.increment("cheeseCount");	
+					thiefUserCheese.save();
+				},
+				function(error)
+				{
+					console.log("victimUserCheese save error");
+					response.error(error);
+				});
+			console.log("asdf is: " + asdf);
 	}
 	
 	/* add theft record to thefthistory table */
@@ -117,7 +117,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 		query.find({
 			success: function(usersFriends)
 			{
-				console.log(usersFriends);
+				console.log("user friends are: " + usersFriends);
 				response.success(usersFriends);
 			},
 			error: function()
@@ -272,23 +272,20 @@ Parse.Cloud.define("testCount", function(request, response) {
 
 });
 
-
-Parse.Cloud.beforeSave("cheese", function(re, res){
-	console.log("COming in before save..");
-   //console.log(re);
-   console.log("Printed object above..");
-  // console.log(re.object);
-   var myCount = re.object.get("cheeseCount");
-   console.log("I am the count .." + myCount);
-   if(myCount < 0){
-   	console.log("Setting success");
-   res.success();
-   
-   }else {
-   	console.log("Setting error");
-   res.error("something");
-   }
-   
+/* beforeSave function for the cheese table to check victim cheese count */
+Parse.Cloud.beforeSave("cheese", function(re, response){
+	var myCount = re.object.get("cheeseCount");
+	console.log("Player cheese count is: " + myCount);
+	if(myCount >= 0)
+	{
+		console.log("cheese table beforeSave success");
+		response.success();
+	}
+	else 
+	{
+		console.log("cheese table beforeSave error");
+		response.error("Victim has no cheese! Cannot steal from victim");
+	}
 });
 
 
