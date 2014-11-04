@@ -49,6 +49,8 @@ public class TheftActivity extends Activity {
 	ImageView refreshImageView;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
+	private HashMap<String, String> facebookIdFirstNameMap = new HashMap<String, String>();
+	
 	AnimationHandler animationHandler;
 	
 	@Override
@@ -114,43 +116,43 @@ public class TheftActivity extends Activity {
         
         populateUserView();
         
-        populateFriendsListView(friendUsers, res);
+        populateFriendsListView(friendUsers);
       
-        populateHistoryListView(res);
+        populateHistoryListView();
 	}
 	
-	
-	
-	
-	private void populateHistoryListView(Resources res) {
-		historyList.clear();
+	private void populateHistoryListView() {
 		ParseQuery<ParseObject> histQuery = ParseQuery.getQuery("thefthistory");
 		histQuery.whereEqualTo("victimFBId", currentUser.get("facebookId"));
 		histQuery.orderByDescending("createdAt");
 		histQuery.setLimit(5);
 
-		try {
-			List<ParseObject> lastTenTrans = histQuery.find();
-			int visible = ((View)historyListView.getParent()).getVisibility();
-			for(ParseObject trans : lastTenTrans){
-				String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
-				historyList.add(new HistoryViewModel(fname));
+		histQuery.findInBackground(new FindCallback<ParseObject>(){
+			public void done(List<ParseObject> objects, ParseException e) {
+				if (e == null) {
+					historyList.clear();
+					List<ParseObject> lastTenTrans = objects;
+					int visible = ((View)historyListView.getParent()).getVisibility();
+					for(ParseObject trans : lastTenTrans){
+						//String fname = retrieveFriendFirstName(trans.getString("thiefFBId"));
+						//historyList.add(new HistoryViewModel(fname));
+						String firstName = facebookIdFirstNameMap.get(trans.getString("thiefFBId"));
+						historyList.add(new HistoryViewModel(firstName));
+					}
+					if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
+						((View)historyListView.getParent()).setVisibility(View.VISIBLE);
+						animationHandler.fadeIn((View)historyListView.getParent());
+					}
+					historyListAdapter.notifyDataSetChanged();
+				} 
+				else {
+					Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting history", e);
+				}
 			}
-			if(lastTenTrans.size() > 0 && (View.VISIBLE != visible)){
-				((View)historyListView.getParent()).setVisibility(View.VISIBLE);
-				animationHandler.fadeIn((View)historyListView.getParent());
-			}
-			historyListAdapter.notifyDataSetChanged();
-
-		}catch(ParseException ex){
-			Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting history", ex);
-		}
-
-
-
+		});
 	}
 
-
+	
 
 	private void retrieveCheeseCountsLocally() {
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
@@ -216,16 +218,34 @@ public class TheftActivity extends Activity {
 	}
 	
 	/* set friends list view adapter and handle onClick events */
-	private void populateFriendsListView(List<ParseUser> userFriends, Resources res)
+	private void populateFriendsListView(List<ParseUser> userFriends)
 	{
 		friendsList.clear();
+		facebookIdFirstNameMap.clear();
 		for(ParseUser friend : userFriends){
 			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getString("facebookId"));
 			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , localCountMap.get(friend.getString("facebookId"))));
+			facebookIdFirstNameMap.put(friend.getString("facebookId"), friend.getString("firstName"));
+		}
+		
+		friendsListAdapter.notifyDataSetChanged();      
+	}
+	
+	private void refreshFriendsListview(List<ParseObject> friendCheeseObjects)
+	{
+		friendsList.clear();
+		for(ParseObject friendCheeseObject : friendCheeseObjects){
+			String friendFacebookId = friendCheeseObject.getString("facebookId");
+			if (friendFacebookId.equals(currentUser.getString("facebookId"))){
+				continue;
+			}
+			else{
+				String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friendCheeseObject.getString("facebookId"));
+				friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId)));
+			}
 		}
 		
 		friendsListAdapter.notifyDataSetChanged();
-        
 	}
 	
 	/**
@@ -257,23 +277,33 @@ public class TheftActivity extends Activity {
 	        public void done(List<ParseObject> allUpdates, ParseException e) {
 	          if (e == null){   
 					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
+					localCountMap.clear();
 					
 			    	for(ParseObject cheese : allUpdates){
 						localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
 					}
 					
 					int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
+					refreshFriendsListview(allUpdates);
+					
 					int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
 					
 			    	cheeseCounter.setText(Integer.toString(frndCurrentCheeseCount));
 					((TextView)userCheeseTextView).setText("x " + Integer.toString(currentCheesCount));			    	
 			    	
+		    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
+		    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
+		    		
+		    		/* populate theft history asynchronously after friend cheese counts are updated */
+		    		populateHistoryListView();
+		    		/*
 			    	if (frndCurrentCheeseCount > 0){
-			    		friendsListAdapter.unlockImageClick((ImageView)friendImageClicked, cheeseCounter);
+			    		//friendsListAdapter.unlockImageClick((ImageView)friendImageClicked, cheeseCounter);
 			    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
 			    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
 			    	}
-			    	
+			    	*/
+		    		
 			    	// Send Notifications out
 			    	/* Beck: temporarily comment this out to not annoy everyone */
 			    	/*
@@ -319,7 +349,7 @@ public class TheftActivity extends Activity {
 		return facebookId;
 	}
 
-	
+	/* perhaps use hashmap to replace this for faster speed */
 	private String retrieveFriendFirstName(String facebookId)  {
 		ParseQuery<ParseUser> friendDetails = ParseUser.getQuery();
 		friendDetails.fromLocalDatastore();

@@ -124,7 +124,10 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              {
             	 lockImageClick(holder.friendImageView, holder.counterTextView);
              }
-             
+             else
+             {
+            	 unlockImageClick(holder.friendImageView, holder.counterTextView);
+             }
              /******** Set Item Click Listner for LayoutInflater for each row *******/
 
              //vi.setOnClickListener(new OnItemClickListener( position ));
