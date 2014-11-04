@@ -124,7 +124,8 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              {
             	 lockImageClick(holder.friendImageView, holder.counterTextView);
              }
-             else
+             /* if image is locked, unlock it if new cheese count is > 0 */
+             else if (!holder.friendImageView.isClickable())
              {
             	 unlockImageClick(holder.friendImageView, holder.counterTextView);
              }
