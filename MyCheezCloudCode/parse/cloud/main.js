@@ -5,7 +5,8 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	console.log(request);
 	var thiefFacebookId = request.params.thiefFacebookId;
 	var victimFacebookId = request.params.victimFacebookId;
-	
+	var thiefUserCheese;
+	var victimUserCheese;
 	console.log(thiefFacebookId + " is stealing cheese from " + victimFacebookId);
 	var query = new Parse.Query("cheese");
 	var facebookIds = [thiefFacebookId, victimFacebookId];
@@ -13,58 +14,46 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	query.find().then(
 					function(cheeseRows)
 					{
-						return updateCheeseTable(cheeseRows);
+						console.log("cheese query response is: " + cheeseRows);
+						findVictimThiefCheeseRows(cheeseRows);
+						victimUserCheese.increment("cheeseCount", -1);
+						return victimUserCheese.save();
+					})
+				.then(
+					function()
+					{
+						console.log("I'm in success");
+						thiefUserCheese.increment("cheeseCount");	
+						return thiefUserCheese.save();
+					},
+					function(error)
+					{
+						response.error(error);
 					})
 				.then(function(){insertTheftHistory();})
 				.then(function(){return getUserFriendsFacebookIds();})
 				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds);});				
 	
-	/* find thief and victim users in cheese table, and increment/decrement cheese */
-	var updateCheeseTable = function(cheeseRows)
-	{
-		console.log("cheese query response is: " + cheeseRows);
+	/* find and set victim and thief cheese rows */
+	var findVictimThiefCheeseRows = function(cheeseRows)
+	{					
+		for(var ii=0; ii< cheeseRows.length; ii++)
+		{
+			var userFacebookId = cheeseRows[ii].get("facebookId");
+			var cheeseCount = cheeseRows[ii].get("cheeseCount");
 			
-			var thiefUserCheese;
-			var victimUserCheese;
+			console.log("user " + userFacebookId + " has cheese: " + cheeseCount);
 			
-			for(var ii=0; ii< cheeseRows.length; ii++)
+			if (userFacebookId === thiefFacebookId)
 			{
-				var userFacebookId = cheeseRows[ii].get("facebookId");
-				var cheeseCount = cheeseRows[ii].get("cheeseCount");
-				
-				console.log("user " + userFacebookId + " has cheese: " + cheeseCount);
-				
-				if (userFacebookId === thiefFacebookId)
-				{
-					thiefUserCheese = cheeseRows[ii];
-				}
-				else
-				{
-					victimUserCheese = cheeseRows[ii];
-				}
+				thiefUserCheese = cheeseRows[ii];
 			}
-		
-			console.log("In front of vicitm user cheese");
-			victimUserCheese.increment("cheeseCount", -1);
-			
-			return victimUserCheese.save(null,
+			else
 			{
-				success: function()
-				{
-					console.log("I'm in success");
-					thiefUserCheese.increment("cheeseCount");	
-					return thiefUserCheese.save();
-				},
-				error: function(error)
-				{
-					console.log("I'm in error");
-					response.error(error);
-				}
+				victimUserCheese = cheeseRows[ii];
 			}
-			)
-	}
-	
-	
+		}
+	}	
 	
 	/* add theft record to thefthistory table */
 	var insertTheftHistory = function(response)
