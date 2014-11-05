@@ -13,6 +13,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -73,10 +74,8 @@ public class LoginActivity extends Activity {
             	
         		if ((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)) {
         			// user exists
-        			loadingMsgSection.setVisibility(View.VISIBLE);
-                    Animation animFade  = AnimationUtils.loadAnimation(LoginActivity.this, R.anim.fade);
-                    loadingMsgSection.startAnimation(animFade);
-                    loadingText.setText("Preparing Steal Zone...");
+        			String stealZoneMsg = getResources().getString(R.string.prep_steal_zone_message);
+        			showLoadingMsgSection(stealZoneMsg);
                     performCreateAndLogin(false);
                     
         		} else {
@@ -87,6 +86,9 @@ public class LoginActivity extends Activity {
         			loginFBButton.setOnClickListener(new View.OnClickListener() {
         				@Override
         				public void onClick(View v) {
+        					hideLoginButton();
+        					String signinMsg = getResources().getString(R.string.signing_in_message);
+        					showLoadingMsgSection(signinMsg);
         					loginToFBAndCreateUser();
         				}
         			});
@@ -95,6 +97,14 @@ public class LoginActivity extends Activity {
         });
         LinearLayout titleContainer = (LinearLayout) findViewById(R.id.titleContainer);
         titleContainer.startAnimation(animTranslate);
+	}
+	
+	private void showLoadingMsgSection(String message)
+	{
+		loadingMsgSection.setVisibility(View.VISIBLE);
+        Animation animFade  = AnimationUtils.loadAnimation(LoginActivity.this, R.anim.fade);
+        loadingMsgSection.startAnimation(animFade);
+        loadingText.setText(message);
 	}
 	
 	private void checkNetworkAvailability() {
@@ -114,6 +124,7 @@ public class LoginActivity extends Activity {
 			public void done(ParseUser user, ParseException err) {
 				if(err != null){
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error in creating new user", err);
+					showLoginButton();
 				}
 				if (user == null) {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "Uh oh. The user cancelled the Facebook login.");
@@ -121,7 +132,7 @@ public class LoginActivity extends Activity {
 					Log.i(StealTheCheeseApplication.LOG_TAG, "User signed up and logged in through Facebook!");
 					getFBUserInfo();
 				} else {
-					Log.i(StealTheCheeseApplication.LOG_TAG, "User logged in through Facebook!");
+					Log.i(StealTheCheeseApplication.LOG_TAG, "User logged in through Facebook!");	
 					performCreateAndLogin(false);
 				}
 			}
@@ -129,7 +140,17 @@ public class LoginActivity extends Activity {
 
 	}
 	
+	private void showLoginButton()
+	{
+		ViewGroup parentView = (ViewGroup) loginFBButton.getParent();
+        parentView.setVisibility(View.VISIBLE);
+	}
 	
+	private void hideLoginButton()
+	{
+		ViewGroup parentView = (ViewGroup) loginFBButton.getParent();
+        parentView.setVisibility(View.GONE);
+	}
 	
 	private void performCreateAndLogin(boolean isNewUser){
 		final Map<String,Object> params = new HashMap<String,Object>();

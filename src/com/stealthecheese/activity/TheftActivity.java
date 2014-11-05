@@ -92,6 +92,7 @@ public class TheftActivity extends Activity {
 			List<ParseUser> friendUsers = ParseUser.getQuery()
 													.fromLocalDatastore()
 													.whereNotEqualTo("facebookId", currentUser.getString("facebookId"))
+													//.orderByDescending("cheeseCount")
 													.find();
 			
 			populateViews(friendUsers);
@@ -111,13 +112,9 @@ public class TheftActivity extends Activity {
 	private void populateViews(List<ParseUser> friendUsers)
 	{
         Resources res = getResources();
-        
         retrieveCheeseCountsLocally();
-        
         populateUserView();
-        
         populateFriendsListView(friendUsers);
-      
         populateHistoryListView();
 	}
 	

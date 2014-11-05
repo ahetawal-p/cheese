@@ -23,6 +23,10 @@
 	
      <string name="com_parse_ui_facebook_login_button_label">Log in with Facebook</string>
      
+     <!-- LoginActivity -->
+     <string name="signing_in_message">Signing in</string>
+     <string name="prep_steal_zone_message">Preparing Steal Zone</string>
+     
      <!-- TheftActivity -->
      <string name="cheese_theft_message">stole your cheese</string>
      

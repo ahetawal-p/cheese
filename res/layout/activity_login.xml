@@ -10,18 +10,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity" >
 
-    <Button
-        android:id="@+id/loginButton"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/button_login"
-        android:text="@string/login"
-        android:textColor="#fff"
-        android:textStyle="bold" />
-
+        	        android:layout_centerHorizontal="true"
+	        android:layout_centerVertical="true">
+	    <Button
+	        android:id="@+id/loginButton"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_centerVertical="true"
+	        android:layout_gravity="center_horizontal"
+	        android:background="@drawable/button_login"
+	        android:text="@string/login"
+	        android:textColor="#fff"
+	        android:textStyle="bold" />
+	</LinearLayout>
     <LinearLayout
         android:id="@+id/loadingMsgSection"
         android:layout_width="wrap_content"
