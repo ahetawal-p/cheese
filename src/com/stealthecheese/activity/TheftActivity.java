@@ -10,12 +10,14 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
@@ -309,7 +311,12 @@ public class TheftActivity extends Activity {
 	          }
 	          else
 	          {
+	        	/* if friend has no cheese, update cheese count to 0 and display message */
 	  			Log.e(StealTheCheeseApplication.LOG_TAG, "Cheese theft failed with message: ", e);
+	  			cheeseCounter.setText(Integer.toString(0));
+	  			Toast theftFailedToast = Toast.makeText(getApplicationContext(), R.string.cheese_theft_failed_message, 2);
+	  			theftFailedToast.setGravity(Gravity.CENTER, 0, 0);
+	  			theftFailedToast.show();
 	          }
 	        }
 	    });

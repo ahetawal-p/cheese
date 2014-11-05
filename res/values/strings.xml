@@ -29,6 +29,8 @@
      
      <!-- TheftActivity -->
      <string name="cheese_theft_message">stole your cheese</string>
+     <string name="cheese_theft_failed_message">Oh oh! Someone else got the last cheese!</string>
+     
      
      <!-- Info messages -->
      <string name="no_network_message">No network detected, switching to offline mode</string>
