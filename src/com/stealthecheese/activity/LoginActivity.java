@@ -107,6 +107,11 @@ public class LoginActivity extends Activity {
         loadingText.setText(message);
 	}
 	
+	private void hideLoadingMsgSection()
+	{
+		loadingMsgSection.setVisibility(View.GONE);	
+	}
+	
 	private void checkNetworkAvailability() {
 	    ConnectivityManager cm = (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -124,6 +129,7 @@ public class LoginActivity extends Activity {
 			public void done(ParseUser user, ParseException err) {
 				if(err != null){
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error in creating new user", err);
+					hideLoadingMsgSection();
 					showLoginButton();
 				}
 				if (user == null) {

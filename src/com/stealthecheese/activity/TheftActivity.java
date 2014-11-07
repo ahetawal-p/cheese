@@ -172,7 +172,7 @@ public class TheftActivity extends Activity {
 		/* create dummy user properties, throw away later */
 		PlayerViewModel userViewModel = new PlayerViewModel(currentUser.getString("facebookId"), 
 										currentUser.getString("profilePicUrl")+"?type=large", 
-										localCountMap.get(currentUser.getString("facebookId")));
+										localCountMap.get(currentUser.getString("facebookId")), true);
 		
 		/* create adapter for user view */
 		userCheeseTextView = (TextView) findViewById(R.id.cheeseCountTextView);
@@ -220,7 +220,7 @@ public class TheftActivity extends Activity {
 		facebookIdFirstNameMap.clear();
 		for(ParseUser friend : userFriends){
 			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getString("facebookId"));
-			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , localCountMap.get(friend.getString("facebookId"))));
+			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , localCountMap.get(friend.getString("facebookId")), true));
 			facebookIdFirstNameMap.put(friend.getString("facebookId"), friend.getString("firstName"));
 		}
 		
@@ -236,8 +236,9 @@ public class TheftActivity extends Activity {
 				continue;
 			}
 			else{
+				Boolean showMe = (Boolean)eachCount.get("showMe");
 				String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, (String)eachCount.get("facebookId"));
-				friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId)));
+				friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe));
 			}
 		}
 		

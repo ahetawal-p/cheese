@@ -119,8 +119,9 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              Picasso.with(activity).load(imageUrl).transform(circleTransform).into(holder.friendImageView);
              
              /* if player has 0 cheese, gray out image and disable click for both ImageView and ListItem*/
-             int playerCheese = data.get( position ).getCheese();
-             if (playerCheese < 1)
+             Boolean showMe = (Boolean) data.get(position).getShowMe();
+             
+             if (!showMe)
              {
             	 lockImageClick(holder.friendImageView, holder.counterTextView);
              }
