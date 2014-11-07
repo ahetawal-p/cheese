@@ -49,6 +49,7 @@ public class TheftActivity extends Activity {
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	private HashMap<String, String> facebookIdFirstNameMap = new HashMap<String, String>();
+	private HashMap<String, Boolean> localShowMeMap = new HashMap<String, Boolean>();
 	
 	AnimationHandler animationHandler;
 	
@@ -96,11 +97,8 @@ public class TheftActivity extends Activity {
 			
 			populateViews(friendUsers);
 		} 
-		catch (ParseException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.e(StealTheCheeseApplication.LOG_TAG, "Fetch friends from localstore failed with message: " + e.toString());
+		catch (ParseException e) {
+			Log.e(StealTheCheeseApplication.LOG_TAG, "Fetch friends from localstore failed with message: " + e);
 		}
 	}
 	
@@ -151,17 +149,17 @@ public class TheftActivity extends Activity {
 	
 
 	private void retrieveCheeseCountsLocally() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheese");
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("cheeseCountObj");
 		query.fromLocalDatastore();
 		try {
 			List<ParseObject> cheeseUpdates = query.find();
 			for(ParseObject cheese : cheeseUpdates){
 				localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
+				localShowMeMap.put(cheese.getString("facebookId"), cheese.getBoolean("showMe"));
 			}
 			
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(StealTheCheeseApplication.LOG_TAG, "Error getting cheese locally ", e);
 		}
 		
 	}
@@ -220,7 +218,11 @@ public class TheftActivity extends Activity {
 		facebookIdFirstNameMap.clear();
 		for(ParseUser friend : userFriends){
 			String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friend.getString("facebookId"));
-			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), imageUrl , localCountMap.get(friend.getString("facebookId")), true));
+			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), 
+												imageUrl,
+												localCountMap.get(friend.getString("facebookId")), 
+												localShowMeMap.get(friend.getString("facebookId"))));
+			
 			facebookIdFirstNameMap.put(friend.getString("facebookId"), friend.getString("firstName"));
 		}
 		
@@ -269,8 +271,6 @@ public class TheftActivity extends Activity {
 		final Map<String,Object> params = new HashMap<String,Object>();
 		params.put("victimFacebookId", friendFacebookId);
 		params.put("thiefFacebookId", currentUser.getString("facebookId"));
-		
-		
 		
 	    ParseCloud.callFunctionInBackground("onCheeseTheft", params, new FunctionCallback<List<HashMap<String, Object>> >() {
 	        public void done(List<HashMap<String, Object>> allUpdates, ParseException e) {
@@ -335,16 +335,12 @@ public class TheftActivity extends Activity {
 		
 	}
 	
-	private String getFriendFacebookId(int position)
-	{
+	private String getFriendFacebookId(int position) {
 		String facebookId;
-		try
-		{
+		try {
 			facebookId = friendsList.get(position).getFacebookId();
-			
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex){
 			Log.e(StealTheCheeseApplication.LOG_TAG, "Cannot find facebook Id of friend in list");
 			facebookId = "";
 		}
@@ -352,6 +348,7 @@ public class TheftActivity extends Activity {
 		return facebookId;
 	}
 
+	
 	/* perhaps use hashmap to replace this for faster speed */
 	private String retrieveFriendFirstName(String facebookId)  {
 		ParseQuery<ParseUser> friendDetails = ParseUser.getQuery();

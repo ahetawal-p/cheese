@@ -1,5 +1,6 @@
 package com.stealthecheese.activity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -218,12 +219,26 @@ public class LoginActivity extends Activity {
 	
 	private void updateCheeseCountData(){
 		final Map<String,Object> params = new HashMap<String,Object>();
-		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<ParseObject>>() {
+		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<HashMap<String, Object>>>() {
 
 			@Override
-			public void done(List<ParseObject> cheeseCounts, ParseException ex) {
+			public void done(List<HashMap<String, Object>> cheeseCounts, ParseException ex) {
 				if(ex == null){
-					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, cheeseCounts, new SaveCallback() {
+					List<ParseObject> allCountList = new ArrayList<ParseObject>();
+					for(HashMap<String, Object> eachCount : cheeseCounts){
+						String friendFacebookId = (String)eachCount.get("facebookId");
+						int cheeseCount = (Integer)eachCount.get("cheeseCount");
+						boolean showMe = (Boolean)eachCount.get("showMe");
+						
+						ParseObject tempObject = new ParseObject("cheeseCountObj");
+						tempObject.put("facebookId", friendFacebookId);
+						tempObject.put("cheeseCount", cheeseCount);
+						tempObject.put("showMe", showMe);
+						allCountList.add(tempObject);
+					}
+					
+					
+					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allCountList, new SaveCallback() {
 						@Override
 						public void done(ParseException ex) {
 							startTheftActivity();
@@ -234,6 +249,7 @@ public class LoginActivity extends Activity {
 			}
 		});
 	}
+	
 	
 	
 	/**

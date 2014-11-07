@@ -1,4 +1,83 @@
 
+
+/* retrieve cheese counts of user's friends */
+var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebookId)
+	{
+		var query = new Parse.Query("cheese");
+		var finalCheesUpdates = {};
+		console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendFacebookIds);
+		query.containedIn("facebookId", friendFacebookIds);
+		query.find().then(function(usersFriends){	
+				
+				for(var i = 0; i < usersFriends.length; i++){
+					var currFBId = usersFriends[i].get("facebookId");
+					finalCheesUpdates[currFBId] = {
+						facebookId: currFBId,
+                         showMe: false,
+                         cheeseCount: usersFriends[i].get("cheeseCount")
+					};
+					
+				}
+				console.log("INITIAL WRAPPERR IS ...");
+				console.log(finalCheesUpdates);
+				
+				var findWhereThiefIsVictimQuery = new Parse.Query("theftdirection");
+				findWhereThiefIsVictimQuery.equalTo("victimFBId", thiefFacebookId);
+				return findWhereThiefIsVictimQuery.find();
+		
+			}).then(function(thiefs){
+				for(var i = 0; i < thiefs.length; i++){
+					var fbId = thiefs[i].get("thiefFBId");
+					console.log("WhereThiefIsVictim id is " + fbId);
+					finalCheesUpdates[fbId].showMe = true;
+            	}
+			
+				var d = new Date(); // gets today
+    			var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.5); // gets 1 days ago
+    			console.log("Half a day..." + dMinus);
+    			
+    			var dMinus1 = new Date("November 8, 2014 10:10:00");
+    		
+				var findWhereThiefIsThief = new Parse.Query("theftdirection");
+				findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
+				findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
+				findWhereThiefIsThief.lessThanOrEqualTo("updatedAt", dMinus1);
+				return findWhereThiefIsThief.find();
+			
+			}).then(function(currThiefs){
+				for(var i = 0; i < currThiefs.length; i++){
+					var fbId = currThiefs[i].get("victimFBId");
+					console.log("WhereThiefIsThief id is " + fbId);
+					finalCheesUpdates[fbId].showMe = true;
+			}
+			
+			console.log("FINAL WRAPPERR IS ...");
+			console.log(finalCheesUpdates);
+			
+			var finalCheesUpdatesList = [];
+   			for(var key in finalCheesUpdates){
+   				
+   				// check for 0 cheese count, and disabling the image
+   				var localCheeseCount = finalCheesUpdates[key].cheeseCount;
+   				if(localCheeseCount < 1){
+   					finalCheesUpdates[key].showMe = false;
+   				}
+   				
+      			finalCheesUpdatesList.push(finalCheesUpdates[key]);
+   			}
+   				
+   			console.log(finalCheesUpdatesList);
+   			response.success(finalCheesUpdatesList);
+		
+		});	
+			
+		
+	}
+	
+	
+
+
+
 /* cloud code to steal cheese */
 Parse.Cloud.define("onCheeseTheft", function(request, response)
 {
@@ -34,7 +113,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 				.then(function(){insertTheftHistory();})
 				.then(function(){updateTheftDirection();})
 				.then(function(){return getUserFriendsFacebookIds();})
-				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds);});
+				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds, response, thiefFacebookId);});
 							
 	
 	/* find and set victim and thief cheese rows */
@@ -148,74 +227,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	}
 	
 	
-	/* retrieve cheese counts of user's friends */
-	var getFriendsCheeseCounts = function(friendFacebookIds)
-	{
-		var query = new Parse.Query("cheese");
-		var finalCheesUpdates = {};
-		console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendFacebookIds);
-		query.containedIn("facebookId", friendFacebookIds);
-		query.find().then(function(usersFriends){	
-				
-				for(var i = 0; i < usersFriends.length; i++){
-					var currFBId = usersFriends[i].get("facebookId");
-					finalCheesUpdates[currFBId] = {
-						facebookId: currFBId,
-                         showMe: false,
-                         cheeseCount: usersFriends[i].get("cheeseCount")
-					};
-					
-				}
-				console.log("INITIAL WRAPPERR IS ...");
-				console.log(finalCheesUpdates);
-				
-				var findWhereThiefIsVictimQuery = new Parse.Query("theftdirection");
-				findWhereThiefIsVictimQuery.equalTo("victimFBId", thiefFacebookId);
-				return findWhereThiefIsVictimQuery.find();
-		
-			}).then(function(thiefs){
-				for(var i = 0; i < thiefs.length; i++){
-					var fbId = thiefs[i].get("thiefFBId");
-					console.log("WhereThiefIsVictim id is " + fbId);
-					finalCheesUpdates[fbId].showMe = true;
-            	}
-			
-				//var d = new Date(); // gets today
-    			//var dMinus1 = new Date(d - 1000 * 60 * 60 * 24 * 1); // gets 1 days ago
-    		
-    			var dMinus1 = new Date("November 8, 2014 10:10:00");
-    		
-				var findWhereThiefIsThief = new Parse.Query("theftdirection");
-				findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
-				findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
-				findWhereThiefIsThief.lessThanOrEqualTo("updatedAt", dMinus1);
-				return findWhereThiefIsThief.find();
-			
-			}).then(function(currThiefs){
-				for(var i = 0; i < currThiefs.length; i++){
-					var fbId = currThiefs[i].get("victimFBId");
-					console.log("WhereThiefIsThief id is " + fbId);
-					finalCheesUpdates[fbId].showMe = true;
-			}
-			
-			console.log("FINAL WRAPPERR IS ...");
-			console.log(finalCheesUpdates);
-			
-			var finalCheesUpdatesList = [];
-   			for(var key in finalCheesUpdates){
-      			finalCheesUpdatesList.push(finalCheesUpdates[key]);
-   			}
-   			
-   			console.log(finalCheesUpdatesList);
-   			
-			response.success(finalCheesUpdatesList);
-		
-		
-		
-		});	
-			
-		
-	}
+	
 	
 	
 	
@@ -298,12 +310,12 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         return existingUserSteps(request, response);
                 });
     } else {
-    
-        console.log("Inside else part...");
+    	console.log("Inside else part...");
         return existingUserSteps(request, response);
-    }
+    	}
  
 });
+
 
 
 Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
@@ -313,22 +325,9 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
 	var query = new Parse.Query("cheese");
 	friendsList.push(request.user.get("facebookId"));
 	console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendsList);
-	query.containedIn("facebookId", friendsList);
-	query.find({
-			success: function(cheeseCounts)
-			{
-				console.log(cheeseCounts);
-				response.success(cheeseCounts);
-			},
-			error: function()
-			{
-				response.error("Cannot get user friends cheese count");
-			}	
-		}); 
-	
-
-
+	getFriendsCheeseCounts(friendsList, response, request.user.get("facebookId"));
 });
+
 
 
 
