@@ -10,6 +10,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 	console.log(thiefFacebookId + " is stealing cheese from " + victimFacebookId);
 	var query = new Parse.Query("cheese");
 	var facebookIds = [thiefFacebookId, victimFacebookId];
+	
 	query.containedIn("facebookId", facebookIds);
 	query.find().then(
 					function(cheeseRows)
@@ -31,8 +32,10 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 						response.error(error);
 					})
 				.then(function(){insertTheftHistory();})
+				.then(function(){updateTheftDirection();})
 				.then(function(){return getUserFriendsFacebookIds();})
-				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds);});				
+				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds);});
+							
 	
 	/* find and set victim and thief cheese rows */
 	var findVictimThiefCheeseRows = function(cheeseRows)
@@ -75,6 +78,49 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 		});
 	}
 	
+	var updateTheftDirection = function(){
+		
+		console.log("Inside theft direction...");
+		Parse.Cloud.useMasterKey();
+		var fwdDirection = new Parse.Query("theftdirection");
+		fwdDirection.equalTo("thiefFBId", thiefFacebookId);
+		fwdDirection.equalTo("victimFBId", victimFacebookId);
+		
+		var reverseDirection = new Parse.Query("theftdirection");
+		reverseDirection.equalTo("thiefFBId", victimFacebookId);
+		reverseDirection.equalTo("victimFBId", thiefFacebookId);
+		
+		var directionQuery = Parse.Query.or(fwdDirection, reverseDirection);
+		directionQuery.find({
+			success: function(theftVictimCombination)
+			{
+				console.log("Combination size : " + theftVictimCombination.length);
+				if(theftVictimCombination.length < 1){
+					var TheftDirectionClass = Parse.Object.extend("theftdirection");
+					var theftDir = new TheftDirectionClass();
+					theftDir.set("thiefFBId", thiefFacebookId);
+					theftDir.set("victimFBId", victimFacebookId);
+					theftDir.save();
+					console.log("Inserted new combination");
+				}else {
+					console.log("updating existing combination...");
+					theftVictimCombination[0].set("thiefFBId", thiefFacebookId);
+					theftVictimCombination[0].set("victimFBId", victimFacebookId);
+					theftVictimCombination[0].save();
+				}
+				
+			},
+			error: function(error)
+			{	
+				console.log("Not able to find any row..." + error);
+				
+			}	
+		}); 
+	}
+	
+	
+	
+	
 	/* return all facebook ids of user's friends */
 	var getUserFriendsFacebookIds = function()
 	{
@@ -99,26 +145,79 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 			);
 		console.log("getUserFriendsFacebookIds results:  " + results);
 		return results;
-	};
+	}
+	
 	
 	/* retrieve cheese counts of user's friends */
 	var getFriendsCheeseCounts = function(friendFacebookIds)
 	{
 		var query = new Parse.Query("cheese");
+		var finalCheesUpdates = {};
 		console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendFacebookIds);
 		query.containedIn("facebookId", friendFacebookIds);
-		query.find({
-			success: function(usersFriends)
-			{
-				console.log("user friends are: " + usersFriends);
-				response.success(usersFriends);
-			},
-			error: function()
-			{
-				response.error("Cannot get user friends cheese count");
-			}	
-		});
+		query.find().then(function(usersFriends){	
+				
+				for(var i = 0; i < usersFriends.length; i++){
+					var currFBId = usersFriends[i].get("facebookId");
+					finalCheesUpdates[currFBId] = {
+						facebookId: currFBId,
+                         showMe: false,
+                         cheeseCount: usersFriends[i].get("cheeseCount")
+					};
+					
+				}
+				console.log("INITIAL WRAPPERR IS ...");
+				console.log(finalCheesUpdates);
+				
+				var findWhereThiefIsVictimQuery = new Parse.Query("theftdirection");
+				findWhereThiefIsVictimQuery.equalTo("victimFBId", thiefFacebookId);
+				return findWhereThiefIsVictimQuery.find();
+		
+			}).then(function(thiefs){
+				for(var i = 0; i < thiefs.length; i++){
+					var fbId = thiefs[i].get("thiefFBId");
+					console.log("WhereThiefIsVictim id is " + fbId);
+					finalCheesUpdates[fbId].showMe = true;
+            	}
+			
+				//var d = new Date(); // gets today
+    			//var dMinus1 = new Date(d - 1000 * 60 * 60 * 24 * 1); // gets 1 days ago
+    		
+    			var dMinus1 = new Date("November 8, 2014 10:10:00");
+    		
+				var findWhereThiefIsThief = new Parse.Query("theftdirection");
+				findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
+				findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
+				findWhereThiefIsThief.lessThanOrEqualTo("updatedAt", dMinus1);
+				return findWhereThiefIsThief.find();
+			
+			}).then(function(currThiefs){
+				for(var i = 0; i < currThiefs.length; i++){
+					var fbId = currThiefs[i].get("victimFBId");
+					console.log("WhereThiefIsThief id is " + fbId);
+					finalCheesUpdates[fbId].showMe = true;
+			}
+			
+			console.log("FINAL WRAPPERR IS ...");
+			console.log(finalCheesUpdates);
+			
+			var finalCheesUpdatesList = [];
+   			for(var key in finalCheesUpdates){
+      			finalCheesUpdatesList.push(finalCheesUpdates[key]);
+   			}
+   			
+   			console.log(finalCheesUpdatesList);
+   			
+			response.success(finalCheesUpdatesList);
+		
+		
+		
+		});	
+			
+		
 	}
+	
+	
 	
 });
 
@@ -232,38 +331,6 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
 });
 
 
-Parse.Cloud.define("testCount", function(request, response) {
-	Parse.Cloud.useMasterKey();
-	var query = new Parse.Query("cheese");
-	query.equalTo("facebookId", "1517055471875244");
-	
-	
-	var query = new Parse.Query("cheese");
-	query.equalTo("facebookId", "1517055471875244");
-		query.find({
-			success: function(cheeses)
-			{
-				console.log(cheeses[0]);
-				var currCheese = cheeses[0];
-				currCheese.increment("cheeseCount", -1);
-				currCheese.save().then(function(result){
-								console.log("I am in success...");
-				
-						}, function(error){
-								console.log("I am in error...");
-						});
-				
-			},
-			error: function()
-			{
-				response.error("Cannot get user friends cheese count");
-			}	
-		});
-	
-	
-	
-
-});
 
 /* beforeSave function for the cheese table to check victim cheese count */
 Parse.Cloud.beforeSave("cheese", function(re, response){

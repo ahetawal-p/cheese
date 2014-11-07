@@ -1,7 +1,6 @@
 package com.stealthecheese.activity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,7 +26,6 @@ import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.stealthecheese.R;
 import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
@@ -230,16 +227,16 @@ public class TheftActivity extends Activity {
 		friendsListAdapter.notifyDataSetChanged();      
 	}
 	
-	private void refreshFriendsListview(List<ParseObject> friendCheeseObjects)
+	private void refreshFriendsListview(List<HashMap<String, Object>> friendCheeseObjects)
 	{
 		friendsList.clear();
-		for(ParseObject friendCheeseObject : friendCheeseObjects){
-			String friendFacebookId = friendCheeseObject.getString("facebookId");
+		for(HashMap<String, Object> eachCount : friendCheeseObjects){
+			String friendFacebookId = (String)eachCount.get("facebookId");
 			if (friendFacebookId.equals(currentUser.getString("facebookId"))){
 				continue;
 			}
 			else{
-				String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, friendCheeseObject.getString("facebookId"));
+				String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, (String)eachCount.get("facebookId"));
 				friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId)));
 			}
 		}
@@ -272,19 +269,18 @@ public class TheftActivity extends Activity {
 		params.put("victimFacebookId", friendFacebookId);
 		params.put("thiefFacebookId", currentUser.getString("facebookId"));
 		
-	    ParseCloud.callFunctionInBackground("onCheeseTheft", params, new FunctionCallback< List<ParseObject> >() {
-	        public void done(List<ParseObject> allUpdates, ParseException e) {
+		
+		
+	    ParseCloud.callFunctionInBackground("onCheeseTheft", params, new FunctionCallback<List<HashMap<String, Object>> >() {
+	        public void done(List<HashMap<String, Object>> allUpdates, ParseException e) {
 	          if (e == null){   
-					ParseUser.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allUpdates);
 					localCountMap.clear();
 					
-			    	for(ParseObject cheese : allUpdates){
-						localCountMap.put(cheese.getString("facebookId"), cheese.getInt("cheeseCount"));
-					}
-					
+			    	for(HashMap<String, Object> eachCount : allUpdates){
+			    		localCountMap.put((String)eachCount.get("facebookId"), (Integer)eachCount.get("cheeseCount"));
+			    	}
+			    	
 					int currentCheesCount = localCountMap.get(currentUser.getString("facebookId"));
-					refreshFriendsListview(allUpdates);
-					
 					int frndCurrentCheeseCount = localCountMap.get(friendFacebookId);
 					
 			    	cheeseCounter.setText(Integer.toString(frndCurrentCheeseCount));
@@ -292,6 +288,8 @@ public class TheftActivity extends Activity {
 			    	
 		    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
 		    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
+		    		
+		    		refreshFriendsListview(allUpdates);
 		    		
 		    		/* populate theft history asynchronously after friend cheese counts are updated */
 		    		populateHistoryListView();
