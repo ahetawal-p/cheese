@@ -13,7 +13,7 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
 					var currFBId = usersFriends[i].get("facebookId");
 					finalCheesUpdates[currFBId] = {
 						facebookId: currFBId,
-                         showMe: false,
+                         showMe: null,
                          cheeseCount: usersFriends[i].get("cheeseCount")
 					};
 					
@@ -36,12 +36,12 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
     			var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.5); // gets 1 days ago
     			console.log("Half a day..." + dMinus);
     			
-    			var dMinus1 = new Date("November 8, 2014 10:10:00");
+    			//var dMinus1 = new Date("November 8, 2014 10:10:00");
     		
 				var findWhereThiefIsThief = new Parse.Query("theftdirection");
 				findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
 				findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
-				findWhereThiefIsThief.lessThanOrEqualTo("updatedAt", dMinus1);
+				findWhereThiefIsThief.lessThanOrEqualTo("updatedAt", dMinus);
 				return findWhereThiefIsThief.find();
 			
 			}).then(function(currThiefs){
@@ -61,6 +61,10 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
    				var localCheeseCount = finalCheesUpdates[key].cheeseCount;
    				if(localCheeseCount < 1){
    					finalCheesUpdates[key].showMe = false;
+   				}
+   				if(finalCheesUpdates[key].showMe == null){
+   					console.log("I am in true...");
+   					finalCheesUpdates[key].showMe = true;
    				}
    				
       			finalCheesUpdatesList.push(finalCheesUpdates[key]);
