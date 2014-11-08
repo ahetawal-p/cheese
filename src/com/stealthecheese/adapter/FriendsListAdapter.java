@@ -72,7 +72,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
         public ImageView friendImageView;
  
     }
- 
+        
     /****** Depends upon data size called for each row , Create each ListView row *****/
     public View getView(int position, View convertView, ViewGroup parent) {
          

@@ -207,16 +207,30 @@ public class TheftActivity extends Activity {
 	class RefreshFriendsViewTask extends AsyncTask<List<HashMap<String, Object>>, Void, Void> {
 		@Override
 		protected Void doInBackground(List<HashMap<String, Object>>... friendCheeseObjects) {
-			friendsList.clear();
+			//friendsList.clear();
 			for(HashMap<String, Object> eachCount : friendCheeseObjects[0]){
 				String friendFacebookId = (String)eachCount.get("facebookId");
 				if (friendFacebookId.equals(currentUser.getString("facebookId"))){
 					continue;
 				}
 				else{
+					/* check match with old friendsList, diff and update */
 					Boolean showMe = (Boolean)eachCount.get("showMe");
 					String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, (String)eachCount.get("facebookId"));
-					friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe));
+					int cheeseCount = (Integer)eachCount.get("cheeseCount");
+					
+					PlayerViewModel existingFriend = findFriendInList(friendFacebookId);
+					if (existingFriend == null)
+					{
+						friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe));
+					}
+					else
+					{
+						existingFriend.setCheese(cheeseCount);
+						existingFriend.setImageString(imageUrl);
+						existingFriend.setShowMe(showMe);
+					}
+					
 				}
 			}
 			return null;
@@ -229,6 +243,19 @@ public class TheftActivity extends Activity {
 		
 	}
 	
+	private PlayerViewModel findFriendInList(String facebookId)
+	{
+		PlayerViewModel match = null;
+		for (PlayerViewModel friend : friendsList)
+		{
+			if (friend.getFacebookId().equals(facebookId))
+			{
+				match = friend;
+			}
+		}
+		
+		return match;
+	}
 	
 	
 	
@@ -272,13 +299,6 @@ public class TheftActivity extends Activity {
 		    		
 		    		/* populate theft history asynchronously after friend cheese counts are updated */
 		    		populateHistoryListView();
-		    		/*
-			    	if (frndCurrentCheeseCount > 0){
-			    		//friendsListAdapter.unlockImageClick((ImageView)friendImageClicked, cheeseCounter);
-			    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
-			    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
-			    	}
-			    	*/
 		    		
 			    	// Send Notifications out
 			    	/* Beck: temporarily comment this out to not annoy everyone */

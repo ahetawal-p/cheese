@@ -20,9 +20,19 @@ public class PlayerViewModel {
 		return this.showMe;
 	}
 	
+	public void setShowMe(Boolean showMe)
+	{
+		this.showMe = showMe;
+	}
+	
 	public String getImageString()
 	{
 		return this.imageString;
+	}
+	
+	public void setImageString(String imageString)
+	{
+		this.imageString = imageString;
 	}
 	
 	public String getFacebookId()
@@ -34,4 +44,10 @@ public class PlayerViewModel {
 	{
 		return this.cheese;
 	}
+	
+	public void setCheese(int cheese)
+	{
+		this.cheese = cheese;
+	}
+	
 }

@@ -10,3 +10,6 @@ bin/
 gen/
 
 .properties
+.gradle
+.mdown
+.bat
