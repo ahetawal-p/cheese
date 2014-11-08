@@ -36,6 +36,7 @@ import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.adapter.UserViewAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.enums.UpdateType;
 import com.stealthecheese.util.AnimationHandler;
 import com.stealthecheese.viewmodel.HistoryViewModel;
 import com.stealthecheese.viewmodel.PlayerViewModel;
@@ -87,14 +88,13 @@ public class TheftActivity extends Activity {
 		
 	}
 	
-	
+	/* update page when logging in */
 	private void updatePage() {
 		currentUser = ParseUser.getCurrentUser();
 		try {
 			List<ParseUser> friendUsers = ParseUser.getQuery()
 													.fromLocalDatastore()
 													.whereNotEqualTo("facebookId", currentUser.getString("facebookId"))
-													//.orderByDescending("cheeseCount")
 													.find();
 			
 			populateViews(friendUsers);
@@ -104,17 +104,26 @@ public class TheftActivity extends Activity {
 		}
 	}
 	
+	/* update page when user refreshes */
+	private void updatePage(List<HashMap<String, Object>> cheeseCounts)
+	{
+        populateUserView();
+		refreshFriendsListview(cheeseCounts);
+		populateHistoryListView();
+	}
+	
 	/**
 	 * Populates user and friends views
 	 * @param friendUsers
 	 */
 	private void populateViews(List<ParseUser> friendUsers){
-        Resources res = getResources();
         retrieveCheeseCountsLocally();
         populateUserView();
         populateFriendsListView(friendUsers);
         populateHistoryListView();
 	}
+	
+	
 	
 	private void populateHistoryListView() {
 		new HistoryViewTask().execute();
@@ -190,7 +199,7 @@ public class TheftActivity extends Activity {
 		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<HashMap<String, Object>>>() {
 
 			@Override
-			public void done(List<HashMap<String, Object>> cheeseCounts, ParseException ex) {
+			public void done(final List<HashMap<String, Object>> cheeseCounts, ParseException ex) {
 				if(ex == null){
 					List<ParseObject> allCountList = new ArrayList<ParseObject>();
 					for(HashMap<String, Object> eachCount : cheeseCounts){
@@ -203,13 +212,16 @@ public class TheftActivity extends Activity {
 						tempObject.put("cheeseCount", cheeseCount);
 						tempObject.put("showMe", showMe);
 						allCountList.add(tempObject);
+						
+						/* update local hashmap to contain the newest mappings */
+						localCountMap.put(friendFacebookId, cheeseCount);
 					}
 					
 					
 					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allCountList, new SaveCallback() {
 						@Override
 						public void done(ParseException ex) {
-							updatePage();
+							updatePage(cheeseCounts);
 							animationHandler.stopAnimateRefresh(v);
 						}
 					});
