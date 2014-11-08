@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,7 +15,9 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +30,7 @@ import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.stealthecheese.R;
 import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
@@ -51,7 +55,6 @@ public class TheftActivity extends Activity {
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	private HashMap<String, String> facebookIdFirstNameMap = new HashMap<String, String>();
 	private HashMap<String, Boolean> localShowMeMap = new HashMap<String, Boolean>();
-	
 	AnimationHandler animationHandler;
 	
 	@Override
@@ -60,7 +63,7 @@ public class TheftActivity extends Activity {
 		setContentView(R.layout.activity_theft);
 		
 		initializeUtilities();
-		initializeImageButtons();
+		initializeUIControls();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
 	}
@@ -158,6 +161,11 @@ public class TheftActivity extends Activity {
 	}
 	
 	
+	private void initializeUIControls()
+	{
+		initializeImageButtons();
+	}
+	
 	/* hook up image button clicks */
 	private void initializeImageButtons()
 	{
@@ -167,9 +175,46 @@ public class TheftActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				
+				updateCheeseCountData(v);
 			}
 			
+		});
+	}
+	
+	/* get most updated cheese data from database and pin to localstore
+	 * need to refactor these into separate class
+	 */
+	private void updateCheeseCountData(final View v){
+		final Map<String,Object> params = new HashMap<String,Object>();
+		animationHandler.startAnimateRefresh(v);
+		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<HashMap<String, Object>>>() {
+
+			@Override
+			public void done(List<HashMap<String, Object>> cheeseCounts, ParseException ex) {
+				if(ex == null){
+					List<ParseObject> allCountList = new ArrayList<ParseObject>();
+					for(HashMap<String, Object> eachCount : cheeseCounts){
+						String friendFacebookId = (String)eachCount.get("facebookId");
+						int cheeseCount = (Integer)eachCount.get("cheeseCount");
+						boolean showMe = (Boolean)eachCount.get("showMe");
+						
+						ParseObject tempObject = new ParseObject("cheeseCountObj");
+						tempObject.put("facebookId", friendFacebookId);
+						tempObject.put("cheeseCount", cheeseCount);
+						tempObject.put("showMe", showMe);
+						allCountList.add(tempObject);
+					}
+					
+					
+					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allCountList, new SaveCallback() {
+						@Override
+						public void done(ParseException ex) {
+							updatePage();
+							animationHandler.stopAnimateRefresh(v);
+						}
+					});
+				}
+			}
 		});
 	}
 	

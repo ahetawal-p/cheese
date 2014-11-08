@@ -22,6 +22,17 @@ public class AnimationHandler {
 		this.activityContext = activityContext;
 	}
 	
+	public void startAnimateRefresh(View view)
+	{
+		Animation rotation = AnimationUtils.loadAnimation(activityContext, R.anim.rotate);
+		view.startAnimation(rotation);
+	}
+	
+	public void stopAnimateRefresh(View view)
+	{
+		view.clearAnimation();
+	}
+	
 	public void animateCheeseTheft(View viewItemClicked, final ImageView movedCheeseImg, final TextView cheeseCounter, 	final ImageView userProfileImageView,
 									final int updatedCurrentCount, 
 									final int updateFriendCheeseCount) 
