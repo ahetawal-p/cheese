@@ -21,7 +21,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -258,21 +257,18 @@ public class TheftActivity extends Activity {
 				if (friendFacebookId.equals(currentUser.getString("facebookId"))){
 					continue;
 				}
-				else{
+				else {
 					/* check match with old friendsList, diff and update */
 					Boolean showMe = (Boolean)eachCount.get("showMe");
 					String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, (String)eachCount.get("facebookId"));
 					int cheeseCount = (Integer)eachCount.get("cheeseCount");
 					
 					PlayerViewModel existingFriend = findFriendInList(friendFacebookId);
-					if (existingFriend == null)
-					{
+					if (existingFriend == null) {
 						friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe));
-					}
-					else
-					{
+					} else {
 						existingFriend.setCheese(cheeseCount);
-						existingFriend.setImageString(imageUrl);
+						//existingFriend.setImageString(imageUrl);
 						existingFriend.setShowMe(showMe);
 					}
 					
@@ -288,18 +284,14 @@ public class TheftActivity extends Activity {
 		
 	}
 	
-	private PlayerViewModel findFriendInList(String facebookId)
-	{
-		PlayerViewModel match = null;
-		for (PlayerViewModel friend : friendsList)
-		{
-			if (friend.getFacebookId().equals(facebookId))
-			{
-				match = friend;
+	private PlayerViewModel findFriendInList(String facebookId) {
+		for (PlayerViewModel friend : friendsList) {
+			if (facebookId.equals(friend.getFacebookId())) {
+				return friend;
 			}
 		}
 		
-		return match;
+		return null;
 	}
 	
 	
