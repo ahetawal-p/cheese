@@ -1,4 +1,6 @@
 
+// CheeseBot FB Id
+var CHEESE_BOT_FB_ID = "369050949920159";
 
 /* retrieve cheese counts of user's friends */
 var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebookId)
@@ -33,7 +35,7 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
             	}
 			
 				var d = new Date(); // gets today
-    			var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.5); // gets 1 days ago
+    			var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.25); // gets 6  hrs ago
     			console.log("Half a day..." + dMinus);
     			
     			//var dMinus1 = new Date("November 8, 2014 10:10:00");
@@ -63,7 +65,6 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
    					finalCheesUpdates[key].showMe = false;
    				}
    				if(finalCheesUpdates[key].showMe == null){
-   					console.log("I am in true...");
    					finalCheesUpdates[key].showMe = true;
    				}
    				
@@ -265,7 +266,7 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                     console.log("Fb Reponse " + httpResponse.text);
                     var fbResponse = httpResponse['data'].data;
                     console.log(fbResponse);
-                    var friendsList = [];
+                    var friendsList = [CHEESE_BOT_FB_ID];
                     for(var i = 0; i < fbResponse.length; i++) {
                         var fbId = fbResponse[i].id;
                         friendsList.push(fbId);
@@ -278,7 +279,6 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                  
                 }).then(function(allFriendslist){
                     console.log("in updating user friends list");
-                    console.log(passedInUser);
                     passedInUser.set("friends", allFriendslist);
                     updatedFriendsList = allFriendslist;
                     return passedInUser.save();
@@ -303,21 +303,32 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                 );
 	}   
      
- 
-	if(isNewUser) {
-       console.log("Inside NEW USER BLOCK...");
-       var CheeseCountClass = Parse.Object.extend("cheese");
-       var cheeseCount = new CheeseCountClass();
-       cheeseCount.set("facebookId", passedInUser.get("facebookId"));
-       cheeseCount.set("cheeseCount", 20);
-       cheeseCount.save().then(function(cheeseCount){
+ 	
+ 	var query = new Parse.Query(Parse.User);
+	query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+	query.find().then(function(botUser){
+			console.log("Bot USER IS ...");
+			console.log(botUser[0]);
+			botUser[0].addUnique("friends", passedInUser.get("facebookId"));
+		 	return botUser[0].save();
+	
+	}).then(function(saveUser){
+		
+		if(isNewUser) {
+       		console.log("Inside NEW USER BLOCK...");
+       		var CheeseCountClass = Parse.Object.extend("cheese");
+       		var cheeseCount = new CheeseCountClass();
+       		cheeseCount.set("facebookId", passedInUser.get("facebookId"));
+       		cheeseCount.set("cheeseCount", 20);
+       		cheeseCount.save().then(function(cheeseCount){
                         return existingUserSteps(request, response);
                 });
-    } else {
-    	console.log("Inside else part...");
-        return existingUserSteps(request, response);
+    	} else {
+    		console.log("Inside else part...");
+        	return existingUserSteps(request, response);
     	}
- 
+ 	});
+ 	
 });
 
 
