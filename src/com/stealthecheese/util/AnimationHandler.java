@@ -3,6 +3,7 @@ package com.stealthecheese.util;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.stealthecheese.R;
+import com.stealthecheese.activity.LoginActivity;
 
 import android.content.Context;
 import android.os.Vibrator;
@@ -31,6 +32,14 @@ public class AnimationHandler {
 	public void stopAnimateRefresh(View view)
 	{
 		view.clearAnimation();
+	}
+	
+	public void fadeInOutView(View view)
+	{
+		view.setVisibility(View.VISIBLE);
+        Animation animFade  = AnimationUtils.loadAnimation(activityContext, R.anim.fadeinout);
+        view.startAnimation(animFade);
+        view.setVisibility(View.INVISIBLE);
 	}
 	
 	public void animateCheeseTheft(View viewItemClicked, final ImageView movedCheeseImg, final TextView cheeseCounter, 	final ImageView userProfileImageView,

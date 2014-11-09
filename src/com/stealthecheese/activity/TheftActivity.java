@@ -32,6 +32,7 @@ import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.adapter.UserViewAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.enums.UpdateType;
 import com.stealthecheese.util.AnimationHandler;
 import com.stealthecheese.util.CircularImageView;
 import com.stealthecheese.viewmodel.HistoryViewModel;
@@ -48,11 +49,13 @@ public class TheftActivity extends Activity {
 	CircularImageView userProfileImageView; 
 	TextView userCheeseTextView;
 	ImageView refreshImageView;
+	TextView refreshFinishedTextView;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	private HashMap<String, String> facebookIdFirstNameMap = new HashMap<String, String>();
 	private HashMap<String, Boolean> localShowMeMap = new HashMap<String, Boolean>();
 	AnimationHandler animationHandler;
+	private UpdateType updateType;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,7 @@ public class TheftActivity extends Activity {
 		initializeUIControls();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
+		updateType = UpdateType.LOGIN;
 	}
 	
 	private void initializeUtilities()
@@ -79,9 +83,16 @@ public class TheftActivity extends Activity {
 	
 	@Override
 	public void onStart() {
-		updatePage();
+		if (updateType == UpdateType.LOGIN)
+		{
+			updatePage();
+		}
+		else
+		{
+			updateCheeseCountData(refreshImageView);
+		}
 		super.onStart();
-		
+		updateType = UpdateType.REFRESH;
 	}
 	
 	/* update page when logging in */
@@ -169,6 +180,7 @@ public class TheftActivity extends Activity {
 	
 	private void initializeUIControls()
 	{
+		refreshFinishedTextView = (TextView)findViewById(R.id.refreshFinishedMessage);
 		initializeImageButtons();
 	}
 	
@@ -220,6 +232,7 @@ public class TheftActivity extends Activity {
 						public void done(ParseException ex) {
 							updatePage(cheeseCounts);
 							animationHandler.stopAnimateRefresh(v);
+							animationHandler.fadeInOutView(refreshFinishedTextView);
 						}
 					});
 				}

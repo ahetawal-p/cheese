@@ -70,7 +70,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     /********* Create a holder Class to contain inflated xml file elements *********/
     public static class ViewHolder{   
         public TextView counterTextView;
-        public CircularImageView friendImageView;
+        public ImageView friendImageView;
  
     }
         
@@ -89,7 +89,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             ImageView movedCheeseImg = (ImageView)vi.findViewById(R.id.cheeseAnimationImageView);
             holder = new ViewHolder();
             holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
-            holder.friendImageView=(CircularImageView)vi.findViewById(R.id.friendImageView);
+            holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
             holder.friendImageView.setOnClickListener(new OnImageClickListener(position, movedCheeseImg, holder.counterTextView));
             
             
