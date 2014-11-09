@@ -41,14 +41,14 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
 				var findWhereThiefIsThief = new Parse.Query("theftdirection");
 				findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
 				findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
-				findWhereThiefIsThief.lessThanOrEqualTo("updatedAt", dMinus);
+				findWhereThiefIsThief.greaterThanOrEqualTo("updatedAt", dMinus);
 				return findWhereThiefIsThief.find();
 			
 			}).then(function(currThiefs){
 				for(var i = 0; i < currThiefs.length; i++){
 					var fbId = currThiefs[i].get("victimFBId");
 					console.log("WhereThiefIsThief id is " + fbId);
-					finalCheesUpdates[fbId].showMe = true;
+					finalCheesUpdates[fbId].showMe = false;
 			}
 			
 			console.log("FINAL WRAPPERR IS ...");
