@@ -23,6 +23,7 @@ import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
 import com.stealthecheese.activity.TheftActivity;
 import com.stealthecheese.util.CircleTransform;
+import com.stealthecheese.util.CircularImageView;
 import com.stealthecheese.viewmodel.PlayerViewModel;
 
 public class FriendsListAdapter extends BaseAdapter   implements OnClickListener {
@@ -69,7 +70,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     /********* Create a holder Class to contain inflated xml file elements *********/
     public static class ViewHolder{   
         public TextView counterTextView;
-        public ImageView friendImageView;
+        public CircularImageView friendImageView;
  
     }
         
@@ -88,7 +89,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             ImageView movedCheeseImg = (ImageView)vi.findViewById(R.id.cheeseAnimationImageView);
             holder = new ViewHolder();
             holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
-            holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
+            holder.friendImageView=(CircularImageView)vi.findViewById(R.id.friendImageView);
             holder.friendImageView.setOnClickListener(new OnImageClickListener(position, movedCheeseImg, holder.counterTextView));
             
             
@@ -116,7 +117,9 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              //use Picasso to load image into ImageView
              String imageUrl = tempValues.getImageString();
              Transformation circleTransform = new CircleTransform();
-             Picasso.with(activity).load(imageUrl).transform(circleTransform).into(holder.friendImageView);
+             Picasso.with(activity).load(imageUrl).fit()
+             //.transform(circleTransform)
+             .into(holder.friendImageView);
              
              /* if player has 0 cheese, gray out image and disable click for both ImageView and ListItem*/
              Boolean showMe = (Boolean) data.get(position).getShowMe();

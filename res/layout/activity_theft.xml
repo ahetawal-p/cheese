@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
     android:clipChildren="false"
@@ -46,12 +47,21 @@
 	       	android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content" 
 	    	android:orientation="vertical">
-	        <ImageView
+	        <!-- <ImageView
 		        android:id="@+id/userProfileImageView"
 		        android:layout_gravity="center_horizontal"
 		        android:layout_width="wrap_content"
 		        android:layout_height="fill_parent"
-		        android:background="@drawable/profile_self_2x" />
+		        android:background="@drawable/profile_self_2x" />-->
+		    <com.stealthecheese.util.CircularImageView
+			    android:id="@+id/userProfileImageView"
+			    android:layout_gravity="center_horizontal"
+			    android:layout_width="120dp"
+			    android:layout_height="120dp"
+			    app:border="true"
+			    app:border_width="3dp"
+			    app:border_color="@color/white"
+			    android:background="@drawable/profile_self_2x"/>
 	        <LinearLayout 
 	            android:id="@+id/userCheeseCountContainer"
 	            android:layout_gravity="center_horizontal"

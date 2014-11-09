@@ -35,7 +35,9 @@ public class UserViewAdapter
         Transformation circleTransform = new CircleTransform();
         try
         {
-        	Picasso.with(activity).load(imageString).transform(circleTransform).into(userProfileImageView);
+        	Picasso.with(activity).load(imageString)
+        	//.transform(circleTransform)
+        	.into(userProfileImageView);
         }
         catch (Exception ex)
         {

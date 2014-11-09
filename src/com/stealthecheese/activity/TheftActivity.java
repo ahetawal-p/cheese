@@ -37,6 +37,7 @@ import com.stealthecheese.adapter.UserViewAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.enums.UpdateType;
 import com.stealthecheese.util.AnimationHandler;
+import com.stealthecheese.util.CircularImageView;
 import com.stealthecheese.viewmodel.HistoryViewModel;
 import com.stealthecheese.viewmodel.PlayerViewModel;
 
@@ -48,7 +49,7 @@ public class TheftActivity extends Activity {
 	HistoryListAdapter historyListAdapter;
 	FriendsListAdapter friendsListAdapter;
 	UserViewAdapter userViewAdapter;
-	ImageView userProfileImageView; 
+	CircularImageView userProfileImageView; 
 	TextView userCheeseTextView;
 	ImageView refreshImageView;
 	ParseUser currentUser;
@@ -155,7 +156,8 @@ public class TheftActivity extends Activity {
 		
 		/* create adapter for user view */
 		userCheeseTextView = (TextView) findViewById(R.id.cheeseCountTextView);
-		userProfileImageView = (ImageView) findViewById(R.id.userProfileImageView);
+		//userProfileImageView = (ImageView) findViewById(R.id.userProfileImageView);
+		userProfileImageView = (CircularImageView) findViewById(R.id.userProfileImageView);
 		userViewAdapter = new UserViewAdapter(this, userCheeseTextView, userProfileImageView);
 		
 		/* set display values via adapter */

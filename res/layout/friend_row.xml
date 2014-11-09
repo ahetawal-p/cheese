@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
    android:layout_width="fill_parent"
    android:layout_height="fill_parent"
    android:paddingTop="25dp"
@@ -13,14 +14,23 @@
 	      android:layout_height="wrap_content"
 	      android:visibility="gone"
 	      android:src="@drawable/cheese_stealing_4"/>
-	      
-   <ImageView
+     
+	 <com.stealthecheese.util.CircularImageView
+			    android:id="@+id/friendImageView"
+			    android:layout_gravity="center_horizontal"
+			    android:layout_width="65dp"
+			    android:layout_height="65dp"
+			    app:border="true"
+			    app:border_width="1dp"
+			    app:border_color="@color/white"
+			    android:background="@drawable/profile_contacts_2x"/>
+   <!--<ImageView
 	    android:id="@+id/friendImageView"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_centerHorizontal="true"
 	    android:visibility="visible"
-	    android:background="@drawable/profile_contacts_2x"/>
+	    android:background="@drawable/profile_contacts_2x"/> -->
 
    <TextView
        android:id="@+id/counterTextView"
