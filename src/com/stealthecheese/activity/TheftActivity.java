@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,9 +14,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +32,6 @@ import com.stealthecheese.adapter.FriendsListAdapter;
 import com.stealthecheese.adapter.HistoryListAdapter;
 import com.stealthecheese.adapter.UserViewAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
-import com.stealthecheese.enums.UpdateType;
 import com.stealthecheese.util.AnimationHandler;
 import com.stealthecheese.util.CircularImageView;
 import com.stealthecheese.viewmodel.HistoryViewModel;
