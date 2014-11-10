@@ -361,10 +361,8 @@ public class TheftActivity extends Activity {
 		    		populateHistoryListView();
 		    		
 			    	// Send Notifications out
-			    	/* Beck: temporarily comment this out to not annoy everyone */
-			    	/*
 			    	performNotifications(friendFacebookId);
-			    	*/
+			    	
 	          }
 	          else
 	          {
