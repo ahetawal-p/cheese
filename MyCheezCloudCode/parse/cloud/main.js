@@ -35,7 +35,7 @@ var getFriendsCheeseCounts = function(friendFacebookIds, response, thiefFacebook
             	}
 			
 				var d = new Date(); // gets today
-    			var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.25); // gets 6  hrs ago
+    			var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.25); // gets 6 hrs ago
     			console.log("Half a day..." + dMinus);
     			
     			//var dMinus1 = new Date("November 8, 2014 10:10:00");
@@ -115,11 +115,38 @@ Parse.Cloud.define("onCheeseTheft", function(request, response)
 					{
 						response.error(error);
 					})
+				.then(function(){performNotification();})
 				.then(function(){insertTheftHistory();})
 				.then(function(){updateTheftDirection();})
 				.then(function(){return getUserFriendsFacebookIds();})
 				.then(function(friendFacebookIds){getFriendsCheeseCounts(friendFacebookIds, response, thiefFacebookId);});
 							
+	
+	var performNotification = function(){ 
+		console.log("Running notification...");
+		var passedInUser = request.user;
+		var sampleQuery = new Parse.Query(Parse.Installation); 
+		sampleQuery.equalTo('facebookId', victimFacebookId);
+		//query.notEqualTo('facebookId', CHEESE_BOT_FB_ID);
+		var message =  passedInUser.get('firstName')  +  ' just snatched your cheese!'
+		
+		Parse.Push.send({
+  			where:sampleQuery,
+  			data: {
+    			alert: message
+  			},
+  			expiration_interval : 300
+		}, 
+		{
+  			success: function() {
+    			console.log("Notification sent");
+  			},
+  			error: function(error) {
+    			console.log("Notification error..");
+    			console.log(error);
+  			}
+		});
+	}
 	
 	/* find and set victim and thief cheese rows */
 	var findVictimThiefCheeseRows = function(cheeseRows)
@@ -256,7 +283,7 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
     console.log("fbaccessToken " + fbaccessToken);
     var currentFBUserId = passedInUser.get("facebookId");
     
-    var existingUserSteps = function(request, response) {
+    var existingUserSteps = function(request, response, isBot) {
     	console.log("Inside performExistingUser Steps...");
     	console.log(fbaccessToken);
     	var updatedFriendsList = [];
@@ -267,6 +294,10 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                     var fbResponse = httpResponse['data'].data;
                     console.log(fbResponse);
                     var friendsList = [CHEESE_BOT_FB_ID];
+                    if(isBot){
+                    	console.log("I am bot..");
+                    	return allUsersList;
+                    }
                     for(var i = 0; i < fbResponse.length; i++) {
                         var fbId = fbResponse[i].id;
                         friendsList.push(fbId);
@@ -302,32 +333,56 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         }
                 );
 	}   
-     
- 	
- 	var query = new Parse.Query(Parse.User);
-	query.equalTo("facebookId", CHEESE_BOT_FB_ID);
-	query.find().then(function(botUser){
-			console.log("Bot USER IS ...");
-			console.log(botUser[0]);
-			botUser[0].addUnique("friends", passedInUser.get("facebookId"));
-		 	return botUser[0].save();
-	
-	}).then(function(saveUser){
-		
-		if(isNewUser) {
+    
+    
+    
+    var doCommonSteps = function(isBot){
+    	if(isNewUser) {
        		console.log("Inside NEW USER BLOCK...");
        		var CheeseCountClass = Parse.Object.extend("cheese");
        		var cheeseCount = new CheeseCountClass();
        		cheeseCount.set("facebookId", passedInUser.get("facebookId"));
        		cheeseCount.set("cheeseCount", 20);
        		cheeseCount.save().then(function(cheeseCount){
-                        return existingUserSteps(request, response);
+                        return existingUserSteps(request, response, isBot);
                 });
     	} else {
     		console.log("Inside else part...");
-        	return existingUserSteps(request, response);
+        	return existingUserSteps(request, response, isBot);
     	}
- 	});
+    }
+    
+    var allUsersList = [];
+    var query = new Parse.Query(Parse.User);
+	query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+	query.find().then(function(botUser){
+		allUsersList = botUser[0].get("friends");
+		return allUsersList;
+	}).then(function(fulllist){
+		if(currentFBUserId == CHEESE_BOT_FB_ID){
+			console.log("I am BOT..");
+			doCommonSteps(true);
+		}else {
+			var query = new Parse.Query(Parse.User);
+			query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+			query.find().then(function(botUser){
+				console.log("Bot USER IS ...");
+				console.log(botUser[0]);
+				botUser[0].addUnique("friends", passedInUser.get("facebookId"));
+		 		botUser[0].save(null,{
+		  			success:function(theftResponse) { 
+						doCommonSteps(false);
+		  			},
+		  			error:function(error) {
+						response.error(error);
+		  			}
+				});
+			});
+		}
+	
+	});
+    
+   	
  	
 });
 
