@@ -26,6 +26,7 @@
      <!-- LoginActivity -->
      <string name="signing_in_message">Signing in</string>
      <string name="prep_steal_zone_message">Preparing Steal Zone</string>
+     <string name="update_type">UpdateType</string>
      
      <!-- TheftActivity -->
      <string name="cheese_theft_message">stole your cheese</string>

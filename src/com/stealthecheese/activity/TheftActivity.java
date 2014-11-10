@@ -66,7 +66,8 @@ public class TheftActivity extends Activity {
 		initializeUIControls();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
-		updateType = UpdateType.LOGIN;
+		String updateTypeName = getResources().getString(R.string.update_type);
+		updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
 	}
 	
 	private void initializeUtilities()
@@ -359,10 +360,6 @@ public class TheftActivity extends Activity {
 		    		
 		    		/* populate theft history asynchronously after friend cheese counts are updated */
 		    		populateHistoryListView();
-		    		
-			    	// Send Notifications out
-			    	performNotifications(friendFacebookId);
-			    	
 	          }
 	          else
 	          {

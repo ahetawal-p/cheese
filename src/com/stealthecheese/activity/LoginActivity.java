@@ -37,6 +37,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.stealthecheese.R;
 import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.enums.UpdateType;
 
 public class LoginActivity extends Activity {
 	
@@ -259,7 +260,8 @@ public class LoginActivity extends Activity {
 		Intent intent = new Intent(LoginActivity.this, TheftActivity.class);
 		// removing this activity from backstack
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		
+		String updateType = getResources().getString(R.string.update_type);
+		intent.putExtra(updateType, UpdateType.LOGIN);
 		startActivity(intent);
 		finish();
 	}
