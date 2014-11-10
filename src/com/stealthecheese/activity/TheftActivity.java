@@ -67,7 +67,8 @@ public class TheftActivity extends Activity {
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
 		String updateTypeName = getResources().getString(R.string.update_type);
-		updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
+		//updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
+		updateType = UpdateType.LOGIN;
 	}
 	
 	private void initializeUtilities()
