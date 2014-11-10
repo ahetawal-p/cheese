@@ -117,7 +117,9 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              //use Picasso to load image into ImageView
              String imageUrl = tempValues.getImageString();
              Transformation circleTransform = new CircleTransform();
-             Picasso.with(activity).load(imageUrl).fit()
+             Picasso.with(activity).load(imageUrl)
+             .fit()
+             .centerCrop()
              //.transform(circleTransform)
              .into(holder.friendImageView);
              

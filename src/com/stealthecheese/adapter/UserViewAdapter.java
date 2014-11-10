@@ -36,12 +36,15 @@ public class UserViewAdapter
         try
         {
         	Picasso.with(activity).load(imageString)
+        	//.resize(userProfileImageView.getWidth(), userProfileImageView.getHeight())
+        	.fit()
+        	        	.centerCrop()
         	//.transform(circleTransform)
         	.into(userProfileImageView);
         }
         catch (Exception ex)
         {
-        	Log.e(StealTheCheeseApplication.LOG_TAG, "Cannot set user profile image with image string: " + imageString);
+        	Log.e(StealTheCheeseApplication.LOG_TAG, "Cannot set user profile image. Error is: " + ex.toString());
         }
 	}
 	
