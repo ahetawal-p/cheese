@@ -16,9 +16,9 @@ import com.stealthecheese.enums.UpdateType;
 public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 	@Override
 	protected void onPushOpen(Context context, Intent intent) {
-		Intent newIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+		//Intent newIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
 		
-		/*try
+		try
 		{
 			Intent newIntent = new Intent(context, TheftActivity.class);
 			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -29,7 +29,7 @@ public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 		catch (Exception ex)
 		{
 			Log.e(StealTheCheeseApplication.LOG_TAG, ex.toString());
-		}*/
+		}
 	  }
 	
 	

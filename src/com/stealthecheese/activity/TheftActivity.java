@@ -61,14 +61,15 @@ public class TheftActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_theft);
+		currentUser = ParseUser.getCurrentUser();
 		
 		initializeUtilities();
 		initializeUIControls();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
 		String updateTypeName = getResources().getString(R.string.update_type);
-		//updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
-		updateType = UpdateType.LOGIN;
+		updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
+		//updateType = UpdateType.LOGIN;
 	}
 	
 	private void initializeUtilities()
@@ -99,7 +100,6 @@ public class TheftActivity extends Activity {
 	
 	/* update page when logging in */
 	private void updatePage() {
-		currentUser = ParseUser.getCurrentUser();
 		try {
 			List<ParseUser> friendUsers = ParseUser.getQuery()
 													.fromLocalDatastore()
@@ -374,20 +374,6 @@ public class TheftActivity extends Activity {
 	        }
 	    });
 		}
-	
-	private void performNotifications(String friendFacebookId) {
-		ParseQuery<ParseInstallation> pushQuery = ParseInstallation.getQuery();
-		pushQuery.whereEqualTo("facebookId", friendFacebookId);
-		ParseUser currentUser = ParseUser.getCurrentUser();
-		String message = currentUser.getString("firstName") + " just snatched your cheese!";
-		 
-		ParsePush push = new ParsePush();
-		push.setQuery(pushQuery); 
-		push.setExpirationTimeInterval(5*60); // 5 mins expiry
-		push.setMessage(message);
-		push.sendInBackground();
-		
-	}
 	
 	private String getFriendFacebookId(int position) {
 		String facebookId;
