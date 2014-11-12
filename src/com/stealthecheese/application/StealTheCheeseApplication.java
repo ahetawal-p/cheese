@@ -15,7 +15,8 @@ public class StealTheCheeseApplication extends Application {
 	public static final String PROFILE_PIC_URL = "https://graph.facebook.com/%s/picture";
 	public static final String FRIEND_CHEESE_COUNT_PIC_URL = "https://graph.facebook.com/%S/picture?type=normal";
 	public static final String FRIEND_HISTORY_PIC_URL = "https://graph.facebook.com/%S/picture?type=small";
-
+	private static boolean activityRunning;
+	
 	
   @Override
   public void onCreate() {
@@ -36,17 +37,18 @@ public class StealTheCheeseApplication extends Application {
     ParseFacebookUtils.initialize(getString(R.string.facebook_app_id));
   }
   
-  public static boolean isActivityVisible() {
-	    return activityVisible;
-	  }  
+  public static boolean isActivityRunning() {
+	  return activityRunning;
+  }  
 
-	  public static void activityResumed() {
-	    activityVisible = true;
-	  }
 
-	  public static void activityPaused() {
-	    activityVisible = false;
-	  }
+  public static void setActivityisStopping() {
+	  activityRunning = false;
 
-	  private static boolean activityVisible;
+  }
+
+  public static void setActivityisStillRunning() {
+	  activityRunning = true;
+
+  }
 }

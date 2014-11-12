@@ -2,12 +2,12 @@ package com.stealthecheese.viewmodel;
 
 
 public class PlayerViewModel {
-	private int cheese = 0;
+	private Integer cheese = 0;
 	private String facebookId;
 	private String imageString;
 	private Boolean showMe;
 	
-	public PlayerViewModel(String facebookId, String imageString, int cheese, Boolean showMe)
+	public PlayerViewModel(String facebookId, String imageString, Integer cheese, Boolean showMe)
 	{
 		this.facebookId = facebookId;
 		this.imageString = imageString;
@@ -40,12 +40,12 @@ public class PlayerViewModel {
 		return this.facebookId;
 	}
 	
-	public int getCheese()
+	public Integer getCheese()
 	{
 		return this.cheese;
 	}
 	
-	public void setCheese(int cheese)
+	public void setCheese(Integer cheese)
 	{
 		this.cheese = cheese;
 	}

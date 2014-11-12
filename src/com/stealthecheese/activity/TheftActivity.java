@@ -1,6 +1,8 @@
 package com.stealthecheese.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,7 @@ import com.stealthecheese.application.StealTheCheeseApplication;
 import com.stealthecheese.enums.UpdateType;
 import com.stealthecheese.util.AnimationHandler;
 import com.stealthecheese.util.CircularImageView;
+import com.stealthecheese.util.ComparatorChain;
 import com.stealthecheese.viewmodel.HistoryViewModel;
 import com.stealthecheese.viewmodel.PlayerViewModel;
 
@@ -55,28 +58,27 @@ public class TheftActivity extends Activity {
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	private HashMap<String, String> facebookIdFirstNameMap = new HashMap<String, String>();
 	private HashMap<String, Boolean> localShowMeMap = new HashMap<String, Boolean>();
-	AnimationHandler animationHandler;
+	private AnimationHandler animationHandler;
 	private UpdateType updateType;
+	
+	private ComparatorChain<PlayerViewModel> chain = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		//String updateTypeName = getResources().getString(R.string.update_type);
-		//updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
+		setContentView(R.layout.activity_theft);
+		currentUser = ParseUser.getCurrentUser();
 		
-			setContentView(R.layout.activity_theft);
-			currentUser = ParseUser.getCurrentUser();
-			
-			initializeUtilities();
-			initializeUIControls();
-			initializeHistoryListView(getResources());
-			initializeFriendListVIew(getResources());
+		
+		initializeUtilities();
+		initializeUIControls();
+		initializeHistoryListView(getResources());
+		initializeFriendListVIew(getResources());
 		updateType = UpdateType.LOGIN;
 	}
 	
-	private void initializeUtilities()
-	{
+	private void initializeUtilities() {
 		this.animationHandler = new AnimationHandler(this);
 	}
 	
@@ -84,34 +86,22 @@ public class TheftActivity extends Activity {
 	public void onBackPressed() {
 		    finish();
             super.onBackPressed();
-        }
+    }
 	
 	
 	@Override
 	public void onStart() {
-		if (updateType == UpdateType.LOGIN)
-		{
-			updatePage();
-		}
-		else
-		{
+		StealTheCheeseApplication.setActivityisStillRunning();
+		if (updateType == UpdateType.LOGIN) {
+			updatePage(); 
+		}else {
 			updateCheeseCountData(refreshImageView);
 		}
-		super.onStart();
 		updateType = UpdateType.REFRESH;
+		
+		super.onStart();
 	}
 	
-	@Override
-	protected void onResume() {
-	  super.onResume();
-	  StealTheCheeseApplication.activityResumed();
-	}
-
-	@Override
-	protected void onPause() {
-	  super.onPause();
-	  StealTheCheeseApplication.activityPaused();
-	}
 	
 	@Override
 	public void onNewIntent(Intent intent) {
@@ -128,8 +118,8 @@ public class TheftActivity extends Activity {
 													.find();
 			
 			populateViews(friendUsers);
-		} 
-		catch (ParseException e) {
+		
+		} catch (ParseException e) {
 			Log.e(StealTheCheeseApplication.LOG_TAG, "Fetch friends from localstore failed with message: " + e);
 		}
 	}
@@ -138,7 +128,7 @@ public class TheftActivity extends Activity {
 	private void updatePage(List<HashMap<String, Object>> cheeseCounts)
 	{
         populateUserView();
-		refreshFriendsListview(cheeseCounts);
+		refreshFriendsListview(cheeseCounts, true);
 		populateHistoryListView();
 	}
 	
@@ -195,6 +185,7 @@ public class TheftActivity extends Activity {
 	}
 	
 	private void initializeFriendListVIew(Resources resources) {
+		chain = populateFriendListComparators();
 		friendsListView= ( ListView )findViewById( R.id.friendsListView );   
 		friendsListAdapter = new FriendsListAdapter( this, friendsList, resources );
 		friendsListView.setAdapter( friendsListAdapter );
@@ -284,17 +275,51 @@ public class TheftActivity extends Activity {
 			facebookIdFirstNameMap.put(friend.getString("facebookId"), friend.getString("firstName"));
 		}
 		
+		Collections.sort(friendsList, chain);
 		friendsListAdapter.notifyDataSetChanged();      
 	}
 	
 	
+	
+	
+	public ComparatorChain<PlayerViewModel> populateFriendListComparators(){
+		if(this.chain == null){
+			Comparator<PlayerViewModel> compareVisibility = new Comparator<PlayerViewModel>() {
+				@Override
+				public int compare(PlayerViewModel lhs, PlayerViewModel rhs) {
+					return lhs.getShowMe().compareTo(rhs.getShowMe());
+				}
+			};
+			Comparator<PlayerViewModel> compareCounts = new Comparator<PlayerViewModel>() {
+				@Override
+				public int compare(PlayerViewModel lhs, PlayerViewModel rhs) {
+					return lhs.getCheese().compareTo(rhs.getCheese());
+				}
+			};
+			
+			ComparatorChain<PlayerViewModel> comparatorChain = new ComparatorChain<PlayerViewModel>();
+			comparatorChain.addComparator(compareVisibility, true);
+			comparatorChain.addComparator(compareCounts, true);
+			return comparatorChain;
+		}
+		return this.chain;
+		
+	}
+
 	@SuppressWarnings("unchecked")
-	private void refreshFriendsListview(List<HashMap<String, Object>> friendCheeseObjects) {
-		new RefreshFriendsViewTask().execute(friendCheeseObjects);
+	private void refreshFriendsListview(List<HashMap<String, Object>> friendCheeseObjects, boolean doSort) {
+		new RefreshFriendsViewTask(doSort).execute(friendCheeseObjects);
 	}
 	
 	
 	class RefreshFriendsViewTask extends AsyncTask<List<HashMap<String, Object>>, Void, Void> {
+		
+		private boolean enableSorting; 
+		
+		public RefreshFriendsViewTask(boolean doSort) {
+			this.enableSorting = doSort;
+		}
+
 		@Override
 		protected Void doInBackground(List<HashMap<String, Object>>... friendCheeseObjects) {
 			//friendsList.clear();
@@ -325,6 +350,9 @@ public class TheftActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Void result){
+			if(this.enableSorting){
+				Collections.sort(friendsList, chain);
+			}
 			friendsListAdapter.notifyDataSetChanged();
 		}
 		
@@ -378,7 +406,7 @@ public class TheftActivity extends Activity {
 		    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
 		    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
 		    		
-		    		refreshFriendsListview(allUpdates);
+		    		refreshFriendsListview(allUpdates, false);
 		    		
 		    		/* populate theft history asynchronously after friend cheese counts are updated */
 		    		populateHistoryListView();
@@ -455,7 +483,7 @@ public class TheftActivity extends Activity {
 	public void onDestroy() {
 		System.out.println("Called destory...");
 		ParseObject.unpinAllInBackground(StealTheCheeseApplication.PIN_TAG);
-		StealTheCheeseApplication.activityPaused();
+		StealTheCheeseApplication.setActivityisStopping();
 		super.onDestroy();
 		
 	}

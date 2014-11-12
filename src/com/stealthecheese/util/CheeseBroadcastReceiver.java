@@ -17,23 +17,17 @@ public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 	protected void onPushOpen(Context context, Intent intent) {
 		
 		/* if app is running, start TheftActivity. if not, start LoginActivity */
-		if (isAppRunning())
-		{
-	        try
-			{        	
+		if (isAppRunning()) {
+	        try {        	
 				Intent newIntent = new Intent(context, TheftActivity.class);
 				newIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				newIntent.putExtra("UpdateType", UpdateType.REFRESH);
 		        context.startActivity(newIntent);
-			}
-			catch (Exception ex)
-			{
+			} catch (Exception ex) {
 				Log.e(StealTheCheeseApplication.LOG_TAG, "onPushOpen failed with msg: " + ex.toString());
 			}
-		}
-		else
-		{
+		} else {
 			/* LoginActivity is set to be launch activity via AndroidManifest */
 			Intent newIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
 			newIntent.putExtras(intent.getExtras());
@@ -42,9 +36,8 @@ public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 	  }
 	
 	
-	private Boolean isAppRunning()
-	{
-		return StealTheCheeseApplication.isActivityVisible();
+	private Boolean isAppRunning() {
+		return StealTheCheeseApplication.isActivityRunning();
 	}
 	
 	private Context getResources() {
