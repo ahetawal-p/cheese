@@ -49,6 +49,7 @@
             android:name="com.stealthecheese.activity.TheftActivity"
             android:label="@string/title_activity_main_page"
             android:theme="@android:style/Theme.NoTitleBar"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"  >
         </activity>
         

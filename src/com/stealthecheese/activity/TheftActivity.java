@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -60,16 +61,18 @@ public class TheftActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_theft);
-		currentUser = ParseUser.getCurrentUser();
 		
-		initializeUtilities();
-		initializeUIControls();
-		initializeHistoryListView(getResources());
-		initializeFriendListVIew(getResources());
-		String updateTypeName = getResources().getString(R.string.update_type);
-		updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
-		//updateType = UpdateType.LOGIN;
+		//String updateTypeName = getResources().getString(R.string.update_type);
+		//updateType = (UpdateType)getIntent().getSerializableExtra(updateTypeName);
+		
+			setContentView(R.layout.activity_theft);
+			currentUser = ParseUser.getCurrentUser();
+			
+			initializeUtilities();
+			initializeUIControls();
+			initializeHistoryListView(getResources());
+			initializeFriendListVIew(getResources());
+		updateType = UpdateType.LOGIN;
 	}
 	
 	private void initializeUtilities()
@@ -96,6 +99,12 @@ public class TheftActivity extends Activity {
 		}
 		super.onStart();
 		updateType = UpdateType.REFRESH;
+	}
+	
+	@Override
+	public void onNewIntent(Intent intent) {
+		updateCheeseCountData(refreshImageView);
+		  super.onNewIntent(intent);
 	}
 	
 	/* update page when logging in */
