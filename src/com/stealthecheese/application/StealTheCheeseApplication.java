@@ -35,4 +35,18 @@ public class StealTheCheeseApplication extends Application {
     
     ParseFacebookUtils.initialize(getString(R.string.facebook_app_id));
   }
+  
+  public static boolean isActivityVisible() {
+	    return activityVisible;
+	  }  
+
+	  public static void activityResumed() {
+	    activityVisible = true;
+	  }
+
+	  public static void activityPaused() {
+	    activityVisible = false;
+	  }
+
+	  private static boolean activityVisible;
 }

@@ -102,6 +102,18 @@ public class TheftActivity extends Activity {
 	}
 	
 	@Override
+	protected void onResume() {
+	  super.onResume();
+	  StealTheCheeseApplication.activityResumed();
+	}
+
+	@Override
+	protected void onPause() {
+	  super.onPause();
+	  StealTheCheeseApplication.activityPaused();
+	}
+	
+	@Override
 	public void onNewIntent(Intent intent) {
 		updateCheeseCountData(refreshImageView);
 		  super.onNewIntent(intent);
@@ -442,8 +454,8 @@ public class TheftActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		System.out.println("Called destory...");
-			ParseObject.unpinAllInBackground(StealTheCheeseApplication.PIN_TAG);
-		
+		ParseObject.unpinAllInBackground(StealTheCheeseApplication.PIN_TAG);
+		StealTheCheeseApplication.activityPaused();
 		super.onDestroy();
 		
 	}
