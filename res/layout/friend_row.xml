@@ -15,15 +15,24 @@
 	      android:visibility="gone"
 	      android:src="@drawable/cheese_stealing_4"/>
      
-	 <com.stealthecheese.util.CircularImageView
+	 <!-- <com.stealthecheese.util.CircularImageView
 			    android:id="@+id/friendImageView"
-			    android:layout_gravity="center_horizontal"
+			    android:layout_gravity="center"
 			    android:layout_width="65dp"
 			    android:layout_height="65dp"
 			    app:border="true"
 			    app:border_width="1dp"
 			    app:border_color="@color/white"
-			    android:background="@drawable/profile_contacts_2x"/>
+			    android:background="@drawable/profile_contacts_4"/>-->
+			    	 <com.stealthecheese.util.CircularImageView
+			    android:id="@+id/friendImageView"
+			    android:layout_gravity="center"
+			    android:layout_width="65dp"
+			    android:layout_height="65dp"
+			    app:border="true"
+			    app:border_width="0.1dp"
+			    app:border_color="@color/white"
+			    android:background="@drawable/profile_contacts_4"/>
    <!--<ImageView
 	    android:id="@+id/friendImageView"
 	    android:layout_width="wrap_content"
@@ -39,7 +48,7 @@
        android:layout_alignParentTop="true"
        android:layout_marginLeft="-15dp"
        android:layout_toRightOf="@+id/friendImageView"
-       android:background="@drawable/counter_contacts_2x"
+       android:background="@drawable/counter_contacts_4"
        android:ellipsize="end"
        android:fitsSystemWindows="true"
        android:gravity="center"
