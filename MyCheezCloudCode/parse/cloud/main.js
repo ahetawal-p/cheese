@@ -40,7 +40,7 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                
                 var d = new Date(); // gets today
                 var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.08); // around 2 hrs ago
-                console.log("Two hourse time..." + dMinus);
+                console.log("Around Two hour time..." + dMinus);
                    
                 //var dMinus1 = new Date("November 8, 2014 10:10:00");
                  
