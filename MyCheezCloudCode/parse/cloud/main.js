@@ -1,7 +1,286 @@
 // CheeseBot FB Id
 // NOTE: DO NOT CHANGE. UNLESS NEW BOT IS CREATED... 
 var CHEESE_BOT_FB_ID = "369050949920159";
-   
+
+/** TEST - this version takes in user facebookId 
+Retrieves ranking and player info for user and top ranked players
+**/
+Parse.Cloud.define("onTestGetRankings", function(request, response) {
+    console.log("onTestGetRankings called");
+
+    var passedInUser = request.user;
+    var userName =  'fakeFirstName';
+    var userFacebookId = request.params.facebookId;
+    var userCheeseRow;
+    var collectedPlayerInfos = [];
+    console.log("user name is: " + userName + "user facebookId is: " + userFacebookId);
+
+    var query = new Parse.Query("cheese");
+    query.descending("cheeseCount");
+    query.limit(10);
+    query.find()
+        .then(function(cheeseRows){return getTopPlayersInfo(cheeseRows); })
+        .then(function(){return getUserCheeseRow();})
+        .then(function(userCheeseRow){return getUserInfo(userCheeseRow);})
+        .then(
+            function(userInfo)
+            {
+                collectedPlayerInfos.push(userInfo);
+                console.log("collectedPlayerInfos is: " + collectedPlayerInfos);
+                response.success(collectedPlayerInfos);
+            },
+            function(error)
+            {
+                console.log("error occured: " + error);
+                resopnse.error(error);
+            }
+        );
+
+        /* get cheese row of current user */
+        var getUserCheeseRow = function()
+        {
+            console.log("getUserCheeseRow called");
+            var query = new Parse.Query("cheese");
+            query.equalTo("facebookId", userFacebookId);
+            return query.first();
+        };
+
+        /* get user info with facebookId from ParseUser table */
+        var getUserInfo = function(userCheeseRow)
+        {
+            console.log("getUserInfo called");
+            var promise = new Parse.Promise();
+            var userCheeseCount = userCheeseRow.get("cheeseCount");
+            var query = new Parse.Query("cheese");
+            query.greaterThan("cheeseCount", userCheeseCount);
+
+            /* excluding bots from count of higher ranking players */
+            query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+            query.count()
+                 .then(function(userRank)
+                    {
+                        var userPlayerInfo = 
+                        {
+                            facebookId: userFacebookId,
+                            cheeseCount: userCheeseCount,
+                            firstName: userName,
+                            ranking: userRank + 1
+                        };
+
+                        console.log("User info is: " + userPlayerInfo);
+                        promise.resolve(userPlayerInfo);
+                    });
+
+            return promise;
+        };
+
+        /* get player info from top 10 players, like firstName, and add to array */
+        var getTopPlayersInfo = function(cheeseRows)
+        {
+            var topFacebookIds = [];
+            var playerCheeseMap = {};
+            var ranking = 1;
+            for(var ii=0; ii< cheeseRows.length; ii++) {
+                var playerFacebookId = cheeseRows[ii].get("facebookId");
+
+                /* exclude bot from ranking */
+                if (playerFacebookId === CHEESE_BOT_FB_ID)
+                {
+                    console.log("cheese bot identified! "+ playerFacebookId);
+                    continue;
+                }
+
+                var cheeseCount = cheeseRows[ii].get("cheeseCount");
+                console.log("player " + playerFacebookId + " has cheese: " + cheeseCount);
+                playerCheeseMap[playerFacebookId] = 
+                                                    { cheeseCount: cheeseCount,
+                                                      ranking: ranking
+                                                    };
+                topFacebookIds.push(playerFacebookId);
+
+                ranking++;
+            }
+
+            var query = new Parse.Query(Parse.User);
+            query.containedIn("facebookId", topFacebookIds);
+            var promise = new Parse.Promise();
+            query.find().then(function(parseUsers)
+                {
+                    for(var ii=0;ii<parseUsers.length;ii++)
+                    {
+                        /* null protect in case player is in cheese table but not ParseUser table */
+                        var player = parseUsers[ii];
+                        if (player === null)
+                            return false;
+
+                        var playerFacebookId = player.get("facebookId");
+                        var playerInfo = 
+                        {
+                            facebookId: playerFacebookId,
+                            cheeseCount: playerCheeseMap[playerFacebookId]["cheeseCount"],
+                            firstName: player.get("firstName"),
+                            ranking: playerCheeseMap[playerFacebookId]["ranking"]
+                        };
+
+                        collectedPlayerInfos.push(playerInfo);
+                    }
+                }).then(
+                    function()
+                    {
+                        console.log("getTopPlayersInfo success! player info is: " + collectedPlayerInfos);
+                        promise.resolve();
+                    },
+                    function(error)
+                    {
+                        response.error("getTopPlayersInfofailed with: " + error);
+                    }
+                );
+
+            return promise;
+        };
+    });
+
+/** End of onTestGetRankings **/
+
+
+/** Retrieves ranking and player info for user and top ranked players **/
+Parse.Cloud.define("onGetRankings", function(request, response) {
+    console.log("onGetRankings called");
+
+    var passedInUser = request.user;
+    var userName = passedInUser.get("firstName");
+    var userFacebookId = passedInUser.get("facebookId");
+    var userCheeseRow;
+    var collectedPlayerInfos = [];
+    console.log("user name is: " + userName + "user facebookId is: " + userFacebookId);
+
+    var query = new Parse.Query("cheese");
+    query.descending("cheeseCount");
+    query.limit(10);
+    query.find()
+        .then(function(cheeseRows){return getTopPlayersInfo(cheeseRows); })
+        .then(function(){return getUserCheeseRow();})
+        .then(function(userCheeseRow){return getUserInfo(userCheeseRow);})
+        .then(
+            function(userInfo)
+            {
+                collectedPlayerInfos.push(userInfo);
+                console.log("collectedPlayerInfos is: " + collectedPlayerInfos);
+                response.success(collectedPlayerInfos);
+            },
+            function(error)
+            {
+                console.log("error occured: " + error);
+                resopnse.error(error);
+            }
+        );
+
+        /* get cheese row of current user */
+        var getUserCheeseRow = function()
+        {
+            console.log("getUserCheeseRow called");
+            var query = new Parse.Query("cheese");
+            query.equalTo("facebookId", userFacebookId);
+            return query.first();
+        };
+
+        /* get user info with facebookId from ParseUser table */
+        var getUserInfo = function(userCheeseRow)
+        {
+            console.log("getUserInfo called");
+            var promise = new Parse.Promise();
+            var userCheeseCount = userCheeseRow.get("cheeseCount");
+            var query = new Parse.Query("cheese");
+            query.greaterThan("cheeseCount", userCheeseCount);
+
+            /* excluding bots from count of higher ranking players */
+            query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+            query.count()
+                 .then(function(userRank)
+                    {
+                        var userPlayerInfo = 
+                        {
+                            facebookId: userFacebookId,
+                            cheeseCount: userCheeseCount,
+                            firstName: userName,
+                            ranking: userRank + 1
+                        };
+
+                        console.log("User info is: " + userPlayerInfo);
+                        promise.resolve(userPlayerInfo);
+                    });
+
+            return promise;
+        };
+
+        /* get player info from top 10 players, like firstName, and add to array */
+        var getTopPlayersInfo = function(cheeseRows)
+        {
+            var topFacebookIds = [];
+            var playerCheeseMap = {};
+            var ranking = 1;
+            for(var ii=0; ii< cheeseRows.length; ii++) {
+                var playerFacebookId = cheeseRows[ii].get("facebookId");
+
+                /* exclude bot from ranking */
+                if (playerFacebookId === CHEESE_BOT_FB_ID)
+                {
+                    console.log("cheese bot identified! "+ playerFacebookId);
+                    continue;
+                }
+
+                var cheeseCount = cheeseRows[ii].get("cheeseCount");
+                console.log("player " + playerFacebookId + " has cheese: " + cheeseCount);
+                playerCheeseMap[playerFacebookId] = 
+                                                    { cheeseCount: cheeseCount,
+                                                      ranking: ranking
+                                                    };
+                topFacebookIds.push(playerFacebookId);
+
+                ranking++;
+            }
+
+            var query = new Parse.Query(Parse.User);
+            query.containedIn("facebookId", topFacebookIds);
+            var promise = new Parse.Promise();
+            query.find().then(function(parseUsers)
+                {
+                    for(var ii=0;ii<parseUsers.length;ii++)
+                    {
+                        /* null protect in case player is in cheese table but not ParseUser table */
+                        var player = parseUsers[ii];
+                        if (player === null)
+                            return false;
+
+                        var playerFacebookId = player.get("facebookId");
+                        var playerInfo = 
+                        {
+                            facebookId: playerFacebookId,
+                            cheeseCount: playerCheeseMap[playerFacebookId]["cheeseCount"],
+                            firstName: player.get("firstName"),
+                            ranking: playerCheeseMap[playerFacebookId]["ranking"]
+                        };
+
+                        collectedPlayerInfos.push(playerInfo);
+                    }
+                }).then(
+                    function()
+                    {
+                        console.log("getTopPlayersInfo success! player info is: " + collectedPlayerInfos);
+                        promise.resolve();
+                    },
+                    function(error)
+                    {
+                        response.error("getTopPlayersInfofailed with: " + error);
+                    }
+                );
+
+            return promise;
+        };
+    });
+/** End of onGetRankings **/
+
+
 
 /**
 Method used for returning the final state of the friends
@@ -94,7 +373,7 @@ var performNotification = function(thiefName, victimFacebookId){
         //query.notEqualTo('facebookId', CHEESE_BOT_FB_ID);
         var message =  thiefName  +  ' just snatched your cheese!'
         var promise = new Parse.Promise();
-		 
+         
         if(victimFacebookId == CHEESE_BOT_FB_ID){
             promise.resolve("Notification sent");
              return promise;    
@@ -151,12 +430,12 @@ var insertTheftHistory = function(thiefFacebookId,victimFacebookId) {
 }
       
 /**
-	Method used for maintaining theft direction between any two given friends.
-	This data is used for deriving whether a friend in friends-list on UI, 
-	is enabled vs disabled.
+    Method used for maintaining theft direction between any two given friends.
+    This data is used for deriving whether a friend in friends-list on UI, 
+    is enabled vs disabled.
 **/
 var updateTheftDirection = function(thiefFacebookId,victimFacebookId){
-		console.log("Inside theft direction...");
+        console.log("Inside theft direction...");
         Parse.Cloud.useMasterKey();
         var fwdDirection = new Parse.Query("theftdirection");
         fwdDirection.equalTo("thiefFBId", thiefFacebookId);
@@ -292,10 +571,10 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
 });
    
 /**
-	Cloud code which executed when during a fresh launch of MyCheez
+    Cloud code which executed when during a fresh launch of MyCheez
 **/   
 Parse.Cloud.define("onLoginActivity", function(request, response) {
-   	console.log(request);
+    console.log(request);
     Parse.Cloud.useMasterKey();
             
     var isNewUser = request.params.isNewUserFlag;
@@ -439,8 +718,8 @@ Parse.Cloud.beforeSave("cheese", function(re, response){
  
  
 /**
-	Background job : Used for triggering the Cheese Bot action
-	for stealing cheese from all users every certain time
+    Background job : Used for triggering the Cheese Bot action
+    for stealing cheese from all users every certain time
 **/
 Parse.Cloud.job("botAction", function(request, status) {
   Parse.Cloud.useMasterKey();
@@ -498,6 +777,6 @@ Parse.Cloud.job("botAction", function(request, status) {
                     });
                   
                 });
-    	});
+        });
               
 });

@@ -51,6 +51,7 @@ public class TheftActivity extends Activity {
 	CircularImageView userProfileImageView; 
 	TextView userCheeseTextView;
 	ImageView refreshImageView;
+	ImageView rankingsImageView;
 	TextView refreshFinishedTextView;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
@@ -67,8 +68,7 @@ public class TheftActivity extends Activity {
 		
 		setContentView(R.layout.activity_theft);
 		currentUser = ParseUser.getCurrentUser();
-		
-		
+	
 		initializeUtilities();
 		initializeUIControls();
 		initializeHistoryListView(getResources());
@@ -202,12 +202,58 @@ public class TheftActivity extends Activity {
 		/* hook up refresh button to fetch data from Parse and populate views */
 		refreshImageView = (ImageView)findViewById(R.id.refreshImageView);
 		refreshImageView.setOnClickListener(new OnClickListener(){
-
 			@Override
 			public void onClick(View v) {
 				updateCheeseCountData(v);
 			}
 			
+		});
+		
+		/* hook up rankings button to fetch ranking info from Parse and populate views */
+		rankingsImageView = (ImageView)findViewById(R.id.rankingImageView);
+		rankingsImageView.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				getRankingsInfo();
+			}
+			
+		});
+	}
+	
+	/* get rankings info, cheese count, and names of user and top 10 players */
+	private void getRankingsInfo()
+	{
+		final Map<String,Object> params = new HashMap<String,Object>();
+		ParseCloud.callFunctionInBackground("onGetRankings", params, new FunctionCallback<List<HashMap<String, Object>>>() {
+
+			@Override
+			public void done(final List<HashMap<String, Object>> playerRankingList, ParseException ex) {
+				if(ex == null){
+					List<ParseObject> playerRankings = new ArrayList<ParseObject>();
+					for(HashMap<String, Object> playerRanking : playerRankingList){
+						String playerFacebookId = (String)playerRanking.get("facebookId");
+						int cheeseCount = (Integer)playerRanking.get("cheeseCount");
+						int ranking = (Integer)playerRanking.get("ranking");
+						String firstName = (String)playerRanking.get("firstName");
+						
+						ParseObject tempObject = new ParseObject("playerRankingObj");
+						tempObject.put("facebookId", playerFacebookId);
+						tempObject.put("cheeseCount", cheeseCount);
+						tempObject.put("ranking", ranking);
+						tempObject.put("firstName", firstName);
+						playerRankings.add(tempObject);
+					}
+					
+					
+					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, playerRankings, new SaveCallback() {
+						@Override
+						public void done(ParseException ex) {
+							/* perhaps load up rankings page from here */
+							return;
+						}
+					});
+				}
+			}
 		});
 	}
 	
