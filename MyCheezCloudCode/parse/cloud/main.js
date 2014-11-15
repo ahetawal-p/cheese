@@ -16,7 +16,8 @@ Parse.Cloud.define("onTestGetRankings", function(request, response) {
     console.log("user name is: " + userName + "user facebookId is: " + userFacebookId);
 
     var query = new Parse.Query("cheese");
-    query.descending("cheeseCount");
+    query.descending("cheeseCount,facebookId");
+    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
     query.limit(10);
     query.find()
         .then(function(cheeseRows){return getTopPlayersInfo(cheeseRows); })
@@ -51,14 +52,20 @@ Parse.Cloud.define("onTestGetRankings", function(request, response) {
             console.log("getUserInfo called");
             var promise = new Parse.Promise();
             var userCheeseCount = userCheeseRow.get("cheeseCount");
-            var query = new Parse.Query("cheese");
-            query.greaterThan("cheeseCount", userCheeseCount);
+            var queryGreater = new Parse.Query("cheese");
+            queryGreater.greaterThan("cheeseCount", userCheeseCount);
 
+            var queryEqualTo = new Parse.Query("cheese");
+            queryEqualTo.equalTo("cheeseCount", userCheeseCount);
+            queryEqualTo.greaterThan("facebookId", userFacebookId);
+
+            var combinedQuery = Parse.Query.or(queryGreater, queryEqualTo);
             /* excluding bots from count of higher ranking players */
-            query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
-            query.count()
+            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+            combinedQuery.count()
                  .then(function(userRank)
                     {
+                        console.log("user rank is " + userRank + 1);
                         var userPlayerInfo = 
                         {
                             facebookId: userFacebookId,
@@ -79,26 +86,16 @@ Parse.Cloud.define("onTestGetRankings", function(request, response) {
         {
             var topFacebookIds = [];
             var playerCheeseMap = {};
-            var ranking = 1;
             for(var ii=0; ii< cheeseRows.length; ii++) {
                 var playerFacebookId = cheeseRows[ii].get("facebookId");
-
-                /* exclude bot from ranking */
-                if (playerFacebookId === CHEESE_BOT_FB_ID)
-                {
-                    console.log("cheese bot identified! "+ playerFacebookId);
-                    continue;
-                }
 
                 var cheeseCount = cheeseRows[ii].get("cheeseCount");
                 console.log("player " + playerFacebookId + " has cheese: " + cheeseCount);
                 playerCheeseMap[playerFacebookId] = 
                                                     { cheeseCount: cheeseCount,
-                                                      ranking: ranking
+                                                      ranking: ii + 1
                                                     };
                 topFacebookIds.push(playerFacebookId);
-
-                ranking++;
             }
 
             var query = new Parse.Query(Parse.User);
@@ -155,7 +152,8 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
     console.log("user name is: " + userName + "user facebookId is: " + userFacebookId);
 
     var query = new Parse.Query("cheese");
-    query.descending("cheeseCount");
+    query.descending("cheeseCount,facebookId");
+    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
     query.limit(10);
     query.find()
         .then(function(cheeseRows){return getTopPlayersInfo(cheeseRows); })
@@ -190,14 +188,20 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
             console.log("getUserInfo called");
             var promise = new Parse.Promise();
             var userCheeseCount = userCheeseRow.get("cheeseCount");
-            var query = new Parse.Query("cheese");
-            query.greaterThan("cheeseCount", userCheeseCount);
+            var queryGreater = new Parse.Query("cheese");
+            queryGreater.greaterThan("cheeseCount", userCheeseCount);
 
+            var queryEqualTo = new Parse.Query("cheese");
+            queryEqualTo.equalTo("cheeseCount", userCheeseCount);
+            queryEqualTo.greaterThan("facebookId", userFacebookId);
+
+            var combinedQuery = Parse.Query.or(queryGreater, queryEqualTo);
             /* excluding bots from count of higher ranking players */
-            query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
-            query.count()
+            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+            combinedQuery.count()
                  .then(function(userRank)
                     {
+                        console.log("user rank is " + userRank + 1);
                         var userPlayerInfo = 
                         {
                             facebookId: userFacebookId,
@@ -218,26 +222,16 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
         {
             var topFacebookIds = [];
             var playerCheeseMap = {};
-            var ranking = 1;
             for(var ii=0; ii< cheeseRows.length; ii++) {
                 var playerFacebookId = cheeseRows[ii].get("facebookId");
-
-                /* exclude bot from ranking */
-                if (playerFacebookId === CHEESE_BOT_FB_ID)
-                {
-                    console.log("cheese bot identified! "+ playerFacebookId);
-                    continue;
-                }
 
                 var cheeseCount = cheeseRows[ii].get("cheeseCount");
                 console.log("player " + playerFacebookId + " has cheese: " + cheeseCount);
                 playerCheeseMap[playerFacebookId] = 
                                                     { cheeseCount: cheeseCount,
-                                                      ranking: ranking
+                                                      ranking: ii + 1
                                                     };
                 topFacebookIds.push(playerFacebookId);
-
-                ranking++;
             }
 
             var query = new Parse.Query(Parse.User);
