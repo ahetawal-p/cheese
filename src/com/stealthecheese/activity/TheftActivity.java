@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -59,6 +60,8 @@ public class TheftActivity extends Activity {
 	private HashMap<String, Boolean> localShowMeMap = new HashMap<String, Boolean>();
 	private AnimationHandler animationHandler;
 	private UpdateType updateType;
+	
+	private ConcurrentHashMap<String, String> inProgressReq = new ConcurrentHashMap<String, String>();
 	
 	private ComparatorChain<PlayerViewModel> chain = null;
 	
@@ -261,6 +264,9 @@ public class TheftActivity extends Activity {
 	 * need to refactor these into separate class
 	 */
 	private void updateCheeseCountData(final View v){
+		
+		inProgressReq.clear();
+		
 		final Map<String,Object> params = new HashMap<String,Object>();
 		animationHandler.startAnimateRefresh(v);
 		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<HashMap<String, Object>>>() {
@@ -370,6 +376,7 @@ public class TheftActivity extends Activity {
 			for(HashMap<String, Object> eachCount : friendCheeseObjects[0]){
 				String friendFacebookId = (String)eachCount.get("facebookId");
 				if (friendFacebookId.equals(currentUser.getString("facebookId"))){
+					inProgressReq.remove(currentUser.getString("facebookId"));
 					continue;
 				}
 				else {
@@ -383,8 +390,11 @@ public class TheftActivity extends Activity {
 						friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe));
 					} else {
 						existingFriend.setCheese(cheeseCount);
-						//existingFriend.setImageString(imageUrl);
-						existingFriend.setShowMe(showMe);
+						if(!inProgressReq.containsKey(existingFriend.getFacebookId())){
+							existingFriend.setShowMe(showMe);
+						}else {
+							existingFriend.setShowMe(false);
+						}
 					}
 					
 				}
@@ -420,7 +430,8 @@ public class TheftActivity extends Activity {
 		friendsListAdapter.lockImageClick((ImageView)friendImageClicked, cheeseCounter);
 		
 		String friendFacebookId = getFriendFacebookId(position);
-
+		inProgressReq.put(friendFacebookId, "Y");
+		
 		/* display animation and start cheese theft async process */
 		animationHandler.animateCheeseTheft(friendImageClicked, movedCheeseImg, cheeseCounter, userProfileImageView, 0, 0);
     	performCheeseTheft(friendFacebookId, (ImageView)friendImageClicked, cheeseCounter);
