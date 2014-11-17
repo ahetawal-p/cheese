@@ -647,21 +647,18 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
     var allUsersList = [];
     var query = new Parse.Query(Parse.User);
     query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+    var origBotUser = null;
     query.find().then(function(botUser){
-        allUsersList = botUser[0].get("friends");
+    	origBotUser = botUser[0];
+        allUsersList = origBotUser.get("friends");
         return allUsersList;
     }).then(function(fulllist){
         if(currentFBUserId == CHEESE_BOT_FB_ID){
             console.log("I am BOT..");
             doCommonSteps(true);
         }else {
-            var query = new Parse.Query(Parse.User);
-            query.equalTo("facebookId", CHEESE_BOT_FB_ID);
-            query.find().then(function(botUser){
-                console.log("Bot USER IS ...");
-                console.log(botUser[0]);
-                botUser[0].addUnique("friends", passedInUser.get("facebookId"));
-                botUser[0].save(null,{
+           		origBotUser.addUnique("friends", passedInUser.get("facebookId"));
+                origBotUser.save(null,{
                     success:function(theftResponse) { 
                         doCommonSteps(false);
                     },
@@ -669,10 +666,8 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         response.error(error);
                     }
                 });
-            });
-        }
-       
-    });
+        	}
+   	 });
        
        
 });
@@ -757,7 +752,7 @@ Parse.Cloud.job("botAction", function(request, status) {
                         mainBotUser.increment("cheeseCount", 1);
                         return mainBotUser.save();
                     }).then(function(){
-                        return performNotification("CheeseBot", currentObj["facebookId"]);
+                        return performNotification("Cheesy", currentObj["facebookId"]);
                     }).then(function(){
                         return insertTheftHistory(CHEESE_BOT_FB_ID,currentObj["facebookId"]);
                     }).then(function(){
