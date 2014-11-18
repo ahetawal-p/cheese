@@ -225,43 +225,6 @@ public class TheftActivity extends Activity {
 		});
 	}
 	
-	/* get rankings info, cheese count, and names of user and top 10 players */
-	private void getRankingsInfo()
-	{
-		final Map<String,Object> params = new HashMap<String,Object>();
-		ParseCloud.callFunctionInBackground("onGetRankings", params, new FunctionCallback<List<HashMap<String, Object>>>() {
-
-			@Override
-			public void done(final List<HashMap<String, Object>> playerRankingList, ParseException ex) {
-				if(ex == null){
-					List<ParseObject> playerRankings = new ArrayList<ParseObject>();
-					for(HashMap<String, Object> playerRanking : playerRankingList){
-						String playerFacebookId = (String)playerRanking.get("facebookId");
-						int cheeseCount = (Integer)playerRanking.get("cheeseCount");
-						int ranking = (Integer)playerRanking.get("ranking");
-						String firstName = (String)playerRanking.get("firstName");
-						
-						ParseObject tempObject = new ParseObject("playerRankingObj");
-						tempObject.put("facebookId", playerFacebookId);
-						tempObject.put("cheeseCount", cheeseCount);
-						tempObject.put("ranking", ranking);
-						tempObject.put("firstName", firstName);
-						playerRankings.add(tempObject);
-					}
-					
-					
-					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, playerRankings, new SaveCallback() {
-						@Override
-						public void done(ParseException ex) {
-							/* perhaps load up rankings page from here */
-							return;
-						}
-					});
-				}
-			}
-		});
-	}
-	
 	/* get most updated cheese data from database and pin to localstore
 	 * need to refactor these into separate class
 	 */

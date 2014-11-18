@@ -126,12 +126,12 @@ public class RankingsListAdapter extends BaseAdapter   implements OnClickListene
              //vi.setOnClickListener(new OnItemClickListener( position ));
              
              /* check if ranked player is user. if so, then make background blue */
-             /*
              if (tempValues.getIsUser())
              {
+            	 holder.cheeseCountTextView.setTextColor(Color.WHITE);
             	 holder.playerNameTextview.setTextColor(Color.WHITE);
             	 vi.setBackgroundColor(Color.parseColor("#00C7D8"));
-             }*/
+             }
              
         }
         return vi;

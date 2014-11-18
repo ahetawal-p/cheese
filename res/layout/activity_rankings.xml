@@ -30,8 +30,6 @@
             android:layout_height="fill_parent" 
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
             android:layout_gravity="center_horizontal"
             android:scrollbars="none"
 			android:divider="@android:color/transparent"
