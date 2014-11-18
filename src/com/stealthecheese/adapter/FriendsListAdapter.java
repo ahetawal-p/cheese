@@ -33,7 +33,6 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
     private ArrayList<PlayerViewModel> data;
     private static LayoutInflater inflater=null;
     public Resources res;
-    PlayerViewModel tempValues=null;
     int i=0;
     
     
@@ -69,8 +68,9 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
      
     /********* Create a holder Class to contain inflated xml file elements *********/
     public static class ViewHolder{   
-        public TextView counterTextView;
-        public ImageView friendImageView;
+        private TextView counterTextView;
+        private ImageView friendImageView;
+        private ImageView animImage;
  
     }
         
@@ -86,29 +86,28 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              
             /****** View Holder Object to contain tabitem.xml file elements ******/
             
-            ImageView movedCheeseImg = (ImageView)vi.findViewById(R.id.cheeseAnimationImageView);
+            
             holder = new ViewHolder();
+            holder.animImage = (ImageView)vi.findViewById(R.id.cheeseAnimationImageView);
             holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
             holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
-            holder.friendImageView.setOnClickListener(new OnImageClickListener(position, movedCheeseImg, holder.counterTextView));
             
             
            /************  Set holder with LayoutInflater ************/
             vi.setTag( holder );
+        } else { 
+        	holder=(ViewHolder)vi.getTag();
+        	holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
         }
-        else 
-            holder=(ViewHolder)vi.getTag();
-         
-        if(data.size()<=0)
-        {
+        
+        holder.friendImageView.setOnClickListener(new OnImageClickListener(position, holder.animImage, holder.counterTextView));
+        
+        if(data.size()<=0) {
             Log.v("FriendsListAdapter", "No friend items");
              
-        }
-        else
-        {
+        } else {
             /***** Get each Model object from Arraylist ********/
-            tempValues=null;
-            tempValues = ( PlayerViewModel ) data.get( position );
+            PlayerViewModel tempValues = (PlayerViewModel)data.get(position);
              
             /************  Set Model values in Holder elements ***********/
 
@@ -131,13 +130,11 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             	 lockImageClick(holder.friendImageView, holder.counterTextView);
              }
              /* if image is locked, unlock it if new cheese count is > 0 */
-             else if (!holder.friendImageView.isClickable())
+             else 
              {
             	 unlockImageClick(holder.friendImageView, holder.counterTextView);
              }
-             /******** Set Item Click Listner for LayoutInflater for each row *******/
-
-             //vi.setOnClickListener(new OnItemClickListener( position ));
+                          
         }
         return vi;
     }
@@ -180,24 +177,4 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
         }               
     }   
     
-    
-    /********* Called when Item click in ListView ************/
-    private class OnItemClickListener  implements OnClickListener{           
-        private int mPosition;
-         
-//        OnItemClickListener(int position){
-//             mPosition = position;
-//        }
-         
-        @Override
-        public void onClick(View arg0) {
-
-   
-        //  MainActivity sct = (MainActivity)activity;
-
-         /****  Call  onItemClick Method inside CustomListViewAndroidExample Class ( See Below )****/
-
-            //sct.onItemClick(mPosition);
-        }               
-    }   
 }

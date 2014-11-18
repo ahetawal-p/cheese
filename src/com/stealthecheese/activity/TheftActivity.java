@@ -129,7 +129,7 @@ public class TheftActivity extends Activity {
 	private void updatePage(List<HashMap<String, Object>> cheeseCounts)
 	{
         populateUserView();
-		refreshFriendsListview(cheeseCounts, true);
+		refreshFriendsListview(cheeseCounts, true, null);
 		populateHistoryListView();
 	}
 	
@@ -217,9 +217,7 @@ public class TheftActivity extends Activity {
 		rankingsImageView.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(TheftActivity.this, RankingsActivity.class);
-				// removing this activity from backstack
-				startActivity(intent);
+				getRankingsInfo();
 			}
 			
 		});
@@ -322,17 +320,19 @@ public class TheftActivity extends Activity {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void refreshFriendsListview(List<HashMap<String, Object>> friendCheeseObjects, boolean doSort) {
-		new RefreshFriendsViewTask(doSort).execute(friendCheeseObjects);
+	private void refreshFriendsListview(List<HashMap<String, Object>> friendCheeseObjects, boolean doSort, String victimId) {
+		new RefreshFriendsViewTask(doSort, victimId).execute(friendCheeseObjects);
 	}
 	
 	
 	class RefreshFriendsViewTask extends AsyncTask<List<HashMap<String, Object>>, Void, Void> {
 		
 		private boolean enableSorting; 
+		private String victimId;
 		
-		public RefreshFriendsViewTask(boolean doSort) {
+		public RefreshFriendsViewTask(boolean doSort, String friendFBId) {
 			this.enableSorting = doSort;
+			this.victimId = friendFBId;
 		}
 
 		@Override
@@ -341,10 +341,15 @@ public class TheftActivity extends Activity {
 			for(HashMap<String, Object> eachCount : friendCheeseObjects[0]){
 				String friendFacebookId = (String)eachCount.get("facebookId");
 				if (friendFacebookId.equals(currentUser.getString("facebookId"))){
-					inProgressReq.remove(currentUser.getString("facebookId"));
+					
 					continue;
 				}
 				else {
+					
+					//reset inProgressRequest for the victim which was clicked
+					if(friendFacebookId.equals(victimId)){
+						inProgressReq.remove(victimId);
+					}
 					/* check match with old friendsList, diff and update */
 					Boolean showMe = (Boolean)eachCount.get("showMe");
 					String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, (String)eachCount.get("facebookId"));
@@ -426,7 +431,7 @@ public class TheftActivity extends Activity {
 		    		View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
 		    		animationHandler.bounceCheeseCounters(userCheeseCountContainer, cheeseCounter);
 		    		
-		    		refreshFriendsListview(allUpdates, false);
+		    		refreshFriendsListview(allUpdates, false, friendFacebookId);
 		    		
 		    		/* populate theft history asynchronously after friend cheese counts are updated */
 		    		populateHistoryListView();
