@@ -31,14 +31,17 @@
     <string name="cheese_theft_message">stole your cheese</string>
     <string name="cheese_theft_failed_message">Oh oh! Someone else got the last cheese!</string>
     <string name="refresh_finished_message">Finished Updating!</string>
-	
+
     <!-- FlyingCheeseActivity -->
-     <string name="thief_facebookId">thiefFacebookId</string>
-     <string name="victim_facebookId">victimFacebookId</string>
-    
+    <string name="thief_facebookId">thiefFacebookId</string>
+    <string name="victim_facebookId">victimFacebookId</string>
+
+    <!-- RankingsActivity -->
+    <string name="rankings_page_title">RANKING</string>
     
     <!-- Info messages -->
     <string name="no_network_message">No network detected, switching to offline mode</string>
     <string name="title_activity_flying_cheese">FlyingCheeseActivity</string>
+    <string name="title_activity_rankings">RankingsActivity</string>
 
 </resources>
