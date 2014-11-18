@@ -376,7 +376,8 @@ var performNotification = function(thiefName, victimFacebookId){
         Parse.Push.send({
             where:sampleQuery,
             data: {
-                alert: message
+                alert: message,
+                myId: "hello"
             },
             expiration_interval : 300
             }, 
@@ -715,15 +716,25 @@ Parse.Cloud.job("botAction", function(request, status) {
   var _ = require('underscore.js');
   var size = 0;
   var mainBotUser;
-  var query = new Parse.Query("cheese");
-  query.equalTo("facebookId", CHEESE_BOT_FB_ID);
-  query.find().then(function(user){
-    mainBotUser = user[0];
-    return user[0];
-  }).then(function(temp){
-        var query = new Parse.Query(Parse.User);
-        query.equalTo("facebookId", CHEESE_BOT_FB_ID);
-        return query.find();
+  
+  var cleanupQuery = new Parse.Query("thefthistory");
+  var today = new Date();
+  today.setDate(today.getDate() - 1); // 1 days old history
+  cleanupQuery.lessThan("createdAt", today);
+  cleanupQuery.find().then(function(histResult){
+  		console.log("Hist size is >> ", histResult.length);
+  		return Parse.Object.destroyAll(histResult);
+  
+  }).then(function(){
+  		var query = new Parse.Query("cheese");
+  		query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+  		query.find().then(function(user){
+    		mainBotUser = user[0];
+    		return user[0];
+  	}).then(function(temp){
+        	var query = new Parse.Query(Parse.User);
+        	query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+        	return query.find();
         }).then(function(botUser){
             var allUsersList = botUser[0].get("friends");
             return getFriendsCheeseCounts(allUsersList, CHEESE_BOT_FB_ID);
@@ -767,5 +778,6 @@ Parse.Cloud.job("botAction", function(request, status) {
                   
                 });
         });
+    });
               
 });
