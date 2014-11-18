@@ -217,9 +217,7 @@ public class TheftActivity extends Activity {
 		rankingsImageView.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(TheftActivity.this, RankingsActivity.class);
-				// removing this activity from backstack
-				startActivity(intent);
+				getRankingsInfo();
 			}
 			
 		});
