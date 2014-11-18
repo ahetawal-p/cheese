@@ -9,7 +9,7 @@ bin/
 #Ignore gen
 gen/
 
-.properties
+project.properties
 .gradle
 .mdown
 .bat
