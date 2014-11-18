@@ -217,8 +217,9 @@ public class TheftActivity extends Activity {
 		rankingsImageView.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				getRankingsInfo();
-			}
+				Intent intent = new Intent(TheftActivity.this, RankingsActivity.class);
+				startActivity(intent);			
+				}
 			
 		});
 	}
