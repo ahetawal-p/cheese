@@ -89,9 +89,14 @@
         </receiver>
 
         <activity
-            android:name="com.stealthecheese.activity.FlyingCheeseActivity"
-            android:label="@string/title_activity_flying_cheese" 
+            android:name=".activity.FlyingCheeseActivity"
+            android:label="@string/title_activity_flying_cheese"
             android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name="com.stealthecheese.activity.RankingsActivity"
+            android:label="@string/title_activity_rankings"
+            android:theme="@android:style/Theme.NoTitleBar"  >
         </activity>
     </application>
 
