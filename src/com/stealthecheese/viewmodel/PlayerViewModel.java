@@ -49,5 +49,22 @@ public class PlayerViewModel {
 	{
 		this.cheese = cheese;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PlayerViewModel [cheese=");
+		builder.append(cheese);
+		builder.append(", facebookId=");
+		builder.append(facebookId);
+		builder.append(", imageString=");
+		builder.append(imageString);
+		builder.append(", showMe=");
+		builder.append(showMe);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+	
 	
 }
