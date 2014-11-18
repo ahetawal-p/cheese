@@ -75,8 +75,7 @@ public class RankingsListAdapter extends BaseAdapter   implements OnClickListene
          
         View vi = convertView;
         ViewHolder holder;
-        if(convertView==null){
-             
+
             /****** Inflate tabitem.xml file for each row ( Defined below ) *******/
             vi = inflater.inflate(R.layout.ranking_row, null);
              
@@ -86,17 +85,11 @@ public class RankingsListAdapter extends BaseAdapter   implements OnClickListene
             holder.playerNameTextview=(TextView)vi.findViewById(R.id.playerNameTextview);
             holder.cheeseCountTextView=(TextView)vi.findViewById(R.id.cheeseCountTextView);
             holder.playerImageView=(ImageView)vi.findViewById(R.id.playerImageView);
-            
-            
-           /************  Set holder with LayoutInflater ************/
-            vi.setTag( holder );
-        }
-        else 
-            holder=(ViewHolder)vi.getTag();
-         
+
+        
         if(data.size()<=0)
         {
-            Log.v("FriendsListAdapter", "No friend items");
+            Log.v("RankingsListAdapter", "No friend items");
              
         }
         else
@@ -110,6 +103,15 @@ public class RankingsListAdapter extends BaseAdapter   implements OnClickListene
              String cheeseCountText = "x "+ Integer.toString(tempValues.getCheese());
              holder.cheeseCountTextView.setText(cheeseCountText);
              holder.playerNameTextview.setText(tempValues.getFirstName());
+             
+             /* check if ranked player is user. if so, then make background blue */
+             
+             if (tempValues.getIsUser())
+             {
+            	 holder.cheeseCountTextView.setTextColor(Color.WHITE);
+            	 holder.playerNameTextview.setTextColor(Color.WHITE);
+            	 vi.setBackgroundColor(Color.parseColor("#00C7D8"));
+             }
              
              //use Picasso to load image into ImageView
              String imageUrl = tempValues.getImageString();

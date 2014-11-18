@@ -4,19 +4,28 @@
     android:layout_height="match_parent"
     android:background="#fff"
     tools:context="com.stealthecheese.activity.RankingsActivity" >
-	<LinearLayout
+	<RelativeLayout
 	    android:id="@+id/rankingsTitleBar"
     	android:layout_width="fill_parent"
         android:layout_height="70dp"
-        android:background="#FF7F11"
-        android:gravity="center">
+        android:background="#FF7F11">
+        <!-- <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerInParent="true"
+	        android:gravity="center"
+			android:layout_alignParentLeft="true"
+	        android:textSize="30sp"
+	        android:textColor="@color/white"
+	        android:text="&lt;" /> -->
 	    <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:textSize="15sp"
+			android:layout_centerInParent="true"
+	        android:textSize="20sp"
 	        android:textColor="@color/white"
 	        android:text="@string/rankings_page_title" />
-	</LinearLayout>
+	</RelativeLayout>
    	 <LinearLayout
    	   android:layout_width="fill_parent"
     	android:layout_height="wrap_content" 
