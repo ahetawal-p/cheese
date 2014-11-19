@@ -442,6 +442,12 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
             
     var isNewUser = request.params.isNewUserFlag;
     var passedInUser = request.user;
+    
+    // defensive check when user is not being sent from client
+    // after a long time of inactivity
+    if(passedInUser == null) {
+    	response.error("No current user present");
+    }
     console.log("START Passed In USER ...");
     console.log(passedInUser);
     console.log("END Passed In USER ...");
@@ -487,9 +493,6 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         return query.find();
                         
                 }).then(function(allCheeseCountObjects){
-                            //for(var i = 0; i<allCheeseCountObjects.length; i++){
-                             //   console.log(allCheeseCountObjects[i]);
-                            //}
                             response.success(allCheeseCountObjects);
                         },function(errorHandler){
                             response.error("Not able to complete this operation");

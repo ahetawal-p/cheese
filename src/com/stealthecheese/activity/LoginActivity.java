@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -188,6 +189,9 @@ public class LoginActivity extends Activity {
 					
 				}else {
 					Log.e(StealTheCheeseApplication.LOG_TAG, "Error fetching data from cloud code: " , ex);
+					Toast loginFailedToast = Toast.makeText(getApplicationContext(), R.string.login_failed_message, Toast.LENGTH_LONG);
+					loginFailedToast.setGravity(Gravity.CENTER, 0, 0);
+					loginFailedToast.show();
 				}
 			}
 		});
