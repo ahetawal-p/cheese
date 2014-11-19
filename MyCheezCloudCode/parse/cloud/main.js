@@ -223,7 +223,7 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
 Method used for sending push notification
 to the friend from whom the cheese was stolen
 **/
-var performNotification = function(thiefName, victimFacebookId, user){ 
+var performNotification = function(thiefName, victimFacebookId, thiefUser, victimUser){ 
         console.log("Running notification...");
         var sampleQuery = new Parse.Query(Parse.Installation); 
         sampleQuery.equalTo('facebookId', victimFacebookId);
@@ -240,8 +240,9 @@ var performNotification = function(thiefName, victimFacebookId, user){
             where:sampleQuery,
             data: {
                 alert: message,
-                thiefId: user.get("facebookId"),
-                cheeseCount: user.get("cheeseCount"),
+                thiefId: thiefUser.get("facebookId"),
+                thiefCheeseCount: thiefUser.get("cheeseCount"),
+                victimCheeseCount: victimUser.get("cheeseCount"),
                 animateMe: true
             },
             expiration_interval : 300
@@ -358,14 +359,16 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
     console.log(thiefFacebookId + " is stealing cheese from " + victimFacebookId);
     var query = new Parse.Query("cheese");
     var facebookIds = [thiefFacebookId, victimFacebookId];
-       
+    var victimUser;
+    
     query.containedIn("facebookId", facebookIds);
     query.find().then(function(cheeseRows){
                         console.log("Ran cheese query...");
                         findVictimThiefCheeseRows(cheeseRows);
                         victimUserCheese.increment("cheeseCount", -1);
                         return victimUserCheese.save();
-                    }).then(function() {
+                    }).then(function(victim) {
+                    	victimUser = victim;
                         console.log("I'm in success");
                         thiefUserCheese.increment("cheeseCount");   
                         return thiefUserCheese.save();
@@ -373,7 +376,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
                         function(error){
                         response.error(error);
                  })
-                .then(function(user){return performNotification(thiefName,victimFacebookId, user);})
+                .then(function(thiefUser){return performNotification(thiefName,victimFacebookId,thiefUser,victimUser);})
                 .then(function(){return insertTheftHistory(thiefFacebookId,victimFacebookId);})
                 .then(function(){return updateTheftDirection(thiefFacebookId,victimFacebookId);})
                 .then(function(){return getUserFriendsFacebookIds();})
@@ -619,16 +622,18 @@ Parse.Cloud.job("botAction", function(request, status) {
             console.log("Running filter loop...")
             _.each(filteredList, function(filter) {
                 var currentObj = filter;
+                var victimUser;
                 var query = new Parse.Query("cheese");
                     query.equalTo("facebookId", currentObj["facebookId"]);
                     query.find().then(function(friend){
                         friend[0].increment("cheeseCount", -1);
                         return friend[0].save();
                     }).then(function(returnFriend){
+                    	victimUser = returnFriend;
                         mainBotUser.increment("cheeseCount", 1);
                         return mainBotUser.save();
                     }).then(function(botUser){
-                        return performNotification("Cheesy", currentObj["facebookId"], botUser);
+                        return performNotification("Cheesy", currentObj["facebookId"], botUser, victimUser);
                     }).then(function(){
                         return insertTheftHistory(CHEESE_BOT_FB_ID,currentObj["facebookId"]);
                     }).then(function(){

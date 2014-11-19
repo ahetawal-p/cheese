@@ -88,10 +88,11 @@ public class AnimationHandler {
     	YoYo.with(Techniques.FadeIn).duration(3000).playOn(view);
     }
     
-    public void bounceCheeseCounters(View userCheeseCounter, TextView friendCheeseCounter)
-    {
-		YoYo.with(Techniques.Bounce).duration(1000).playOn(friendCheeseCounter);
-		YoYo.with(Techniques.Bounce).duration(1000).playOn(userCheeseCounter);
+    public void bounceCheeseCounters(View ... views) {
+    	for(int i = 0; i< views.length; i++){
+    		YoYo.with(Techniques.Bounce).duration(1000).playOn(views[i]);
+    	}
+		
     }
 	
 }

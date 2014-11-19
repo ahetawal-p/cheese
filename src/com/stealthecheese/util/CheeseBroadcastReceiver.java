@@ -34,22 +34,20 @@ public class CheeseBroadcastReceiver extends ParsePushBroadcastReceiver {
 			}catch(JSONException e){
 				Log.e("com.parse.ParsePushReceiver", "Unexpected JSONException when receiving push data: ", e);
 			}
-			String theifId = (String)pushData.optString("thiefId", "");
-			Integer cheeseCount = (Integer)pushData.optInt("cheeseCount", 0);
+			String thiefId = (String)pushData.optString("thiefId", "");
+			Integer thieCheeseCount = (Integer)pushData.optInt("thiefCheeseCount", 0);
 			Boolean animateMe = (Boolean)pushData.optBoolean("animateMe", false);
-			
+			Integer currentUserCheeseCount = (Integer)pushData.optInt("victimCheeseCount", 0);
 			
 			Intent newIntent = new Intent(context, TheftActivity.class);
 			newIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			
 			newIntent.putExtra("UpdateType", UpdateType.REALTIME);
-			newIntent.putExtra("ThiefId", theifId);
-			newIntent.putExtra("CheeseCount", cheeseCount);
+			newIntent.putExtra("ThiefId", thiefId);
+			newIntent.putExtra("ThiefCheeseCount", thieCheeseCount);
+			newIntent.putExtra("CurrentUserCheeseCount", currentUserCheeseCount);
 			newIntent.putExtra("AnimateMe", animateMe);
-			
-			
-		    context.startActivity(newIntent);
+			context.startActivity(newIntent);
 		}
 	}
 	

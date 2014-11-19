@@ -128,21 +128,33 @@ public class TheftActivity extends Activity {
 		if(UpdateType.REFRESH.equals(type)){
 			updateCheeseCountData(refreshImageView);
 		}else if(UpdateType.REALTIME.equals(type)){
-			List<HashMap<String, Object>> singleUpdateList = new ArrayList<HashMap<String,Object>>();
-			HashMap<String, Object> pushUpdate = new HashMap<String, Object>();
-			pushUpdate.put("facebookId", (String)extras.get("ThiefId"));
-			pushUpdate.put("cheeseCount", (Integer)extras.get("CheeseCount"));
-			pushUpdate.put("showMe", true);
-			pushUpdate.put("animateMe", (Boolean)extras.get("AnimateMe"));
-			singleUpdateList.add(pushUpdate);
-			
-			//update localcount map
-			localCountMap.put((String)extras.get("ThiefId"), (Integer)extras.get("CheeseCount"));
-			localShowMeMap.put((String)extras.get("ThiefId"), true);
-			
-			refreshFriendsListview(singleUpdateList, true, null);
+			performRealtimeUpdate(extras);
 		}
 		super.onNewIntent(intent);
+	}
+
+	private void performRealtimeUpdate(Bundle extras) {
+		List<HashMap<String, Object>> singleUpdateList = new ArrayList<HashMap<String,Object>>();
+		HashMap<String, Object> pushUpdate = new HashMap<String, Object>();
+		pushUpdate.put("facebookId", (String)extras.get("ThiefId"));
+		pushUpdate.put("cheeseCount", (Integer)extras.get("ThiefCheeseCount"));
+		pushUpdate.put("showMe", true);
+		pushUpdate.put("animateMe", (Boolean)extras.get("AnimateMe"));
+		singleUpdateList.add(pushUpdate);
+		
+		//update localcount map
+		localCountMap.put((String)extras.get("ThiefId"), (Integer)extras.get("ThiefCheeseCount"));
+		localShowMeMap.put((String)extras.get("ThiefId"), true);
+		
+		//1. Add current user cheesecount
+		localCountMap.put(currentUser.getString("facebookId"), (Integer)extras.get("CurrentUserCheeseCount"));
+		
+		//2. Perform Animation on userCheeseCountView
+		((TextView)userCheeseTextView).setText("x " + (Integer)extras.get("CurrentUserCheeseCount"));			    	
+    	View userCheeseCountContainer = findViewById(R.id.userCheeseCountContainer);
+    	animationHandler.bounceCheeseCounters(userCheeseCountContainer);
+    	
+		refreshFriendsListview(singleUpdateList, true, null);
 	}
 	
 	
