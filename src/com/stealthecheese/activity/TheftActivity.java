@@ -95,9 +95,13 @@ public class TheftActivity extends Activity {
 		StealTheCheeseApplication.setActivityisStillRunning();
 		if (updateType == UpdateType.LOGIN) {
 			updatePage(); 
-		}else {
+		}
+		else if (UpdateType.NOUPDATE.equals(updateType))
+		{}
+		else {
 			updateCheeseCountData(refreshImageView);
 		}
+		
 		updateType = UpdateType.REFRESH;
 		
 		super.onStart();
@@ -137,8 +141,6 @@ public class TheftActivity extends Activity {
 			localShowMeMap.put((String)extras.get("ThiefId"), true);
 			
 			refreshFriendsListview(singleUpdateList, true, null);
-			
-			
 		}
 		super.onNewIntent(intent);
 	}
@@ -256,6 +258,7 @@ public class TheftActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(TheftActivity.this, RankingsActivity.class);
+				updateType = UpdateType.NOUPDATE;
 				startActivity(intent);			
 				}
 			

@@ -1,5 +1,5 @@
 package com.stealthecheese.enums;
 
 public enum UpdateType {
-	LOGIN, REFRESH, REALTIME
+	LOGIN, REFRESH, REALTIME, NOUPDATE
 }

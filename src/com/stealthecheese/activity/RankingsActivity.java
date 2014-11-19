@@ -15,9 +15,11 @@ import com.parse.ParseUser;
 import com.stealthecheese.R;
 import com.stealthecheese.adapter.RankingsListAdapter;
 import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.enums.UpdateType;
 import com.stealthecheese.viewmodel.RankingViewModel;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.ListView;
@@ -32,7 +34,6 @@ public class RankingsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_rankings);
 		fetchRankingsData();
-		//initializeRankingsListView(getResources());
 	}
 
 	private void fetchRankingsData()
@@ -76,4 +77,12 @@ public class RankingsActivity extends Activity {
 	    }
 	}
 	
+	/*
+	public void onBackPressed(){
+		Intent newIntent = new Intent(this, TheftActivity.class);
+		newIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		newIntent.putExtra("UpdateType", UpdateType.NOUPDATE);
+        this.startActivity(newIntent);	}
+	*/
 }
