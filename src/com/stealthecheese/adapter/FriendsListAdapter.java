@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.LightingColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuff.Mode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,12 +14,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 import com.stealthecheese.R;
 import com.stealthecheese.activity.TheftActivity;
-import com.stealthecheese.util.CircleTransform;
-import com.stealthecheese.util.CircularImageView;
 import com.stealthecheese.viewmodel.PlayerViewModel;
 
 public class FriendsListAdapter extends BaseAdapter   implements OnClickListener {
@@ -115,29 +110,33 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              
              //use Picasso to load image into ImageView
              String imageUrl = tempValues.getImageString();
-             Transformation circleTransform = new CircleTransform();
              Picasso.with(activity).load(imageUrl)
              .fit()
              .centerCrop()
-             //.transform(circleTransform)
              .into(holder.friendImageView);
              
              /* if player has 0 cheese, gray out image and disable click for both ImageView and ListItem*/
              Boolean showMe = (Boolean) data.get(position).getShowMe();
              
-             if (!showMe)
-             {
+             if (!showMe) {
             	 lockImageClick(holder.friendImageView, holder.counterTextView);
-             }
-             /* if image is locked, unlock it if new cheese count is > 0 */
-             else 
-             {
+             } else {
             	 unlockImageClick(holder.friendImageView, holder.counterTextView);
+             }
+             
+             if(tempValues.getAnimateMe()){
+            	 animatePushUpdates(holder);
              }
                           
         }
         return vi;
     }
+    
+    
+	private void animatePushUpdates(ViewHolder holder) {
+		YoYo.with(Techniques.ZoomIn).duration(700).playOn(holder.friendImageView);
+		YoYo.with(Techniques.Bounce).duration(500).playOn(holder.counterTextView);
+	}
     
     public void lockImageClick(ImageView imageView, TextView textView)
     {

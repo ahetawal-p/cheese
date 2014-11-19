@@ -105,10 +105,46 @@ public class TheftActivity extends Activity {
 	
 	
 	@Override
-	public void onNewIntent(Intent intent) {
-		updateCheeseCountData(refreshImageView);
-		  super.onNewIntent(intent);
+	public void onPause(){
+		StealTheCheeseApplication.setActivityPaused();
+		super.onPause();
 	}
+	
+	@Override
+	public void onResume(){
+		StealTheCheeseApplication.setActivityUnPaused();
+		super.onResume();
+	}
+	
+	
+	@Override
+	public void onNewIntent(Intent intent) {
+		Bundle extras = intent.getExtras();
+		UpdateType type = (UpdateType)extras.get("UpdateType");
+		if(UpdateType.REFRESH.equals(type)){
+			updateCheeseCountData(refreshImageView);
+		}else if(UpdateType.REALTIME.equals(type)){
+			List<HashMap<String, Object>> singleUpdateList = new ArrayList<HashMap<String,Object>>();
+			HashMap<String, Object> pushUpdate = new HashMap<String, Object>();
+			pushUpdate.put("facebookId", (String)extras.get("ThiefId"));
+			pushUpdate.put("cheeseCount", (Integer)extras.get("CheeseCount"));
+			pushUpdate.put("showMe", true);
+			pushUpdate.put("animateMe", (Boolean)extras.get("AnimateMe"));
+			singleUpdateList.add(pushUpdate);
+			
+			//update localcount map
+			localCountMap.put((String)extras.get("ThiefId"), (Integer)extras.get("CheeseCount"));
+			localShowMeMap.put((String)extras.get("ThiefId"), true);
+			
+			refreshFriendsListview(singleUpdateList, true, null);
+			
+			
+		}
+		super.onNewIntent(intent);
+	}
+	
+	
+	
 	
 	/* update page when logging in */
 	private void updatePage() {
@@ -173,7 +209,9 @@ public class TheftActivity extends Activity {
 		/* create dummy user properties, throw away later */
 		PlayerViewModel userViewModel = new PlayerViewModel(currentUser.getString("facebookId"), 
 										currentUser.getString("profilePicUrl")+"?type=large", 
-										localCountMap.get(currentUser.getString("facebookId")), true);
+										localCountMap.get(currentUser.getString("facebookId")), 
+										true,
+										false);
 		
 		/* create adapter for user view */
 		userCheeseTextView = (TextView) findViewById(R.id.cheeseCountTextView);
@@ -243,11 +281,14 @@ public class TheftActivity extends Activity {
 						String friendFacebookId = (String)eachCount.get("facebookId");
 						int cheeseCount = (Integer)eachCount.get("cheeseCount");
 						boolean showMe = (Boolean)eachCount.get("showMe");
+						boolean animateMe = (Boolean)eachCount.get("animateMe");
 						
 						ParseObject tempObject = new ParseObject("cheeseCountObj");
 						tempObject.put("facebookId", friendFacebookId);
 						tempObject.put("cheeseCount", cheeseCount);
 						tempObject.put("showMe", showMe);
+						tempObject.put("animateMe", animateMe);
+						
 						allCountList.add(tempObject);
 						
 						/* update local hashmap to contain the newest mappings */
@@ -284,7 +325,8 @@ public class TheftActivity extends Activity {
 			friendsList.add(new PlayerViewModel(friend.getString("facebookId"), 
 												imageUrl,
 												localCountMap.get(friend.getString("facebookId")), 
-												localShowMeMap.get(friend.getString("facebookId"))));
+												localShowMeMap.get(friend.getString("facebookId")),
+												false));
 			
 			facebookIdFirstNameMap.put(friend.getString("facebookId"), friend.getString("firstName"));
 		}
@@ -338,7 +380,9 @@ public class TheftActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(List<HashMap<String, Object>>... friendCheeseObjects) {
-			//friendsList.clear();
+			if(friendCheeseObjects[0] == null || friendCheeseObjects[0].size() == 0){
+				return null;
+			}
 			for(HashMap<String, Object> eachCount : friendCheeseObjects[0]){
 				String friendFacebookId = (String)eachCount.get("facebookId");
 				if (friendFacebookId.equals(currentUser.getString("facebookId"))){
@@ -355,12 +399,14 @@ public class TheftActivity extends Activity {
 					Boolean showMe = (Boolean)eachCount.get("showMe");
 					String imageUrl = String.format(StealTheCheeseApplication.FRIEND_CHEESE_COUNT_PIC_URL, (String)eachCount.get("facebookId"));
 					int cheeseCount = (Integer)eachCount.get("cheeseCount");
+					boolean animateMe = (Boolean)eachCount.get("animateMe");
 					
 					PlayerViewModel existingFriend = findFriendInList(friendFacebookId);
 					if (existingFriend == null) {
-						friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe));
+						friendsList.add(new PlayerViewModel(friendFacebookId, imageUrl , localCountMap.get(friendFacebookId), showMe, animateMe));
 					} else {
 						existingFriend.setCheese(cheeseCount);
+						existingFriend.setAnimateMe(animateMe);
 						if(!inProgressReq.containsKey(existingFriend.getFacebookId())){
 							existingFriend.setShowMe(showMe);
 						}else {
@@ -441,10 +487,19 @@ public class TheftActivity extends Activity {
 	          {
 	        	/* if friend has no cheese, update cheese count to 0 and display message */
 	  			Log.e(StealTheCheeseApplication.LOG_TAG, "Cheese theft failed with message: ", e);
-	  			cheeseCounter.setText(Integer.toString(0));
-	  			Toast theftFailedToast = Toast.makeText(getApplicationContext(), R.string.cheese_theft_failed_message, 2);
+	  			Toast theftFailedToast = Toast.makeText(getApplicationContext(), R.string.cheese_theft_failed_message, Toast.LENGTH_SHORT);
 	  			theftFailedToast.setGravity(Gravity.CENTER, 0, 0);
 	  			theftFailedToast.show();
+	  			List<HashMap<String, Object>> failedList = new ArrayList<HashMap<String,Object>>();
+	  			HashMap<String, Object> failedRequest = new HashMap<String, Object>();
+	  			failedRequest.put("facebookId", friendFacebookId);
+	  			failedRequest.put("cheeseCount", 0);
+	  			failedRequest.put("showMe", false);
+	  			failedRequest.put("animateMe", false);
+	  			failedList.add(failedRequest);
+	  			localCountMap.put(friendFacebookId, 0);
+	  			refreshFriendsListview(failedList, false, friendFacebookId);
+	  			
 	          }
 	        }
 	    });

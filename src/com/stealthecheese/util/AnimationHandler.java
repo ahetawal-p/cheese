@@ -1,19 +1,17 @@
 package com.stealthecheese.util;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
-import com.stealthecheese.R;
-import com.stealthecheese.activity.LoginActivity;
-
 import android.content.Context;
 import android.os.Vibrator;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+import com.stealthecheese.R;
 
 public class AnimationHandler {
 	

@@ -294,7 +294,8 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                     finalCheesUpdates[currFBId] = {
                         facebookId: currFBId,
                          showMe: null,
-                         cheeseCount: usersFriends[i].get("cheeseCount")
+                         cheeseCount: usersFriends[i].get("cheeseCount"),
+                         animateMe: false
                     };
                 }
                 console.log("INITIAL WRAPPERR IS ...");
@@ -360,7 +361,7 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
 Method used for sending push notification
 to the friend from whom the cheese was stolen
 **/
-var performNotification = function(thiefName, victimFacebookId){ 
+var performNotification = function(thiefName, victimFacebookId, user){ 
         console.log("Running notification...");
         var sampleQuery = new Parse.Query(Parse.Installation); 
         sampleQuery.equalTo('facebookId', victimFacebookId);
@@ -377,7 +378,9 @@ var performNotification = function(thiefName, victimFacebookId){
             where:sampleQuery,
             data: {
                 alert: message,
-                myId: "hello"
+                thiefId: user.get("facebookId"),
+                cheeseCount: user.get("cheeseCount"),
+                animateMe: true
             },
             expiration_interval : 300
             }, 
@@ -508,7 +511,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
                         function(error){
                         response.error(error);
                  })
-                .then(function(){return performNotification(thiefName,victimFacebookId);})
+                .then(function(user){return performNotification(thiefName,victimFacebookId, user);})
                 .then(function(){return insertTheftHistory(thiefFacebookId,victimFacebookId);})
                 .then(function(){return updateTheftDirection(thiefFacebookId,victimFacebookId);})
                 .then(function(){return getUserFriendsFacebookIds();})
@@ -697,7 +700,7 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
 /* beforeSave function for the cheese table to check victim cheese count */
 Parse.Cloud.beforeSave("cheese", function(re, response){
     var myCount = re.object.get("cheeseCount");
-    console.log("Player cheese count is: " + myCount);
+    //console.log("Player cheese count is: " + myCount);
     if(myCount >= 0) {
         response.success();
     } else {
@@ -762,8 +765,8 @@ Parse.Cloud.job("botAction", function(request, status) {
                     }).then(function(returnFriend){
                         mainBotUser.increment("cheeseCount", 1);
                         return mainBotUser.save();
-                    }).then(function(){
-                        return performNotification("Cheesy", currentObj["facebookId"]);
+                    }).then(function(botUser){
+                        return performNotification("Cheesy", currentObj["facebookId"], botUser);
                     }).then(function(){
                         return insertTheftHistory(CHEESE_BOT_FB_ID,currentObj["facebookId"]);
                     }).then(function(){

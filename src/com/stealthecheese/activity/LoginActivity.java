@@ -230,11 +230,14 @@ public class LoginActivity extends Activity {
 						String friendFacebookId = (String)eachCount.get("facebookId");
 						int cheeseCount = (Integer)eachCount.get("cheeseCount");
 						boolean showMe = (Boolean)eachCount.get("showMe");
+						boolean animateMe = (Boolean)eachCount.get("animateMe");
 						
 						ParseObject tempObject = new ParseObject("cheeseCountObj");
 						tempObject.put("facebookId", friendFacebookId);
 						tempObject.put("cheeseCount", cheeseCount);
 						tempObject.put("showMe", showMe);
+						tempObject.put("animateMe", animateMe);
+						
 						allCountList.add(tempObject);
 					}
 					

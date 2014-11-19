@@ -16,7 +16,7 @@ public class StealTheCheeseApplication extends Application {
 	public static final String FRIEND_CHEESE_COUNT_PIC_URL = "https://graph.facebook.com/%S/picture?type=normal";
 	public static final String FRIEND_HISTORY_PIC_URL = "https://graph.facebook.com/%S/picture?type=small";
 	private static boolean activityRunning;
-	
+	private static boolean activityPaused;
 	
   @Override
   public void onCreate() {
@@ -51,4 +51,21 @@ public class StealTheCheeseApplication extends Application {
 	  activityRunning = true;
 
   }
+  
+  
+  public static boolean isActivityPaused() {
+	  return activityPaused;
+  }  
+
+
+  public static void setActivityUnPaused() {
+	  activityPaused = false;
+
+  }
+
+  public static void setActivityPaused() {
+	  activityPaused = true;
+
+  }
+  
 }

@@ -6,13 +6,23 @@ public class PlayerViewModel {
 	private String facebookId;
 	private String imageString;
 	private Boolean showMe;
+	private boolean animateMe;
 	
-	public PlayerViewModel(String facebookId, String imageString, Integer cheese, Boolean showMe)
-	{
+	
+	public PlayerViewModel(String facebookId, String imageString, Integer cheese, Boolean showMe, boolean animateMe) {
 		this.facebookId = facebookId;
 		this.imageString = imageString;
 		this.cheese = cheese;
 		this.showMe = showMe;
+		this.animateMe = animateMe;
+	}
+	
+	public boolean getAnimateMe() {
+		return animateMe;
+	}
+
+	public void setAnimateMe(boolean animateMe) {
+		this.animateMe = animateMe;
 	}
 	
 	public Boolean getShowMe()
@@ -61,9 +71,13 @@ public class PlayerViewModel {
 		builder.append(imageString);
 		builder.append(", showMe=");
 		builder.append(showMe);
+		builder.append(", animateMe=");
+		builder.append(animateMe);
 		builder.append("]");
 		return builder.toString();
 	}
+
+	
 	
 	
 	
