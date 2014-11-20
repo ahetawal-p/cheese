@@ -1,18 +1,18 @@
 // CheeseBot FB Id
 // NOTE: DO NOT CHANGE. UNLESS NEW BOT IS CREATED... 
 var CHEESE_BOT_FB_ID = "369050949920159";
-
+  
 /** Retrieves ranking and player info for user and top ranked players **/
 Parse.Cloud.define("onGetRankings", function(request, response) {
     console.log("onGetRankings called");
-
+  
     var passedInUser = request.user;
     var userName = passedInUser.get("firstName");
     var userFacebookId = passedInUser.get("facebookId");
     var userCheeseRow;
     var collectedPlayerInfos = [];
     console.log("user name is: " + userName + "user facebookId is: " + userFacebookId);
-
+  
     var query = new Parse.Query("cheese");
     query.descending("cheeseCount,facebookId");
     query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
@@ -34,7 +34,7 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
                 resopnse.error(error);
             }
         );
-
+  
         /* get cheese row of current user */
         var getUserCheeseRow = function()
         {
@@ -43,7 +43,7 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
             query.equalTo("facebookId", userFacebookId);
             return query.first();
         };
-
+  
         /* get user info with facebookId from ParseUser table */
         var getUserInfo = function(userCheeseRow)
         {
@@ -52,11 +52,11 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
             var userCheeseCount = userCheeseRow.get("cheeseCount");
             var queryGreater = new Parse.Query("cheese");
             queryGreater.greaterThan("cheeseCount", userCheeseCount);
-
+  
             var queryEqualTo = new Parse.Query("cheese");
             queryEqualTo.equalTo("cheeseCount", userCheeseCount);
             queryEqualTo.greaterThan("facebookId", userFacebookId);
-
+  
             var combinedQuery = Parse.Query.or(queryGreater, queryEqualTo);
             /* excluding bots from count of higher ranking players */
             combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
@@ -71,14 +71,14 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
                             firstName: userName,
                             ranking: userRank + 1
                         };
-
+  
                         console.log("User info is: " + userPlayerInfo);
                         promise.resolve(userPlayerInfo);
                     });
-
+  
             return promise;
         };
-
+  
         /* get player info from top 10 players, like firstName, and add to array */
         var getTopPlayersInfo = function(cheeseRows)
         {
@@ -86,7 +86,7 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
             var playerCheeseMap = {};
             for(var ii=0; ii< cheeseRows.length; ii++) {
                 var playerFacebookId = cheeseRows[ii].get("facebookId");
-
+  
                 var cheeseCount = cheeseRows[ii].get("cheeseCount");
                 console.log("player " + playerFacebookId + " has cheese: " + cheeseCount);
                 playerCheeseMap[playerFacebookId] = 
@@ -95,7 +95,7 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
                                                     };
                 topFacebookIds.push(playerFacebookId);
             }
-
+  
             var query = new Parse.Query(Parse.User);
             query.containedIn("facebookId", topFacebookIds);
             var promise = new Parse.Promise();
@@ -107,7 +107,7 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
                         var player = parseUsers[ii];
                         if (player === null)
                             return false;
-
+  
                         var playerFacebookId = player.get("facebookId");
                         var playerInfo = 
                         {
@@ -116,7 +116,7 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
                             firstName: player.get("firstName"),
                             ranking: playerCheeseMap[playerFacebookId]["ranking"]
                         };
-
+  
                         collectedPlayerInfos.push(playerInfo);
                     }
                 }).then(
@@ -130,14 +130,14 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
                         response.error("getTopPlayersInfofailed with: " + error);
                     }
                 );
-
+  
             return promise;
         };
     });
 /** End of onGetRankings **/
-
-
-
+  
+  
+  
 /**
 Method used for returning the final state of the friends
 cheese count, along with the flag which states whether to 
@@ -162,43 +162,43 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                 }
                 console.log("INITIAL WRAPPERR IS ...");
                 console.log(finalCheesUpdates);
-                   
+                     
                 var findWhereThiefIsVictimQuery = new Parse.Query("theftdirection");
                 findWhereThiefIsVictimQuery.equalTo("victimFBId", thiefFacebookId);
                 return findWhereThiefIsVictimQuery.find();
-           
+             
             }).then(function(thiefs){
                 for(var i = 0; i < thiefs.length; i++){
                     var fbId = thiefs[i].get("thiefFBId");
                     console.log("WhereThiefIsVictim of id " + fbId);
                     finalCheesUpdates[fbId].showMe = true;
                 }
-               
+                 
                 var d = new Date(); // gets today
                 var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.08); // around 2 hrs ago
                 console.log("Around Two hour time..." + dMinus);
-                   
+                     
                 //var dMinus1 = new Date("November 8, 2014 10:10:00");
-                 
+                   
                 var findWhereThiefIsThief = new Parse.Query("theftdirection");
                 findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
                 findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
                 findWhereThiefIsThief.greaterThanOrEqualTo("updatedAt", dMinus);
                 return findWhereThiefIsThief.find();
-               
+                 
             }).then(function(currThiefs){
                 for(var i = 0; i < currThiefs.length; i++){
                     var fbId = currThiefs[i].get("victimFBId");
                     console.log("WhereThiefIsThief for id " + fbId);
                     finalCheesUpdates[fbId].showMe = false;
             }
-               
+                 
             console.log("FINAL WRAPPERR IS ...");
             console.log(finalCheesUpdates);
-               
+                 
             var finalCheesUpdatesList = [];
             for(var key in finalCheesUpdates){
-                   
+                     
                 // check for 0 cheese count, and disabling the image
                 var localCheeseCount = finalCheesUpdates[key].cheeseCount;
                 if(localCheeseCount < 1){
@@ -207,18 +207,18 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                 if(finalCheesUpdates[key].showMe == null){
                     finalCheesUpdates[key].showMe = true;
                 }
-                   
+                     
                finalCheesUpdatesList.push(finalCheesUpdates[key]);
             }
             console.log(finalCheesUpdatesList);
             promise.resolve(finalCheesUpdatesList);
-           
+             
         });
-       
+         
      return promise;
 }
-   
-
+     
+  
 /**
 Method used for sending push notification
 to the friend from whom the cheese was stolen
@@ -230,12 +230,12 @@ var performNotification = function(thiefName, victimFacebookId, thiefUser, victi
         //query.notEqualTo('facebookId', CHEESE_BOT_FB_ID);
         var message =  thiefName  +  ' just snatched your cheese!'
         var promise = new Parse.Promise();
-         
+           
         if(victimFacebookId == CHEESE_BOT_FB_ID){
             promise.resolve("Notification sent");
              return promise;    
         }
-         
+           
         Parse.Push.send({
             where:sampleQuery,
             data: {
@@ -257,11 +257,11 @@ var performNotification = function(thiefName, victimFacebookId, thiefUser, victi
                     promise.reject("Notification error");
                 }
             });
-          
+            
         return promise;
 }
-      
-
+        
+  
 /**
   Method used for inserting a new record for the current
   theft, to maintain theft history. 
@@ -271,11 +271,11 @@ var insertTheftHistory = function(thiefFacebookId,victimFacebookId) {
         var theftHistory = new TheftHistoryClass();
         theftHistory.set("thiefFBId", thiefFacebookId);
         theftHistory.set("victimFBId", victimFacebookId);
-          
-        var promise = new Parse.Promise();
             
+        var promise = new Parse.Promise();
+              
         console.log("adding theft history for thief " + thiefFacebookId + " and victim " + victimFacebookId);
-           
+             
         theftHistory.save(null,{
           success:function(theftResponse) { 
             console.log(theftResponse);
@@ -286,10 +286,10 @@ var insertTheftHistory = function(thiefFacebookId,victimFacebookId) {
             promise.resolve("Error saving");
           }
         });
-          
+            
         return promise;
 }
-      
+        
 /**
     Method used for maintaining theft direction between any two given friends.
     This data is used for deriving whether a friend in friends-list on UI, 
@@ -301,13 +301,13 @@ var updateTheftDirection = function(thiefFacebookId,victimFacebookId){
         var fwdDirection = new Parse.Query("theftdirection");
         fwdDirection.equalTo("thiefFBId", thiefFacebookId);
         fwdDirection.equalTo("victimFBId", victimFacebookId);
-           
+             
         var reverseDirection = new Parse.Query("theftdirection");
         reverseDirection.equalTo("thiefFBId", victimFacebookId);
         reverseDirection.equalTo("victimFBId", thiefFacebookId);
-          
+            
         var promise = new Parse.Promise();
-           
+             
         var directionQuery = Parse.Query.or(fwdDirection, reverseDirection);
         directionQuery.find({
             success: function(theftVictimCombination)
@@ -330,20 +330,20 @@ var updateTheftDirection = function(thiefFacebookId,victimFacebookId){
                          promise.resolve("This is a test");
                     });
                 }
-                   
+                     
             },
             error: function(error)
             {   
                 console.log("Not able to find any row..." + error);
                 promise.reject("Test again");
-                   
+                     
             }   
         });
-          
+            
     return promise; 
 }
-      
-   
+        
+     
 /** 
   Cloud code used being executed when a theft action
   takes place on the device.
@@ -360,7 +360,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
     var query = new Parse.Query("cheese");
     var facebookIds = [thiefFacebookId, victimFacebookId];
     var victimUser;
-    
+      
     query.containedIn("facebookId", facebookIds);
     query.find().then(function(cheeseRows){
                         console.log("Ran cheese query...");
@@ -368,7 +368,7 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
                         victimUserCheese.increment("cheeseCount", -1);
                         return victimUserCheese.save();
                     }).then(function(victim) {
-                    	victimUser = victim;
+                        victimUser = victim;
                         console.log("I'm in success");
                         thiefUserCheese.increment("cheeseCount");   
                         return thiefUserCheese.save();
@@ -382,15 +382,15 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
                 .then(function(){return getUserFriendsFacebookIds();})
                 .then(function(friendFacebookIds){
                         return getFriendsCheeseCounts(friendFacebookIds, thiefFacebookId);
-                  
+                    
                 }).then(function(allCounts){
                     response.success(allCounts);
-                      
+                        
                 });
-                               
+                                 
+         
        
-     
-       
+         
     /* find and set victim and thief cheese rows */
     var findVictimThiefCheeseRows = function(cheeseRows) {                   
         for(var ii=0; ii< cheeseRows.length; ii++) {
@@ -404,8 +404,8 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
             }
         }
     }   
-       
-       
+         
+         
     /* return all facebook ids of user's friends */
     var getUserFriendsFacebookIds = function() {
         var query = new Parse.Query(Parse.User);
@@ -426,27 +426,27 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
                     console.log("Cannot find user friends facebookIds" + error);
                     response.error("Cannot find user friends facebookIds");
                 }   
-               
+                 
             );
         return promise;
     }
-       
+         
 });
-   
+     
 /**
     Cloud code which executed when during a fresh launch of MyCheez
-**/   
+**/ 
 Parse.Cloud.define("onLoginActivity", function(request, response) {
     console.log(request);
     Parse.Cloud.useMasterKey();
-            
+              
     var isNewUser = request.params.isNewUserFlag;
     var passedInUser = request.user;
-    
+      
     // defensive check when user is not being sent from client
     // after a long time of inactivity
     if(passedInUser == null) {
-    	response.error("No current user present");
+        response.error("No current user present");
     }
     console.log("START Passed In USER ...");
     console.log(passedInUser);
@@ -454,10 +454,9 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
     var fbaccessToken = passedInUser.get('authData').facebook.access_token;
     console.log("fbaccessToken " + fbaccessToken);
     var currentFBUserId = passedInUser.get("facebookId");
-       
+         
     var existingUserSteps = function(request, response, isBot) {
         console.log("Inside performExistingUser Steps...");
-        var updatedFriendsList = [];
         Parse.Cloud.httpRequest({
                url: 'https://graph.facebook.com/me/friends?access_token=' + fbaccessToken
         }).then(function(httpResponse){
@@ -474,24 +473,27 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         friendsList.push(fbId);
                     }
                      return friendsList;
-                            
+                              
                     }, function(errorResponse){
                         // Throw error
                         console.error('Request failed with response code ' + errorResponse.status);
-                    
+                      
                 }).then(function(allFriendslist){
-                    passedInUser.set("friends", allFriendslist);
-                    updatedFriendsList = allFriendslist;
+                    //backdoor to add more friends for testing
+                    for(var i = 0; i<allFriendslist.length; i++){
+                        passedInUser.addUnique("friends", allFriendslist[i]);
+                    }
                     return passedInUser.save();
-                    
+                      
                 }).then(function(savedUser){
                         console.log("In final stage");
-                        updatedFriendsList.push(passedInUser.get("facebookId"));
-                        console.log(updatedFriendsList);
+                        var newFriendList = savedUser.get("friends");
+                        newFriendList.push(passedInUser.get("facebookId"));
+                        console.log(newFriendList);
                         var query = new Parse.Query(Parse.User);
-                        query.containedIn("facebookId", updatedFriendsList);
+                        query.containedIn("facebookId", newFriendList);
                         return query.find();
-                        
+                          
                 }).then(function(allCheeseCountObjects){
                             response.success(allCheeseCountObjects);
                         },function(errorHandler){
@@ -499,7 +501,7 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         }
                 );
     }   
-       
+         
     var doCommonSteps = function(isBot){
         if(isNewUser) {
             console.log("Inside NEW USER BLOCK...");
@@ -515,13 +517,13 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
             return existingUserSteps(request, response, isBot);
         }
     }
-       
+         
     var allUsersList = [];
     var query = new Parse.Query(Parse.User);
     query.equalTo("facebookId", CHEESE_BOT_FB_ID);
     var origBotUser = null;
     query.find().then(function(botUser){
-    	origBotUser = botUser[0];
+        origBotUser = botUser[0];
         allUsersList = origBotUser.get("friends");
         return allUsersList;
     }).then(function(fulllist){
@@ -529,7 +531,7 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
             console.log("I am BOT..");
             doCommonSteps(true);
         }else {
-           		origBotUser.addUnique("friends", passedInUser.get("facebookId"));
+                origBotUser.addUnique("friends", passedInUser.get("facebookId"));
                 origBotUser.save(null,{
                     success:function(theftResponse) { 
                         doCommonSteps(false);
@@ -538,17 +540,17 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                         response.error(error);
                     }
                 });
-        	}
-   	 });
-       
-       
+            }
+     });
+         
+         
 });
-   
-   
+     
+     
 /**
 Cloud code to just return the latest cheese counts for the friends
 along with the enable-disable flag
-**/   
+**/ 
 Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
     console.log("In getAllCheeseCounts...");
     console.log(request);
@@ -558,13 +560,13 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
     getFriendsCheeseCounts(friendsList, request.user.get("facebookId"))
         .then(function(allCounts){
                 response.success(allCounts);
-      
+        
             });
 });
-   
-   
-   
-   
+     
+     
+     
+     
 /* beforeSave function for the cheese table to check victim cheese count */
 Parse.Cloud.beforeSave("cheese", function(re, response){
     var myCount = re.object.get("cheeseCount");
@@ -575,9 +577,9 @@ Parse.Cloud.beforeSave("cheese", function(re, response){
         response.error("Victim has no cheese! Cannot steal from victim");
     }
 });
- 
- 
- 
+   
+   
+   
 /**
     Background job : Used for triggering the Cheese Bot action
     for stealing cheese from all users every certain time
@@ -587,25 +589,27 @@ Parse.Cloud.job("botAction", function(request, status) {
   var _ = require('underscore.js');
   var size = 0;
   var mainBotUser;
-  
+    
   var cleanupQuery = new Parse.Query("thefthistory");
   var today = new Date();
+  console.error(today);
   today.setDate(today.getDate() - 1); // 1 days old history
+  console.error(today);
   cleanupQuery.lessThan("createdAt", today);
   cleanupQuery.find().then(function(histResult){
-  		console.log("Hist size is >> ", histResult.length);
-  		return Parse.Object.destroyAll(histResult);
-  
+        console.log("Hist size is >> ", histResult.length);
+        return Parse.Object.destroyAll(histResult);
+    
   }).then(function(){
-  		var query = new Parse.Query("cheese");
-  		query.equalTo("facebookId", CHEESE_BOT_FB_ID);
-  		query.find().then(function(user){
-    		mainBotUser = user[0];
-    		return user[0];
-  	}).then(function(temp){
-        	var query = new Parse.Query(Parse.User);
-        	query.equalTo("facebookId", CHEESE_BOT_FB_ID);
-        	return query.find();
+        var query = new Parse.Query("cheese");
+        query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+        query.find().then(function(user){
+            mainBotUser = user[0];
+            return user[0];
+    }).then(function(temp){
+            var query = new Parse.Query(Parse.User);
+            query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+            return query.find();
         }).then(function(botUser){
             var allUsersList = botUser[0].get("friends");
             return getFriendsCheeseCounts(allUsersList, CHEESE_BOT_FB_ID);
@@ -632,7 +636,7 @@ Parse.Cloud.job("botAction", function(request, status) {
                         friend[0].increment("cheeseCount", -1);
                         return friend[0].save();
                     }).then(function(returnFriend){
-                    	victimUser = returnFriend;
+                        victimUser = returnFriend;
                         mainBotUser.increment("cheeseCount", 1);
                         return mainBotUser.save();
                     }).then(function(botUser){
@@ -648,9 +652,9 @@ Parse.Cloud.job("botAction", function(request, status) {
                             status.success("I am all done");
                         }
                     });
-                  
+                    
                 });
         });
     });
-              
+                
 });
