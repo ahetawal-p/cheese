@@ -19,12 +19,12 @@
 	        android:textColor="@color/white"
 	        android:text="&lt;" /> -->
 	    <TextView
+	        android:id="@+id/userRankingTextView"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
 	        android:textSize="20sp"
-	        android:textColor="@color/white"
-	        android:text="@string/rankings_page_title" />
+	        android:textColor="@color/white"/>
 	</RelativeLayout>
    	 <LinearLayout
    	   android:layout_width="fill_parent"
@@ -38,11 +38,18 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" 
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="20dp"
             android:layout_gravity="center_horizontal"
             android:scrollbars="none"
 			android:divider="@android:color/transparent"
 			android:dividerHeight="5dp">
         </ListView>
        </LinearLayout>
+     <include 
+         android:id="@+id/userGreaterThanTenRanking"
+         layout="@layout/ranking_row_user"
+         android:layout_height="80dp"
+         android:layout_width="fill_parent"
+         android:visibility="gone"
+         android:layout_alignParentBottom="true" />
 </RelativeLayout>

@@ -7,9 +7,11 @@ public class RankingViewModel {
 	private String imageString;
 	private String firstName;
 	private Boolean isUser;
+	private String facebookId;
 	
-	public RankingViewModel(String firstName, String imageString, Integer cheese, Integer ranking, Boolean isUser)
+	public RankingViewModel(String facebookId, String firstName, String imageString, Integer cheese, Integer ranking, Boolean isUser)
 	{
+		this.facebookId = facebookId;
 		this.firstName = firstName;
 		this.imageString = imageString;
 		this.cheese = cheese;
@@ -20,6 +22,16 @@ public class RankingViewModel {
 	public Boolean getIsUser()
 	{
 		return this.isUser;
+	}
+	
+	public String getFacebookId()
+	{
+		return this.imageString;
+	}
+	
+	public void setFacebookId(String facebookId)
+	{
+		this.facebookId = facebookId;
 	}
 	
 	public String getImageString()
