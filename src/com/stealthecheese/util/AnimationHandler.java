@@ -36,9 +36,10 @@ public class AnimationHandler {
 	{
 		view.setVisibility(View.VISIBLE);
         Animation animFade  = AnimationUtils.loadAnimation(activityContext, R.anim.fadeinout);
-        //animFade.setAnimationListener(listener);
+        animFade.setAnimationListener(listener);
         view.startAnimation(animFade);
-        view.setVisibility(View.GONE);
+        //view.setVisibility(View.INVISIBLE);
+        //view.setVisibility(View.GONE);
 	}
 	
 	public void animateCheeseTheft(View viewItemClicked, final ImageView movedCheeseImg, final TextView cheeseCounter, 	final ImageView userProfileImageView,

@@ -166,7 +166,7 @@ public class TheftActivity extends Activity {
 	}
 
 	private void performRealtimeUpdate(Bundle extras) {
-		resetCountDown();
+		//();
 		List<HashMap<String, Object>> singleUpdateList = new ArrayList<HashMap<String,Object>>();
 		HashMap<String, Object> pushUpdate = new HashMap<String, Object>();
 		pushUpdate.put("facebookId", (String)extras.get("ThiefId"));
@@ -366,7 +366,9 @@ public class TheftActivity extends Activity {
 
 								@Override
 								public void onAnimationEnd(Animation animation) {
-									//beginCountDown();
+									//refreshFinishedTextView.setVisibility(View.INVISIBLE);
+									refreshFinishedTextView.setVisibility(View.GONE);
+									beginCountDown();
 								}
 							};
 							animationHandler.fadeInOutView(refreshFinishedTextView, animL);
