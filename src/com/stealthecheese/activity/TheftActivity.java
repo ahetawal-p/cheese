@@ -114,7 +114,7 @@ public class TheftActivity extends Activity {
 	
 	@Override
 	public void onBackPressed() {
-			countDownTimer.cancel();
+			resetCountDown();
 		    finish();
             super.onBackPressed();
     }
@@ -207,8 +207,8 @@ public class TheftActivity extends Activity {
 	}
 	
 	/* update page when user refreshes */
-	private void updatePage(List<HashMap<String, Object>> cheeseCounts) {	
-		resetCountDown();
+	private void updatePage(List<HashMap<String, Object>> cheeseCounts)
+	{
         populateUserView();
 		refreshFriendsListview(cheeseCounts, true, null);
 		populateHistoryListView();
@@ -316,6 +316,7 @@ public class TheftActivity extends Activity {
 	private void updateCheeseCountData(final View v){
 		
 		inProgressReq.clear();
+		resetCountDown();
 		
 		final Map<String,Object> params = new HashMap<String,Object>();
 		animationHandler.startAnimateRefresh(v);
@@ -355,6 +356,7 @@ public class TheftActivity extends Activity {
 							updatePage(cheeseCounts);
 							animationHandler.stopAnimateRefresh(v);
 							animationHandler.fadeInOutView(refreshFinishedTextView);
+							beginCountDown();
 						}
 					});
 				}
@@ -434,8 +436,6 @@ public class TheftActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(List<HashMap<String, Object>>... friendCheeseObjects) {
-			 beginCountDown();
-			 
 			if(friendCheeseObjects[0] == null || friendCheeseObjects[0].size() == 0){
 				return null;
 			}
@@ -560,8 +560,7 @@ public class TheftActivity extends Activity {
 	  			localCountMap.put(friendFacebookId, 0);
 	  			refreshFriendsListview(failedList, false, friendFacebookId);
 	  		  }
-	        	
-	       
+	        	//beginCountDown(); perf issues on continuous clicks
 	       }
 	    });
 		}
@@ -633,7 +632,7 @@ public class TheftActivity extends Activity {
 			countDown.setText(String.format("%02d:%02d:%02d", 
 					TimeUnit.MILLISECONDS.toHours(millis),
 					TimeUnit.MILLISECONDS.toMinutes(millis) -  
-					TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+					TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)), 
 					TimeUnit.MILLISECONDS.toSeconds(millis) - 
 					TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))); 
     		
@@ -644,7 +643,10 @@ public class TheftActivity extends Activity {
 			countDown.setVisibility(View.GONE);
 			updateCheeseCountData(refreshImageView);
 		}
-	
+		
+		
+		
+
 	}
 	
 	
