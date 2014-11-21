@@ -207,8 +207,8 @@ public class TheftActivity extends Activity {
 	}
 	
 	/* update page when user refreshes */
-	private void updatePage(List<HashMap<String, Object>> cheeseCounts)
-	{
+	private void updatePage(List<HashMap<String, Object>> cheeseCounts) {	
+		resetCountDown();
         populateUserView();
 		refreshFriendsListview(cheeseCounts, true, null);
 		populateHistoryListView();
@@ -316,7 +316,6 @@ public class TheftActivity extends Activity {
 	private void updateCheeseCountData(final View v){
 		
 		inProgressReq.clear();
-		resetCountDown();
 		
 		final Map<String,Object> params = new HashMap<String,Object>();
 		animationHandler.startAnimateRefresh(v);
@@ -356,7 +355,6 @@ public class TheftActivity extends Activity {
 							updatePage(cheeseCounts);
 							animationHandler.stopAnimateRefresh(v);
 							animationHandler.fadeInOutView(refreshFinishedTextView);
-							beginCountDown();
 						}
 					});
 				}
@@ -436,6 +434,8 @@ public class TheftActivity extends Activity {
 
 		@Override
 		protected Void doInBackground(List<HashMap<String, Object>>... friendCheeseObjects) {
+			 beginCountDown();
+			 
 			if(friendCheeseObjects[0] == null || friendCheeseObjects[0].size() == 0){
 				return null;
 			}
@@ -561,7 +561,7 @@ public class TheftActivity extends Activity {
 	  			refreshFriendsListview(failedList, false, friendFacebookId);
 	  		  }
 	        	
-	        beginCountDown();
+	       
 	       }
 	    });
 		}
