@@ -7,12 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -60,6 +62,9 @@ public class TheftActivity extends Activity {
 	private HashMap<String, Boolean> localShowMeMap = new HashMap<String, Boolean>();
 	private AnimationHandler animationHandler;
 	private UpdateType updateType;
+	private TextView countDown;
+	private CountDownCheeseSteal countDownTimer;
+	private Double timeLeft;
 	
 	private ConcurrentHashMap<String, String> inProgressReq = new ConcurrentHashMap<String, String>();
 	
@@ -74,9 +79,33 @@ public class TheftActivity extends Activity {
 	
 		initializeUtilities();
 		initializeUIControls();
+		initializeCountDownTimerIfRequired();
 		initializeHistoryListView(getResources());
 		initializeFriendListVIew(getResources());
 		updateType = UpdateType.LOGIN;
+	}
+	
+	private void initializeCountDownTimerIfRequired() {
+		Bundle extras = getIntent().getExtras();
+		timeLeft = extras.getDouble("CountDown");
+		beginCountDown();
+	}
+
+	private void beginCountDown() {
+		if(timeLeft > 0D){
+			countDown.setVisibility(View.VISIBLE);
+			countDownTimer = new CountDownCheeseSteal((timeLeft.longValue())*1000, 1000);
+			countDownTimer.start();
+		}
+	}
+
+	private void resetCountDown() {
+		timeLeft = 0D;
+		countDown.setVisibility(View.INVISIBLE);
+		if(countDownTimer != null ){
+			countDownTimer.cancel();
+			countDownTimer = null;
+		} 
 	}
 	
 	private void initializeUtilities() {
@@ -85,6 +114,7 @@ public class TheftActivity extends Activity {
 	
 	@Override
 	public void onBackPressed() {
+			countDownTimer.cancel();
 		    finish();
             super.onBackPressed();
     }
@@ -134,6 +164,7 @@ public class TheftActivity extends Activity {
 	}
 
 	private void performRealtimeUpdate(Bundle extras) {
+		resetCountDown();
 		List<HashMap<String, Object>> singleUpdateList = new ArrayList<HashMap<String,Object>>();
 		HashMap<String, Object> pushUpdate = new HashMap<String, Object>();
 		pushUpdate.put("facebookId", (String)extras.get("ThiefId"));
@@ -248,6 +279,8 @@ public class TheftActivity extends Activity {
 	private void initializeUIControls()
 	{
 		refreshFinishedTextView = (TextView)findViewById(R.id.refreshFinishedMessage);
+		countDown = (TextView)findViewById(R.id.countDownTimer);
+		
 		initializeImageButtons();
 	}
 	
@@ -283,14 +316,20 @@ public class TheftActivity extends Activity {
 	private void updateCheeseCountData(final View v){
 		
 		inProgressReq.clear();
+		resetCountDown();
 		
 		final Map<String,Object> params = new HashMap<String,Object>();
 		animationHandler.startAnimateRefresh(v);
-		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<HashMap<String, Object>>>() {
+		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<HashMap<String, Object>>() {
 
 			@Override
-			public void done(final List<HashMap<String, Object>> cheeseCounts, ParseException ex) {
+			public void done(final HashMap<String, Object> wrapper, ParseException ex) {
 				if(ex == null){
+					if(wrapper.containsKey("countDown")){
+						timeLeft = (Double)wrapper.get("countDown");
+						timeLeft +=100; //buffer time
+					}
+					final List<HashMap<String, Object>> cheeseCounts = (List<HashMap<String, Object>>)wrapper.get("cheeseCountList");
 					List<ParseObject> allCountList = new ArrayList<ParseObject>();
 					for(HashMap<String, Object> eachCount : cheeseCounts){
 						String friendFacebookId = (String)eachCount.get("facebookId");
@@ -317,12 +356,14 @@ public class TheftActivity extends Activity {
 							updatePage(cheeseCounts);
 							animationHandler.stopAnimateRefresh(v);
 							animationHandler.fadeInOutView(refreshFinishedTextView);
+							beginCountDown();
 						}
 					});
 				}
 			}
 		});
 	}
+
 	
 	/* set history list view adapter */
 	private void initializeHistoryListView(Resources res) {
@@ -475,11 +516,17 @@ public class TheftActivity extends Activity {
 		params.put("victimFacebookId", friendFacebookId);
 		params.put("thiefFacebookId", currentUser.getString("facebookId"));
 		
-	    ParseCloud.callFunctionInBackground("onCheeseTheft", params, new FunctionCallback<List<HashMap<String, Object>> >() {
-	        public void done(List<HashMap<String, Object>> allUpdates, ParseException e) {
-	          if (e == null){   
-					localCountMap.clear();
-					
+		resetCountDown();
+		ParseCloud.callFunctionInBackground("onCheeseTheft", params, new FunctionCallback<HashMap<String, Object>>() {
+	        public void done(HashMap<String, Object> wrapper, ParseException e) {
+	        	if (e == null){   
+	        	  if(wrapper.containsKey("countDown")){
+						timeLeft = (Double)wrapper.get("countDown");
+						timeLeft +=100; //buffer time
+					}
+	        	  
+	        	  localCountMap.clear();
+	        	  List<HashMap<String, Object>> allUpdates = (List<HashMap<String, Object>>)wrapper.get("cheeseCountList");
 			    	for(HashMap<String, Object> eachCount : allUpdates){
 			    		localCountMap.put((String)eachCount.get("facebookId"), (Integer)eachCount.get("cheeseCount"));
 			    	}
@@ -497,9 +544,7 @@ public class TheftActivity extends Activity {
 		    		
 		    		/* populate theft history asynchronously after friend cheese counts are updated */
 		    		populateHistoryListView();
-	          }
-	          else
-	          {
+	          } else {
 	        	/* if friend has no cheese, update cheese count to 0 and display message */
 	  			Log.e(StealTheCheeseApplication.LOG_TAG, "Cheese theft failed with message: ", e);
 	  			Toast theftFailedToast = Toast.makeText(getApplicationContext(), R.string.cheese_theft_failed_message, Toast.LENGTH_SHORT);
@@ -514,9 +559,10 @@ public class TheftActivity extends Activity {
 	  			failedList.add(failedRequest);
 	  			localCountMap.put(friendFacebookId, 0);
 	  			refreshFriendsListview(failedList, false, friendFacebookId);
-	  			
-	          }
-	        }
+	  		  }
+	        	
+	        beginCountDown();
+	       }
 	    });
 		}
 	
@@ -573,6 +619,35 @@ public class TheftActivity extends Activity {
 			historyListAdapter.notifyDataSetChanged();
 		}
 	}
+	
+	
+	
+	public class CountDownCheeseSteal extends CountDownTimer {
+		
+		public CountDownCheeseSteal(long millisInFuture, long countDownInterval) {
+			super(millisInFuture, countDownInterval);
+		}
+
+		@Override
+		public void onTick(long millis) {
+			countDown.setText(String.format("%02d:%02d:%02d", 
+					TimeUnit.MILLISECONDS.toHours(millis),
+					TimeUnit.MILLISECONDS.toMinutes(millis) -  
+					TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+					TimeUnit.MILLISECONDS.toSeconds(millis) - 
+					TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)))); 
+    		
+		}
+
+		@Override
+		public void onFinish() {
+			countDown.setVisibility(View.GONE);
+			updateCheeseCountData(refreshImageView);
+		}
+	
+	}
+	
+	
 	
 	
 	@Override

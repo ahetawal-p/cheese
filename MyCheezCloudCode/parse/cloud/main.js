@@ -145,9 +145,19 @@ enable or disable the friend i.e. is the friend eligible for
 stealing.
 **/
 var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
+		
+		var moment = require('moment');
+		Parse.Cloud.useMasterKey();
         var query = new Parse.Query("cheese");
         var finalCheesUpdates = {};
         var promise = new Parse.Promise();
+        var d = new Date(); // gets today
+        var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.08); // around 2 hrs ago
+        console.log("Around Two hour time..." + dMinus);
+        var dMinusMoment = moment(dMinus);
+        var responsePayload = {};
+        var isCounterNeeded = true;
+        
         console.log("getFriendsCheeseCounts received friendsFacebookIds: " + friendFacebookIds);
         query.containedIn("facebookId", friendFacebookIds);
         query.find().then(function(usersFriends){   
@@ -173,13 +183,8 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                     console.log("WhereThiefIsVictim of id " + fbId);
                     finalCheesUpdates[fbId].showMe = true;
                 }
-                 
-                var d = new Date(); // gets today
-                var dMinus = new Date(d - 1000 * 60 * 60 * 24 *.08); // around 2 hrs ago
-                console.log("Around Two hour time..." + dMinus);
                      
                 //var dMinus1 = new Date("November 8, 2014 10:10:00");
-                   
                 var findWhereThiefIsThief = new Parse.Query("theftdirection");
                 findWhereThiefIsThief.equalTo("thiefFBId", thiefFacebookId);
                 findWhereThiefIsThief.containedIn("victimFBId", friendFacebookIds);
@@ -187,31 +192,53 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                 return findWhereThiefIsThief.find();
                  
             }).then(function(currThiefs){
+            	var timeLeftArray = [];
                 for(var i = 0; i < currThiefs.length; i++){
-                    var fbId = currThiefs[i].get("victimFBId");
+                	var fbId = currThiefs[i].get("victimFBId");
                     console.log("WhereThiefIsThief for id " + fbId);
                     finalCheesUpdates[fbId].showMe = false;
-            }
-                 
-            console.log("FINAL WRAPPERR IS ...");
-            console.log(finalCheesUpdates);
-                 
-            var finalCheesUpdatesList = [];
-            for(var key in finalCheesUpdates){
-                     
-                // check for 0 cheese count, and disabling the image
-                var localCheeseCount = finalCheesUpdates[key].cheeseCount;
-                if(localCheeseCount < 1){
-                    finalCheesUpdates[key].showMe = false;
+                    var updatedAtMoment = moment(currThiefs[i].updatedAt);
+                    var timeLeftForNextSteal = moment.duration(updatedAtMoment.diff(dMinusMoment)).asSeconds();
+                    //console.log("Sec left: " + timeLeftForNextSteal);
+                    timeLeftArray.push(timeLeftForNextSteal);
+                    //console.log(moment().startOf('day').seconds(timeLeftForNextSteal).format('H:mm:ss'));
+            	}
+            	if(timeLeftArray.length > 0){
+                	timeLeftArray.sort(function(a, b){return a-b});
+                	console.log(timeLeftArray[0]);
+                	responsePayload["countDown"] = timeLeftArray[0];
+                	console.log(moment().startOf('day').seconds(timeLeftArray[0]).format('H:mm:ss'));
                 }
-                if(finalCheesUpdates[key].showMe == null){
-                    finalCheesUpdates[key].showMe = true;
-                }
+             	 
+            	var finalCheesUpdatesList = [];
+            	for(var key in finalCheesUpdates){
                      
-               finalCheesUpdatesList.push(finalCheesUpdates[key]);
-            }
-            console.log(finalCheesUpdatesList);
-            promise.resolve(finalCheesUpdatesList);
+                	// check for 0 cheese count, and disabling the image
+                	var localCheeseCount = finalCheesUpdates[key].cheeseCount;
+                	var showMeFlag = finalCheesUpdates[key].showMe;
+                	if(showMeFlag && thiefFacebookId != finalCheesUpdates[key].facebookId){
+                		isCounterNeeded = false;
+                	}
+                	if(localCheeseCount < 1){
+                    	finalCheesUpdates[key].showMe = false;
+                	}
+                	if(finalCheesUpdates[key].showMe == null){
+                    	finalCheesUpdates[key].showMe = true;
+                    	if(thiefFacebookId != finalCheesUpdates[key].facebookId){
+                    		isCounterNeeded = false;
+                    	}
+                	}
+                	finalCheesUpdatesList.push(finalCheesUpdates[key]);
+            	}
+            	// remove countdown if even one steal is available
+                if(!isCounterNeeded){
+                	delete responsePayload["countDown"];
+                }
+                	
+            	responsePayload["cheeseCountList"] = finalCheesUpdatesList;
+           		console.log("FINAL WRAPPERR IS ...");
+           		console.log(responsePayload); 
+            	promise.resolve(responsePayload);
              
         });
          
@@ -383,8 +410,8 @@ Parse.Cloud.define("onCheeseTheft", function(request, response) {
                 .then(function(friendFacebookIds){
                         return getFriendsCheeseCounts(friendFacebookIds, thiefFacebookId);
                     
-                }).then(function(allCounts){
-                    response.success(allCounts);
+                }).then(function(responsePayload){
+                    response.success(responsePayload);
                         
                 });
                                  
@@ -558,8 +585,8 @@ Parse.Cloud.define("getAllCheeseCounts", function(request, response) {
     var query = new Parse.Query("cheese");
     friendsList.push(request.user.get("facebookId"));
     getFriendsCheeseCounts(friendsList, request.user.get("facebookId"))
-        .then(function(allCounts){
-                response.success(allCounts);
+        .then(function(responsePayload){
+                response.success(responsePayload);
         
             });
 });
@@ -613,10 +640,11 @@ Parse.Cloud.job("botAction", function(request, status) {
         }).then(function(botUser){
             var allUsersList = botUser[0].get("friends");
             return getFriendsCheeseCounts(allUsersList, CHEESE_BOT_FB_ID);
-        }).then(function(allCounts){
+        }).then(function(responsePayload){
             console.log("Se mee here");
-            console.log(allCounts);
+            console.log(responsePayload);
             var filteredList = [];
+            var allCounts = responsePayload["cheeseCountList"];
             for(var i = 0; i < allCounts.length; i++){
                 if(allCounts[i].showMe){
                     filteredList.push(allCounts[i]);

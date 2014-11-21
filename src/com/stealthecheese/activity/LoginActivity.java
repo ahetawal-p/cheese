@@ -44,7 +44,8 @@ public class LoginActivity extends Activity {
 	
 	private TextView loadingText;
     private Button loginFBButton;
-    
+    private double timeLeft = 0d;
+    		
     private  LinearLayout loadingMsgSection;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -224,27 +225,33 @@ public class LoginActivity extends Activity {
 	
 	private void updateCheeseCountData(){
 		final Map<String,Object> params = new HashMap<String,Object>();
-		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<List<HashMap<String, Object>>>() {
-
+		ParseCloud.callFunctionInBackground("getAllCheeseCounts", params, new FunctionCallback<HashMap<String, Object>>() {
+			
 			@Override
-			public void done(List<HashMap<String, Object>> cheeseCounts, ParseException ex) {
+			public void done(HashMap<String, Object> wrapper, ParseException ex) {
 				if(ex == null){
-					List<ParseObject> allCountList = new ArrayList<ParseObject>();
-					for(HashMap<String, Object> eachCount : cheeseCounts){
-						String friendFacebookId = (String)eachCount.get("facebookId");
-						int cheeseCount = (Integer)eachCount.get("cheeseCount");
-						boolean showMe = (Boolean)eachCount.get("showMe");
-						boolean animateMe = (Boolean)eachCount.get("animateMe");
-						
-						ParseObject tempObject = new ParseObject("cheeseCountObj");
-						tempObject.put("facebookId", friendFacebookId);
-						tempObject.put("cheeseCount", cheeseCount);
-						tempObject.put("showMe", showMe);
-						tempObject.put("animateMe", animateMe);
-						
-						allCountList.add(tempObject);
+					if(wrapper.containsKey("countDown")){
+						timeLeft = (Double)wrapper.get("countDown");
+						timeLeft +=100; //buffer time
 					}
 					
+					List<HashMap<String, Object>> cheeseCounts = (List<HashMap<String, Object>>)wrapper.get("cheeseCountList");
+					List<ParseObject> allCountList = new ArrayList<ParseObject>();
+					for(HashMap<String, Object> eachCount : cheeseCounts){
+						
+							String friendFacebookId = (String)eachCount.get("facebookId");
+							int cheeseCount = (Integer)eachCount.get("cheeseCount");
+							boolean showMe = (Boolean)eachCount.get("showMe");
+							boolean animateMe = (Boolean)eachCount.get("animateMe");
+						
+							ParseObject tempObject = new ParseObject("cheeseCountObj");
+							tempObject.put("facebookId", friendFacebookId);
+							tempObject.put("cheeseCount", cheeseCount);
+							tempObject.put("showMe", showMe);
+							tempObject.put("animateMe", animateMe);
+							
+							allCountList.add(tempObject);
+						}
 					
 					ParseObject.pinAllInBackground(StealTheCheeseApplication.PIN_TAG, allCountList, new SaveCallback() {
 						@Override
@@ -269,6 +276,7 @@ public class LoginActivity extends Activity {
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		String updateType = getResources().getString(R.string.update_type);
 		intent.putExtra(updateType, UpdateType.LOGIN);
+		intent.putExtra("CountDown", timeLeft);
 		startActivity(intent);
 		finish();
 	}
