@@ -19,6 +19,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -101,7 +103,7 @@ public class TheftActivity extends Activity {
 
 	private void resetCountDown() {
 		timeLeft = 0D;
-		countDown.setVisibility(View.INVISIBLE);
+		countDown.setVisibility(View.GONE);
 		if(countDownTimer != null ){
 			countDownTimer.cancel();
 			countDownTimer = null;
@@ -355,8 +357,19 @@ public class TheftActivity extends Activity {
 						public void done(ParseException ex) {
 							updatePage(cheeseCounts);
 							animationHandler.stopAnimateRefresh(v);
-							animationHandler.fadeInOutView(refreshFinishedTextView);
-							beginCountDown();
+							AnimationListener animL = new AnimationListener() {
+								@Override
+								public void onAnimationStart(Animation animation) {}
+
+								@Override
+								public void onAnimationRepeat(Animation animation) {}
+
+								@Override
+								public void onAnimationEnd(Animation animation) {
+									//beginCountDown();
+								}
+							};
+							animationHandler.fadeInOutView(refreshFinishedTextView, animL);
 						}
 					});
 				}
