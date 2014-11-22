@@ -16,13 +16,13 @@
 	        android:id="@+id/buttonsTextContainer"
 	        android:layout_marginLeft="10dp"
 	        android:layout_marginRight="5dp"
-	        android:layout_marginTop="10dp"
+	        android:layout_marginTop="20dp"
 	       	android:layout_width="fill_parent"
 	    	android:layout_height="30dp" 
 	    	android:orientation="horizontal">
 	    	<LinearLayout 
 		        android:id="@+id/buttonsContainer"
-		       	android:layout_width="90dp"
+		       	android:layout_width="110dp"
 		    	android:layout_height="fill_parent" 
 		    	android:orientation="horizontal">
 		        <ImageView
@@ -66,46 +66,49 @@
 
 	   <LinearLayout
 	        android:id="@+id/userContainer"
-	        android:layout_marginTop="10dp"
+	        android:layout_marginTop="50dp"
 	       	android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content" 
 	    	android:orientation="vertical">
 		    <com.stealthecheese.util.CircularImageView
 			    android:id="@+id/userProfileImageView"
 			    android:layout_gravity="center_horizontal"
-			    android:layout_width="125dp"
-			    android:layout_height="125dp"
+			    android:layout_width="143dp"
+			    android:layout_height="143dp"
 			    app:border="true"
-			    app:border_width="1dp"
+			    app:border_width="3dp"
 			    app:border_color="@color/white"
 			    android:background="@drawable/profile_self_4"/>
-	        <LinearLayout 
+	        <RelativeLayout 
 	            android:id="@+id/userCheeseCountContainer"
 	            android:layout_gravity="center_horizontal"
 	            android:layout_marginTop="5dp"
-		       	android:layout_width="100dp"
-		    	android:layout_height="wrap_content" 
-		    	android:orientation="horizontal"
+		       	android:layout_width="143dp"
+		    	android:layout_height="30dp" 
 		    	android:background="@drawable/rectangle_round" >
-	            <ImageView
+	    	    <ImageView
 			        android:id="@+id/cheeseCountImageView"
-			        android:layout_weight="1"
+			        android:layout_alignParentLeft="true"
+			        android:layout_marginLeft="8dp"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
 			        android:src="@drawable/cheese_count_4" />
 	            <TextView
 			        android:id="@+id/cheeseCountTextView"
-			        android:layout_weight="1"
+			        android:layout_alignParentRight="true"
+			        android:layout_marginRight="15dp"
 			        android:gravity="center"
+			        android:textColor="@color/black"
 			        android:layout_width="wrap_content"
-			        android:layout_height="fill_parent" />
-	        </LinearLayout>
+			        android:layout_height="wrap_content" />
+	        </RelativeLayout>
 	   
 	    </LinearLayout>
 	    <LinearLayout
 	        	android:id="@+id/historyListContainer"
 	            android:layout_gravity="bottom|center_horizontal"
-		       	android:layout_width="180dp"
+	            android:gravity="center"
+		       	android:layout_width="fill_parent"
 		    	android:layout_height="fill_parent" 
 		    	android:orientation="vertical">	
 		    	  <Space
@@ -113,7 +116,9 @@
 			        android:layout_height="match_parent"
 			        android:layout_weight="1"/>
 		    	 <LinearLayout
-		    	   android:layout_width="180dp"
+		    	   android:layout_width="fill_parent"
+		    	   android:layout_marginLeft="15dp"
+		    	   android:layout_marginRight="15dp"
 			    	android:layout_height="wrap_content" 
 			    	android:orientation="vertical"
 			    	android:background="#fff">
@@ -121,7 +126,7 @@
 			            android:id="@+id/historyListView"
 			            android:layout_width="fill_parent"
 			            android:layout_height="wrap_content" 
-			            android:layout_marginTop="10dp"
+			            android:layout_marginTop="20dp"
 	               		android:layout_marginBottom="10dp"
 						android:divider="@android:color/transparent"
 						android:dividerHeight="10dp">
@@ -129,31 +134,11 @@
 		        </LinearLayout>
 		</LinearLayout>
 	</LinearLayout>
-	<!--<LinearLayout 
-	    android:id="@+id/rightContainer"
-	    android:layout_weight="2"
-	     android:background="#FFB231"
-	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-	    android:clipChildren="false"
-   		android:clipToPadding="false"
-	    android:orientation="vertical">
-	    
-       <ListView
-           android:id="@+id/friendsListView"
-           android:layout_width="fill_parent"
-           android:layout_height="fill_parent" 
-			android:divider="@android:color/transparent"
-			android:scrollbars="none"
-			android:clipChildren="false"
-   			android:clipToPadding="false">
-	</ListView>
-	</LinearLayout>-->
 	
 	<RelativeLayout
 	    android:id="@+id/rightContainer"
 	    android:layout_weight="2"
-	     android:background="#FFB231"
+	    android:background="#FFB231"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:clipChildren="false"
@@ -161,7 +146,7 @@
 	    <LinearLayout 
 	       android:id="@+id/countDownContainer"
            android:layout_width="fill_parent"
-           android:layout_marginTop="10dp"
+           android:layout_marginTop="20dp"
            android:layout_height="30dp" 
            android:gravity="center"
            android:background="#fff"

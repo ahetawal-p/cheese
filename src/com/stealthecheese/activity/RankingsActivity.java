@@ -9,24 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseUser;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
-import com.stealthecheese.R;
-import com.stealthecheese.adapter.RankingsListAdapter;
-import com.stealthecheese.application.StealTheCheeseApplication;
-import com.stealthecheese.enums.UpdateType;
-import com.stealthecheese.util.CircleTransform;
-import com.stealthecheese.viewmodel.RankingViewModel;
-
 import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,12 +18,25 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+import com.stealthecheese.R;
+import com.stealthecheese.adapter.RankingsListAdapter;
+import com.stealthecheese.application.StealTheCheeseApplication;
+import com.stealthecheese.util.CircleTransform;
+import com.stealthecheese.viewmodel.RankingViewModel;
+
 public class RankingsActivity extends Activity {
 	ArrayList<RankingViewModel> rankingsList = new ArrayList<RankingViewModel>();
 	RankingsListAdapter rankingsListAdapter;
 	ListView rankingsListView;
 	TextView userRankingTextView;
 	ImageView backButtonImageView;
+	View backButtonContainer;
 	ParseUser currentUser;
 	
 	@Override
@@ -53,9 +50,10 @@ public class RankingsActivity extends Activity {
 
 	private void initializeUIControls()
 	{
+		backButtonContainer = findViewById(R.id.backButtonContainer);
 		userRankingTextView = (TextView)findViewById(R.id.userRankingTextView);
 		backButtonImageView = (ImageView)findViewById(R.id.backButtonImageView);
-		backButtonImageView.setOnClickListener(new OnClickListener(){
+		backButtonContainer.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				finish();	
@@ -96,7 +94,6 @@ public class RankingsActivity extends Activity {
 					populateUserRanking(userRanking, userCheeseCount);
 					rankingsList = deDupe(rankingsList);
 					Collections.sort(rankingsList, new RankingsComparator());
-					rankingsList = new ArrayList<RankingViewModel>(rankingsList.subList(0, 9));
 					initializeRankingsListView(getResources());
 				}
 			}
