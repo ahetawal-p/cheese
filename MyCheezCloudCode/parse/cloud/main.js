@@ -17,9 +17,8 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
   
     var query = new Parse.Query("cheese");
     query.descending("cheeseCount,facebookId");
-    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
-    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID_2);
-    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID_3);
+    //query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+    query.notContainedIn("facebookId", [CHEESE_BOT_FB_ID, CHEESE_BOT_FB_ID_2, CHEESE_BOT_FB_ID_3]);
     query.limit(10);
     query.find()
         .then(function(cheeseRows){return getTopPlayersInfo(cheeseRows); })
@@ -63,9 +62,8 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
   
             var combinedQuery = Parse.Query.or(queryGreater, queryEqualTo);
             /* excluding bots from count of higher ranking players */
-            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
-            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID_2);
-            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID_3);
+            //combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+            combinedQuery.notContainedIn("facebookId", [CHEESE_BOT_FB_ID, CHEESE_BOT_FB_ID_2, CHEESE_BOT_FB_ID_3]);
             combinedQuery.count()
                  .then(function(userRank)
                     {

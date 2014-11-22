@@ -64,12 +64,12 @@
 		        android:id="@+id/countDownTimer"
 		        android:layout_marginLeft="5dp"
 		        android:layout_gravity="center_vertical"
-		        android:gravity="center"
+		        android:gravity="right"
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
 		        android:alpha="1.0"
 		        android:textColor="@color/white"
-		        android:visibility="visible"/>
+		        android:visibility="gone"/>
 	    </LinearLayout>
 
 	   <LinearLayout
