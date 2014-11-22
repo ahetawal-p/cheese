@@ -1,7 +1,9 @@
 // CheeseBot FB Id
 // NOTE: DO NOT CHANGE. UNLESS NEW BOT IS CREATED... 
 var CHEESE_BOT_FB_ID = "369050949920159";
-  
+var CHEESE_BOT_FB_ID_2 = "1560541364176557";
+var CHEESE_BOT_FB_ID_3 = "1555376431342538";
+
 /** Retrieves ranking and player info for user and top ranked players **/
 Parse.Cloud.define("onGetRankings", function(request, response) {
     console.log("onGetRankings called");
@@ -16,6 +18,8 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
     var query = new Parse.Query("cheese");
     query.descending("cheeseCount,facebookId");
     query.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID_2);
+    query.notEqualTo("facebookId", CHEESE_BOT_FB_ID_3);
     query.limit(10);
     query.find()
         .then(function(cheeseRows){return getTopPlayersInfo(cheeseRows); })
@@ -60,6 +64,8 @@ Parse.Cloud.define("onGetRankings", function(request, response) {
             var combinedQuery = Parse.Query.or(queryGreater, queryEqualTo);
             /* excluding bots from count of higher ranking players */
             combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID);
+            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID_2);
+            combinedQuery.notEqualTo("facebookId", CHEESE_BOT_FB_ID_3);
             combinedQuery.count()
                  .then(function(userRank)
                     {
@@ -258,7 +264,8 @@ var performNotification = function(thiefName, victimFacebookId, thiefUser, victi
         var message =  thiefName  +  ' just snatched your cheese!'
         var promise = new Parse.Promise();
            
-        if(victimFacebookId == CHEESE_BOT_FB_ID){
+        if(victimFacebookId == CHEESE_BOT_FB_ID || victimFacebookId == CHEESE_BOT_FB_ID_2
+                                                || victimFacebookId == CHEESE_BOT_FB_ID_3){
             promise.resolve("Notification sent");
              return promise;    
         }
@@ -490,7 +497,7 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                     console.log("Fb Reponse " + httpResponse.text);
                     var fbResponse = httpResponse['data'].data;
                     console.log(fbResponse);
-                    var friendsList = [CHEESE_BOT_FB_ID];
+                    var friendsList = [CHEESE_BOT_FB_ID, CHEESE_BOT_FB_ID_2, CHEESE_BOT_FB_ID_3];
                     if(isBot){
                         console.log("I am bot..");
                         return allUsersList;
@@ -547,19 +554,31 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
          
     var allUsersList = [];
     var query = new Parse.Query(Parse.User);
-    query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+    //query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+    query.containedIn("facebookId", [CHEESE_BOT_FB_ID, CHEESE_BOT_FB_ID_2, CHEESE_BOT_FB_ID_3]);
     var origBotUser = null;
-    query.find().then(function(botUser){
-        origBotUser = botUser[0];
+    var botUser2 = null;
+    var botUser3 = null;
+    query.find().then(function(botUsers){
+        console.log("bot users are: " + botUsers);
+        origBotUser = botUsers[0];
+        botUser2 = botUsers[1];
+        botUser3 = botUsers[2];
         allUsersList = origBotUser.get("friends");
         return allUsersList;
     }).then(function(fulllist){
-        if(currentFBUserId == CHEESE_BOT_FB_ID){
+        if(currentFBUserId == CHEESE_BOT_FB_ID || currentFBUserId == CHEESE_BOT_FB_ID_2
+                                                || currentFBUserId == CHEESE_BOT_FB_ID_3){
             console.log("I am BOT..");
             doCommonSteps(true);
         }else {
                 origBotUser.addUnique("friends", passedInUser.get("facebookId"));
-                origBotUser.save(null,{
+                botUser2.addUnique("friends", passedInUser.get("facebookId"));
+                botUser3.addUnique("friends", passedInUser.get("facebookId"));
+                origBotUser.save();
+                botUser2.save();
+
+                botUser3.save(null,{
                     success:function(theftResponse) { 
                         doCommonSteps(false);
                     },
@@ -573,7 +592,8 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
          
 });
      
-     
+
+
 /**
 Cloud code to just return the latest cheese counts for the friends
 along with the enable-disable flag
@@ -628,18 +648,22 @@ Parse.Cloud.job("botAction", function(request, status) {
         return Parse.Object.destroyAll(histResult);
     
   }).then(function(){
+
+        //select random cheese bot to steal cheese from user
+        var cheeseBotsArray = [CHEESE_BOT_FB_ID, CHEESE_BOT_FB_ID_2, CHEESE_BOT_FB_ID_3];
+        var selectedBot = cheeseBotsArray[Math.floor(Math.random() * cheeseBotsArray.length)];
         var query = new Parse.Query("cheese");
-        query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+        query.equalTo("facebookId", selectedBot);
         query.find().then(function(user){
             mainBotUser = user[0];
             return user[0];
     }).then(function(temp){
             var query = new Parse.Query(Parse.User);
-            query.equalTo("facebookId", CHEESE_BOT_FB_ID);
+            query.equalTo("facebookId", selectedBot);
             return query.find();
         }).then(function(botUser){
             var allUsersList = botUser[0].get("friends");
-            return getFriendsCheeseCounts(allUsersList, CHEESE_BOT_FB_ID);
+            return getFriendsCheeseCounts(allUsersList, selectedBot);
         }).then(function(responsePayload){
             console.log("Se mee here");
             console.log(responsePayload);
@@ -670,9 +694,9 @@ Parse.Cloud.job("botAction", function(request, status) {
                     }).then(function(botUser){
                         return performNotification("Cheesy", currentObj["facebookId"], botUser, victimUser);
                     }).then(function(){
-                        return insertTheftHistory(CHEESE_BOT_FB_ID,currentObj["facebookId"]);
+                        return insertTheftHistory(selectedBot,currentObj["facebookId"]);
                     }).then(function(){
-                        return updateTheftDirection(CHEESE_BOT_FB_ID,currentObj["facebookId"]);
+                        return updateTheftDirection(selectedBot,currentObj["facebookId"]);
                     }).then(function(){
                         size--;
                         if(size == 0){
