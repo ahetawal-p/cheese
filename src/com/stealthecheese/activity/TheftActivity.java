@@ -22,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +59,7 @@ public class TheftActivity extends Activity {
 	ImageView refreshImageView;
 	ImageView rankingsImageView;
 	TextView refreshFinishedTextView;
+	LinearLayout countDownContainer;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
 	private HashMap<String, String> facebookIdFirstNameMap = new HashMap<String, String>();
@@ -95,7 +97,7 @@ public class TheftActivity extends Activity {
 
 	private void beginCountDown() {
 		if(timeLeft > 0D){
-			countDown.setVisibility(View.VISIBLE);
+			countDownContainer.setVisibility(View.VISIBLE);
 			countDownTimer = new CountDownCheeseSteal((timeLeft.longValue())*1000, 1000);
 			countDownTimer.start();
 		}
@@ -103,7 +105,7 @@ public class TheftActivity extends Activity {
 
 	private void resetCountDown() {
 		timeLeft = 0D;
-		countDown.setVisibility(View.GONE);
+		countDownContainer.setVisibility(View.GONE);
 		if(countDownTimer != null ){
 			countDownTimer.cancel();
 			countDownTimer = null;
@@ -282,7 +284,7 @@ public class TheftActivity extends Activity {
 	{
 		refreshFinishedTextView = (TextView)findViewById(R.id.refreshFinishedMessage);
 		countDown = (TextView)findViewById(R.id.countDownTimer);
-		
+		countDownContainer = (LinearLayout)findViewById(R.id.countDownContainer);
 		initializeImageButtons();
 	}
 	
@@ -655,7 +657,7 @@ public class TheftActivity extends Activity {
 
 		@Override
 		public void onFinish() {
-			countDown.setVisibility(View.GONE);
+			countDownContainer.setVisibility(View.GONE);
 			updateCheeseCountData(refreshImageView);
 		}
 		

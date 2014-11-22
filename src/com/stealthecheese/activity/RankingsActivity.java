@@ -29,6 +29,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ public class RankingsActivity extends Activity {
 	RankingsListAdapter rankingsListAdapter;
 	ListView rankingsListView;
 	TextView userRankingTextView;
+	ImageView backButtonImageView;
 	ParseUser currentUser;
 	
 	@Override
@@ -52,6 +54,14 @@ public class RankingsActivity extends Activity {
 	private void initializeUIControls()
 	{
 		userRankingTextView = (TextView)findViewById(R.id.userRankingTextView);
+		backButtonImageView = (ImageView)findViewById(R.id.backButtonImageView);
+		backButtonImageView.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				finish();	
+				}
+			
+		});
 	}
 	
 	private void fetchRankingsData()
