@@ -15,8 +15,9 @@
 	    <LinearLayout 
 	        android:id="@+id/buttonsTextContainer"
 	        android:layout_marginLeft="10dp"
+	        android:layout_marginRight="5dp"
 	        android:layout_marginTop="10dp"
-	       	android:layout_width="190dp"
+	       	android:layout_width="fill_parent"
 	    	android:layout_height="30dp" 
 	    	android:orientation="horizontal">
 	    	<LinearLayout 
@@ -48,7 +49,7 @@
 	    	</LinearLayout>
 	    	<TextView
 		        android:id="@+id/refreshFinishedMessage"
-		        android:layout_marginLeft="5dp"
+		        android:layout_marginLeft="2dp"
 		        android:layout_marginRight="5dp"
 		        android:gravity="left"
 		        android:layout_gravity="center_vertical"
@@ -62,7 +63,6 @@
 		        android:background="@color/white" />
 	    	<TextView
 		        android:id="@+id/countDownTimer"
-		        android:layout_marginLeft="5dp"
 		        android:layout_gravity="center_vertical"
 		        android:gravity="right"
 		        android:layout_width="fill_parent"
