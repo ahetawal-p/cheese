@@ -92,6 +92,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
             vi.setTag( holder );
         } else { 
         	holder=(ViewHolder)vi.getTag();
+        	holder.counterTextView=(TextView)vi.findViewById(R.id.counterTextView);
         	holder.friendImageView=(ImageView)vi.findViewById(R.id.friendImageView);
         }
         
