@@ -22,16 +22,16 @@
 	    	android:orientation="horizontal">
 	    	<LinearLayout 
 		        android:id="@+id/buttonsContainer"
-		       	android:layout_width="110dp"
+		       	android:layout_width="80dp"
 		    	android:layout_height="fill_parent" 
 		    	android:orientation="horizontal">
-		        <ImageView
+		        <!--  <ImageView
 			        android:id="@+id/settingImageView"
 			        android:layout_weight="2"
 			        android:layout_gravity="center_vertical"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:src="@drawable/setting_4" />
+			        android:src="@drawable/setting_4" /> -->
 		    	<ImageView
 			        android:id="@+id/rankingImageView"
 			        android:layout_weight="2"
