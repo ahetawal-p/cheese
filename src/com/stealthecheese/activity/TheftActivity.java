@@ -58,7 +58,7 @@ public class TheftActivity extends Activity {
 	TextView userCheeseTextView;
 	ImageView refreshImageView;
 	ImageView rankingsImageView;
-	TextView refreshFinishedTextView;
+	ImageView refreshCompleteImageView;
 	LinearLayout countDownContainer;
 	ParseUser currentUser;
 	private HashMap<String, Integer> localCountMap = new HashMap<String, Integer>();
@@ -229,8 +229,6 @@ public class TheftActivity extends Activity {
         populateHistoryListView();
 	}
 	
-	
-	
 	private void populateHistoryListView() {
 		new HistoryViewTask().execute();
 	}
@@ -282,9 +280,9 @@ public class TheftActivity extends Activity {
 	
 	private void initializeUIControls()
 	{
-		refreshFinishedTextView = (TextView)findViewById(R.id.refreshFinishedMessage);
 		countDown = (TextView)findViewById(R.id.countDownTimer);
 		countDownContainer = (LinearLayout)findViewById(R.id.countDownContainer);
+		refreshCompleteImageView = (ImageView)findViewById(R.id.refreshCompleteImageView);
 		initializeImageButtons();
 	}
 	
@@ -368,12 +366,11 @@ public class TheftActivity extends Activity {
 
 								@Override
 								public void onAnimationEnd(Animation animation) {
-									//refreshFinishedTextView.setVisibility(View.INVISIBLE);
-									refreshFinishedTextView.setVisibility(View.GONE);
+									refreshCompleteImageView.setVisibility(View.GONE);
 									beginCountDown();
 								}
 							};
-							animationHandler.fadeInOutView(refreshFinishedTextView, animL);
+							animationHandler.fadeInOutView(refreshCompleteImageView, animL);
 						}
 					});
 				}

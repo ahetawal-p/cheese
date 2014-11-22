@@ -12,7 +12,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent" 
 	    android:orientation="vertical">
-	    <LinearLayout 
+	   <LinearLayout 
 	        android:id="@+id/buttonsTextContainer"
 	        android:layout_marginLeft="10dp"
 	        android:layout_marginRight="5dp"
@@ -39,47 +39,29 @@
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
 			        android:src="@drawable/ranking_4" />
-		    	<!-- <RelativeLayout
-		    	    android:id="@+id/refreshImageView"
+		    	 <RelativeLayout
+		    	    android:id="@+id/refreshImageContainer"
 			        android:layout_weight="2"
 			    	android:layout_gravity="center_vertical"
+			    	android:gravity="center"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content">
-		    	    
-		    	</RelativeLayout>-->
-		    	
-		    	
-		    	<ImageView
-			        android:id="@+id/refreshImageView"
-			        android:layout_weight="2"
-			    	android:layout_gravity="center_vertical"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:src="@drawable/referesh" />
+		    	    <ImageView
+				        android:id="@+id/refreshImageView"
+				    	android:layout_gravity="center_vertical"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:src="@drawable/referesh" />
+		    	    <ImageView
+				        android:id="@+id/refreshCompleteImageView"
+				    	android:layout_gravity="center_vertical"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:visibility="gone"
+				        android:src="@drawable/complete" />
+		    	</RelativeLayout>
 	    	</LinearLayout>
-	    	<TextView
-		        android:id="@+id/refreshFinishedMessage"
-		        android:layout_marginLeft="2dp"
-		        android:layout_marginRight="5dp"
-		        android:gravity="left"
-		        android:layout_gravity="center_vertical"
-		        android:textSize="10sp"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:visibility="gone"
-		        android:alpha="1.0"
-		        android:textColor="#00C7D8"
-		        android:text="@string/refresh_finished_message"
-		        android:background="@color/white" />
-	    	<!--<TextView
-		        android:id="@+id/countDownTimer"
-		        android:layout_gravity="center_vertical"
-		        android:gravity="right"
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:alpha="1.0"
-		        android:textColor="@color/white"
-		        android:visibility="gone"/>-->
+
 	    </LinearLayout>
 
 	   <LinearLayout
