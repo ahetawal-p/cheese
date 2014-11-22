@@ -185,7 +185,15 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                 for(var i = 0; i < thiefs.length; i++){
                     var fbId = thiefs[i].get("thiefFBId");
                     console.log("WhereThiefIsVictim of id " + fbId);
-                    finalCheesUpdates[fbId].showMe = true;
+
+                    if (finalCheesUpdates[fbId] != null)
+                    {
+                        finalCheesUpdates[fbId].showMe = true;
+                    }
+                    else
+                    {
+                        console.log("Cannot fetch player: " + fbId);
+                    }
                 }
                      
                 //var dMinus1 = new Date("November 8, 2014 10:10:00");
