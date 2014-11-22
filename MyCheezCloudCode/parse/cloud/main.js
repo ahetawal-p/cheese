@@ -569,22 +569,19 @@ Parse.Cloud.define("onLoginActivity", function(request, response) {
                                                 || currentFBUserId == CHEESE_BOT_FB_ID_3){
             console.log("I am BOT..");
             doCommonSteps(true);
-        }else {
+        } else {
                 origBotUser.addUnique("friends", passedInUser.get("facebookId"));
                 botUser2.addUnique("friends", passedInUser.get("facebookId"));
                 botUser3.addUnique("friends", passedInUser.get("facebookId"));
-                origBotUser.save();
-                botUser2.save();
-
-                botUser3.save(null,{
-                    success:function(theftResponse) { 
-                        doCommonSteps(false);
-                    },
-                    error:function(error) {
-                        response.error(error);
-                    }
-                });
-            }
+                Parse.Object.saveAll([origBotUser,botUser2,botUser3], {
+    					success: function(list) {
+    						doCommonSteps(false);
+    					},
+    					error: function(error) {
+      						response.error(error);
+    					}
+  				});
+             }
      });
          
          
@@ -634,12 +631,11 @@ Parse.Cloud.job("botAction", function(request, status) {
   var _ = require('underscore.js');
   var size = 0;
   var mainBotUser;
+  var botName;
     
   var cleanupQuery = new Parse.Query("thefthistory");
   var today = new Date();
-  console.error(today);
   today.setDate(today.getDate() - 1); // 1 days old history
-  console.error(today);
   cleanupQuery.lessThan("createdAt", today);
   cleanupQuery.find().then(function(histResult){
         console.log("Hist size is >> ", histResult.length);
@@ -661,6 +657,7 @@ Parse.Cloud.job("botAction", function(request, status) {
             return query.find();
         }).then(function(botUser){
             var allUsersList = botUser[0].get("friends");
+            botName = botUser[0].get("firstName");
             return getFriendsCheeseCounts(allUsersList, selectedBot);
         }).then(function(responsePayload){
             console.log("Se mee here");
@@ -690,7 +687,7 @@ Parse.Cloud.job("botAction", function(request, status) {
                         mainBotUser.increment("cheeseCount", 1);
                         return mainBotUser.save();
                     }).then(function(botUser){
-                        return performNotification("Cheesy", currentObj["facebookId"], botUser, victimUser);
+                        return performNotification(botName, currentObj["facebookId"], botUser, victimUser);
                     }).then(function(){
                         return insertTheftHistory(selectedBot,currentObj["facebookId"]);
                     }).then(function(){
