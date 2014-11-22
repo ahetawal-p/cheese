@@ -126,6 +126,7 @@ public class FriendsListAdapter extends BaseAdapter   implements OnClickListener
              
              if(tempValues.getAnimateMe()){
             	 animatePushUpdates(holder);
+            	 tempValues.setAnimateMe(false);
              }
                           
         }
