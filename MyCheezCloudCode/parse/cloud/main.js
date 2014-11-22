@@ -185,13 +185,9 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                 for(var i = 0; i < thiefs.length; i++){
                     var fbId = thiefs[i].get("thiefFBId");
                     console.log("WhereThiefIsVictim of id " + fbId);
-
-                    if (finalCheesUpdates[fbId] != null)
-                    {
+					if (finalCheesUpdates[fbId] != null) {
                         finalCheesUpdates[fbId].showMe = true;
-                    }
-                    else
-                    {
+                    }else {
                         console.log("Cannot fetch player: " + fbId);
                     }
                 }
@@ -227,12 +223,13 @@ var getFriendsCheeseCounts = function(friendFacebookIds, thiefFacebookId) {
                      
                 	// check for 0 cheese count, and disabling the image
                 	var localCheeseCount = finalCheesUpdates[key].cheeseCount;
+                	if(localCheeseCount < 1){
+                    	finalCheesUpdates[key].showMe = false;
+                	}
+                	
                 	var showMeFlag = finalCheesUpdates[key].showMe;
                 	if(showMeFlag && thiefFacebookId != finalCheesUpdates[key].facebookId){
                 		isCounterNeeded = false;
-                	}
-                	if(localCheeseCount < 1){
-                    	finalCheesUpdates[key].showMe = false;
                 	}
                 	if(finalCheesUpdates[key].showMe == null){
                     	finalCheesUpdates[key].showMe = true;
